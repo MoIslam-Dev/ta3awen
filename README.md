@@ -77,6 +77,9 @@ Release signing: `android/key/ta3awen-upload.jks` + `android/key.properties`
 backup somewhere safe; losing them means you can never update the app on Google Play
 with the same identity (sideloaded installs are unaffected for private testing).
 
+**Delivery:** the arm64 APK was attached to an email to the project owner and is also
+published on the GitHub release: https://github.com/MoIslam-Dev/ta3awen/releases/tag/v0.1.0-mvp
+
 ## Firebase configuration
 
 - **Project:** `ta3awen-mvp-5a5ea` (display name `ta3awen-mvp`)
