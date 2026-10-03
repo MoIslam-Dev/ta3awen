@@ -1,5 +1,47 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/listing.dart';
+import '../utils/search_keywords.dart';
+
+/// Server-side feed query: status is always filtered to available listings;
+/// the optional facets and the search text become Firestore equality /
+/// `arrayContainsAny` clauses so the database — not the client window —
+/// decides which listings match.
+class FeedQuery {
+  const FeedQuery({this.search, this.category, this.wilaya, this.commune});
+
+  final String? search;
+  final String? category;
+  final String? wilaya;
+  final String? commune;
+
+  /// Query words sent to `arrayContainsAny` (max 30 values per Firestore).
+  List<String> get searchWords {
+    final s = search ?? '';
+    if (s.trim().isEmpty) return const [];
+    return searchTokens(s).take(kMaxQueryTokens).toList();
+  }
+}
+
+/// One page of feed results.
+///
+/// [items] is AND-filtered for display; [rawIds] and [boundary] describe the
+/// raw server window (the oldest raw document's `createdAt`) so the screen
+/// can merge live head events without dropping or duplicating items.
+class FeedPage {
+  const FeedPage({
+    required this.items,
+    required this.rawIds,
+    this.boundary,
+    this.cursor,
+    required this.hasMore,
+  });
+
+  final List<Listing> items;
+  final Set<String> rawIds;
+  final DateTime? boundary;
+  final DocumentSnapshot<Map<String, dynamic>>? cursor;
+  final bool hasMore;
+}
 
 class ListingService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -7,21 +49,62 @@ class ListingService {
   CollectionReference<Map<String, dynamic>> get _col =>
       _db.collection('listings');
 
-  Future<List<Listing>> recent({int limit = 40}) async {
-    final snap =
-        await _col.orderBy('createdAt', descending: true).limit(limit).get();
-    return snap.docs.map(Listing.fromDoc).toList();
+  Query<Map<String, dynamic>> _feedQuery(FeedQuery f) {
+    Query<Map<String, dynamic>> q =
+        _col.where('status', isEqualTo: statusAvailable);
+    if (f.category != null) q = q.where('category', isEqualTo: f.category);
+    if (f.wilaya != null) q = q.where('wilaya', isEqualTo: f.wilaya);
+    if (f.commune != null) q = q.where('commune', isEqualTo: f.commune);
+    final words = f.searchWords;
+    if (words.isNotEmpty) q = q.where('keywords', arrayContainsAny: words);
+    return q.orderBy('createdAt', descending: true);
   }
 
-  /// Live feed: emits immediately (from cache, including your own pending
-  /// writes) and again on every server change, so posts appear without a
-  /// manual refresh.
-  Stream<List<Listing>> recentStream({int limit = 40}) {
-    return _col
-        .orderBy('createdAt', descending: true)
-        .limit(limit)
-        .snapshots()
-        .map((snap) => snap.docs.map(Listing.fromDoc).toList());
+  List<Listing> _andFilter(List<Listing> items, List<String> words) {
+    if (words.isEmpty) return items;
+    return items
+        .where((l) => words.every(l.keywords.contains))
+        .toList();
+  }
+
+  DateTime? _createdAtOf(DocumentSnapshot<Map<String, dynamic>> doc) =>
+      ((doc.data() ?? const <String, dynamic>{})['createdAt'] as Timestamp?)
+          ?.toDate();
+
+  /// Live head page (first [limit] matches) — re-emits on every server
+  /// change so new posts appear without a manual refresh.
+  Stream<FeedPage> feedHead(FeedQuery f, {int limit = 20}) {
+    final words = f.searchWords;
+    return _feedQuery(f).limit(limit).snapshots().map((snap) {
+      final raw = snap.docs;
+      return FeedPage(
+        items: _andFilter(raw.map(Listing.fromDoc).toList(), words),
+        rawIds: raw.map((d) => d.id).toSet(),
+        boundary: raw.isNotEmpty ? _createdAtOf(raw.last) : null,
+        cursor: raw.length >= limit ? raw.last : null,
+        hasMore: raw.length >= limit,
+      );
+    });
+  }
+
+  /// One-shot next page after [cursor] (older posts) — no live updates on
+  /// older pages; pull-to-refresh resets back to [feedHead].
+  Future<FeedPage> feedMore(
+    FeedQuery f,
+    DocumentSnapshot<Map<String, dynamic>> cursor, {
+    int limit = 20,
+  }) async {
+    final words = f.searchWords;
+    final snap =
+        await _feedQuery(f).startAfterDocument(cursor).limit(limit).get();
+    final raw = snap.docs;
+    return FeedPage(
+      items: _andFilter(raw.map(Listing.fromDoc).toList(), words),
+      rawIds: raw.map((d) => d.id).toSet(),
+      boundary: raw.isNotEmpty ? _createdAtOf(raw.last) : null,
+      cursor: raw.isNotEmpty ? raw.last : null,
+      hasMore: raw.length >= limit,
+    );
   }
 
   /// Live version of [myListings] (single-field filter, no extra index).
@@ -106,6 +189,14 @@ class ListingService {
       'condition': draft.condition,
       'status': draft.status,
       'contactPhone': draft.contactPhone,
+      'keywords': buildKeywords(
+        title: draft.title,
+        description: draft.description,
+        category: draft.category,
+        wilaya: draft.wilaya,
+        commune: draft.commune,
+        condition: draft.condition,
+      ),
       'updatedAt': FieldValue.serverTimestamp(),
     };
     if (newImagesB64 != null) {

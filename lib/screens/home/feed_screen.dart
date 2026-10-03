@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../data/algeria_data.dart';
 import '../../models/listing.dart';
 import '../../services/listing_service.dart';
@@ -19,17 +20,31 @@ class FeedScreen extends StatefulWidget {
 
 class _FeedScreenState extends State<FeedScreen>
     with AutomaticKeepAliveClientMixin {
+  static const int _pageSize = 20;
+
   final _service = ListingService();
   final _searchCtrl = TextEditingController();
 
-  List<Listing> _all = [];
+  /// Live head region: the newest matches, kept up to date by the head
+  /// stream (items pushed out of the server window stay until refresh).
+  List<Listing> _head = [];
+
+  /// Older pages loaded via the المزيد button (one-shot, no live updates).
+  List<Listing> _tail = [];
+
   bool _loading = true;
   String? _error;
   String? _category;
   String? _wilaya;
   String? _commune;
   String _query = '';
-  StreamSubscription<List<Listing>>? _sub;
+  String _rawQuery = '';
+  FeedQuery _feedQuery = const FeedQuery();
+  DocumentSnapshot<Map<String, dynamic>>? _cursor;
+  bool _hasMore = false;
+  bool _loadingMore = false;
+  StreamSubscription<FeedPage>? _sub;
+  Timer? _debounce;
 
   @override
   bool get wantKeepAlive => true;
@@ -42,18 +57,52 @@ class _FeedScreenState extends State<FeedScreen>
 
   @override
   void dispose() {
+    _debounce?.cancel();
     _sub?.cancel();
     _searchCtrl.dispose();
     super.dispose();
   }
 
+  FeedQuery _currentQuery() => FeedQuery(
+        search: _query.isEmpty ? null : _query,
+        category: _category,
+        wilaya: _wilaya,
+        commune: _commune,
+      );
+
+  /// Cancels everything and restarts from page 1 with the current query —
+  /// used on init, filter/search changes, pull-to-refresh and retry.
   void _subscribe() {
+    _debounce?.cancel();
     _sub?.cancel();
-    _sub = _service.recentStream().listen(
-      (items) {
+    _feedQuery = _currentQuery();
+    _head = [];
+    _tail = [];
+    _cursor = null;
+    _hasMore = false;
+    _loadingMore = false;
+    _loading = true;
+    _error = null;
+    _sub = _service.feedHead(_feedQuery, limit: _pageSize).listen(
+      (page) {
         if (!mounted) return;
+        final boundary = page.boundary;
         setState(() {
-          _all = items;
+          _head = [
+            ...page.items,
+            // Keep previously seen items older than the new window edge;
+            // drop ones the server no longer returns (deleted / status
+            // changed) that sat inside the window.
+            ..._head.where((l) =>
+                !page.rawIds.contains(l.id) &&
+                boundary != null &&
+                l.createdAt != null &&
+                l.createdAt!.isBefore(boundary)),
+          ];
+          if (_cursor == null) {
+            _cursor = page.cursor;
+            _hasMore = page.hasMore;
+          }
           _loading = false;
           _error = null;
         });
@@ -74,21 +123,37 @@ class _FeedScreenState extends State<FeedScreen>
     await Future<void>.delayed(const Duration(milliseconds: 400));
   }
 
-  bool get _hasFilters => _category != null ||
-        _wilaya != null ||
-        _commune != null ||
-        _query.isNotEmpty;
-
-  List<Listing> get _filtered {
-    return _all.where((l) {
-      if (!l.isAvailable) return false;
-      if (_category != null && l.category != _category) return false;
-      if (_wilaya != null && l.wilaya != _wilaya) return false;
-      if (_commune != null && l.commune != _commune) return false;
-      if (_query.isNotEmpty && !l.title.contains(_query)) return false;
-      return true;
-    }).toList();
+  Future<void> _loadMore() async {
+    if (_loadingMore || !_hasMore || _cursor == null) return;
+    setState(() => _loadingMore = true);
+    try {
+      final page =
+          await _service.feedMore(_feedQuery, _cursor!, limit: _pageSize);
+      if (!mounted) return;
+      setState(() {
+        final seen = <String>{
+          for (final l in _head) l.id,
+          for (final l in _tail) l.id,
+        };
+        _tail.addAll(page.items.where((l) => !seen.contains(l.id)));
+        if (page.hasMore) _cursor = page.cursor;
+        _hasMore = page.hasMore;
+        _loadingMore = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _loadingMore = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(dataErrorMessage(e))),
+      );
+    }
   }
+
+  bool get _hasFilters =>
+      _category != null ||
+      _wilaya != null ||
+      _commune != null ||
+      _query.isNotEmpty;
 
   void _clearFilters() {
     setState(() {
@@ -96,8 +161,31 @@ class _FeedScreenState extends State<FeedScreen>
       _wilaya = null;
       _commune = null;
       _query = '';
+      _rawQuery = '';
       _searchCtrl.clear();
     });
+    _subscribe();
+  }
+
+  void _onSearchChanged(String v) {
+    setState(() => _rawQuery = v);
+    final trimmed = v.trim();
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 350), () {
+      if (trimmed == _query) return;
+      setState(() => _query = trimmed);
+      _subscribe();
+    });
+  }
+
+  void _clearSearch() {
+    _debounce?.cancel();
+    _searchCtrl.clear();
+    setState(() {
+      _rawQuery = '';
+      _query = '';
+    });
+    _subscribe();
   }
 
   @override
@@ -113,17 +201,14 @@ class _FeedScreenState extends State<FeedScreen>
             decoration: InputDecoration(
               hintText: 'ابحث عن إعلان...',
               prefixIcon: const Icon(Icons.search),
-              suffixIcon: _query.isNotEmpty
+              suffixIcon: _rawQuery.isNotEmpty
                   ? IconButton(
                       icon: const Icon(Icons.clear),
-                      onPressed: () {
-                        _searchCtrl.clear();
-                        setState(() => _query = '');
-                      },
+                      onPressed: _clearSearch,
                     )
                   : null,
             ),
-            onChanged: (v) => setState(() => _query = v.trim()),
+            onChanged: _onSearchChanged,
           ),
         ),
         SizedBox(
@@ -175,16 +260,16 @@ class _FeedScreenState extends State<FeedScreen>
     if (_error != null) {
       return ErrorView(message: _error!, onRetry: _load);
     }
-    final items = _filtered;
-    if (items.isEmpty) {
+    final items = [..._head, ..._tail];
+    if (items.isEmpty && !_hasMore) {
       return RefreshIndicator(
         onRefresh: _load,
         child: EmptyView(
           icon: Icons.inventory_2_outlined,
-          message: _hasFilters || _query.isNotEmpty
+          message: _hasFilters
               ? 'لا توجد نتائج مطابقة للبحث'
               : 'لا توجد إعلانات بعد، كن أول من ينشر إعلاناً',
-          action: _hasFilters || _query.isNotEmpty
+          action: _hasFilters
               ? OutlinedButton(
                   onPressed: _clearFilters,
                   child: const Text('مسح عوامل التصفية'),
@@ -197,8 +282,25 @@ class _FeedScreenState extends State<FeedScreen>
       onRefresh: _load,
       child: ListView.builder(
         physics: const AlwaysScrollableScrollPhysics(),
-        itemCount: items.length,
+        itemCount: items.length + (_hasMore ? 1 : 0),
         itemBuilder: (context, i) {
+          if (i >= items.length) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Center(
+                child: _loadingMore
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : OutlinedButton(
+                        onPressed: _loadMore,
+                        child: const Text('المزيد'),
+                      ),
+              ),
+            );
+          }
           final listing = items[i];
           return ListingCard(
             listing: listing,
@@ -242,6 +344,7 @@ class _FeedScreenState extends State<FeedScreen>
     setState(() {
       _category = selected == '__all__' ? null : selected;
     });
+    _subscribe();
   }
 
   Future<void> _pickWilaya() async {
@@ -272,6 +375,7 @@ class _FeedScreenState extends State<FeedScreen>
       _wilaya = selected == '__all__' ? null : selected;
       _commune = null;
     });
+    _subscribe();
   }
 
   Future<void> _pickCommune() async {
@@ -303,5 +407,6 @@ class _FeedScreenState extends State<FeedScreen>
     setState(() {
       _commune = selected == '__all__' ? null : selected;
     });
+    _subscribe();
   }
 }

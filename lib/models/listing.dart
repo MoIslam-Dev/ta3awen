@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../utils/search_keywords.dart';
+
 class Listing {
   final String id;
   final String ownerId;
@@ -14,6 +16,7 @@ class Listing {
   final String? contactPhone;
   final String? image0;
   final int imageCount;
+  final List<String> keywords;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -31,6 +34,7 @@ class Listing {
     this.contactPhone,
     this.image0,
     this.imageCount = 0,
+    this.keywords = const [],
     this.createdAt,
     this.updatedAt,
   });
@@ -53,6 +57,7 @@ class Listing {
       contactPhone: d['contactPhone'] as String?,
       image0: d['image0'] as String?,
       imageCount: ((d['imageCount'] ?? 0) as num).toInt(),
+      keywords: List<String>.from(d['keywords'] as List? ?? const []),
       createdAt: (d['createdAt'] as Timestamp?)?.toDate(),
       updatedAt: (d['updatedAt'] as Timestamp?)?.toDate(),
     );
@@ -71,6 +76,14 @@ class Listing {
         'contactPhone': contactPhone,
         'image0': image0,
         'imageCount': imageCount,
+        'keywords': buildKeywords(
+          title: title,
+          description: description,
+          category: category,
+          wilaya: wilaya,
+          commune: commune,
+          condition: condition,
+        ),
         'createdAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
       };
