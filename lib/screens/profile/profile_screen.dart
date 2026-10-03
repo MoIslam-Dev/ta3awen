@@ -49,8 +49,10 @@ class _ProfileScreenState extends State<ProfileScreen>
       return;
     }
     try {
-      final user = await _users.getById(uid);
-      final isAdmin = await _admin.isAdmin(uid);
+      final userFuture = _users.getById(uid);
+      final adminFuture = _admin.isAdmin(uid);
+      final user = await userFuture;
+      final isAdmin = await adminFuture;
       if (mounted) {
         setState(() {
           _user = user;

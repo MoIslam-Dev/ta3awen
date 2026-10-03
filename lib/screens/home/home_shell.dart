@@ -18,19 +18,48 @@ class _HomeShellState extends State<HomeShell> {
 
   static const _titles = ['تعاون', 'إعلاناتي', 'حسابي'];
 
+  // Tabs are created lazily so that logging in only starts the feed query
+  // instead of firing feed + myListings + profile/admin requests at once.
+  final List<Widget?> _pages = List<Widget?>.filled(3, null);
+
+  void _ensurePage(int i) {
+    if (_pages[i] != null) return;
+    switch (i) {
+      case 0:
+        _pages[0] = const FeedScreen();
+      case 1:
+        _pages[1] = const MyListingsScreen();
+      default:
+        _pages[2] = ProfileScreen(onLogoutRequested: _confirmLogout);
+    }
+  }
+
+  void _select(int i) {
+    setState(() {
+      _index = i;
+      _ensurePage(i);
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _ensurePage(0);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final pages = [
-      const FeedScreen(),
-      const MyListingsScreen(),
-      ProfileScreen(onLogoutRequested: _confirmLogout),
-    ];
     return Scaffold(
       appBar: AppBar(
         title: Text(_titles[_index]),
         centerTitle: true,
       ),
-      body: IndexedStack(index: _index, children: pages),
+      body: IndexedStack(
+        index: _index,
+        children: [
+          for (final page in _pages) page ?? const SizedBox.shrink(),
+        ],
+      ),
       floatingActionButton: _index == 0
           ? FloatingActionButton.extended(
               onPressed: () {
@@ -46,7 +75,7 @@ class _HomeShellState extends State<HomeShell> {
           : null,
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
-        onDestinationSelected: (i) => setState(() => _index = i),
+        onDestinationSelected: _select,
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.home_outlined),

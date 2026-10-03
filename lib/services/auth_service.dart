@@ -10,10 +10,15 @@ class AuthService {
     required String email,
     required String password,
   }) async {
-    return await _auth.signInWithEmailAndPassword(
-      email: email.trim(),
-      password: password,
-    );
+    // Fail fast with a clear message instead of spinning indefinitely on a
+    // flaky connection (a late success still lands the user on the home
+    // screen via authStateChanges).
+    return await _auth
+        .signInWithEmailAndPassword(
+          email: email.trim(),
+          password: password,
+        )
+        .timeout(const Duration(seconds: 20));
   }
 
   Future<UserCredential> register({

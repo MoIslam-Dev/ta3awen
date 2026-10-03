@@ -1,4 +1,9 @@
+import 'dart:async';
+
 String authErrorMessage(Object error) {
+  if (error is TimeoutException) {
+    return 'استغرق تسجيل الدخول وقتاً طويلاً، تحقق من شبكتك وحاول مجدداً';
+  }
   final code = error.toString();
   if (code.contains('user-not-found') ||
       code.contains('wrong-password') ||

@@ -7,7 +7,7 @@ class ListingService {
   CollectionReference<Map<String, dynamic>> get _col =>
       _db.collection('listings');
 
-  Future<List<Listing>> recent({int limit = 100}) async {
+  Future<List<Listing>> recent({int limit = 40}) async {
     final snap =
         await _col.orderBy('createdAt', descending: true).limit(limit).get();
     return snap.docs.map(Listing.fromDoc).toList();
