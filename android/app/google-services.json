@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "72351529323",
+    "project_id": "ta3awen-mvp-5a5ea",
+    "storage_bucket": "ta3awen-mvp-5a5ea.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:72351529323:android:74267d87b552636433b42e",
+        "android_client_info": {
+          "package_name": "dz.ta3awen.ta3awen"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC473lPju1QHuN77GOzRNxDixkHQIqQjRw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,94 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return signedIn() &&
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    function requesterDisabled() {
+      return signedIn() &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.disabled == true;
+    }
+
+    function canWrite() {
+      return signedIn() && !requesterDisabled();
+    }
+
+    function validListing(data) {
+      return data.title is string && data.title.size() > 0 && data.title.size() <= 80 &&
+        data.description is string && data.description.size() <= 800 &&
+        data.category is string && data.category.size() > 0 &&
+        data.wilaya is string && data.wilaya.size() > 0 &&
+        data.commune is string && data.commune.size() > 0 &&
+        data.condition is string && data.condition.size() > 0 &&
+        data.status is string &&
+        data.imageCount is int && data.imageCount >= 0 && data.imageCount <= 5;
+    }
+
+    // User profiles
+    match /users/{uid} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.auth.uid == uid &&
+        request.resource.data.disabled == false;
+      allow update: if isAdmin() ||
+        (signedIn() && request.auth.uid == uid &&
+          request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['fullName', 'wilaya', 'commune', 'contactPhone']));
+      allow delete: if isAdmin();
+    }
+
+    // Admin membership: writable only from the Firebase console / Admin SDK
+    match /admins/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow write: if false;
+    }
+
+    // Listings
+    match /listings/{id} {
+      allow read: if signedIn();
+      allow create: if canWrite() &&
+        request.resource.data.ownerId == request.auth.uid &&
+        validListing(request.resource.data) &&
+        request.resource.data.status == 'متاح';
+      allow update: if isAdmin() ||
+        (canWrite() &&
+          resource.data.ownerId == request.auth.uid &&
+          request.resource.data.ownerId == resource.data.ownerId &&
+          validListing(request.resource.data));
+      allow delete: if isAdmin() ||
+        (canWrite() && resource.data.ownerId == request.auth.uid);
+
+      // Listing images (base64 payloads)
+      match /images/{imgId} {
+        allow read: if signedIn();
+        allow create, update: if canWrite() &&
+          get(/databases/$(database)/documents/listings/$(id)).data.ownerId == request.auth.uid &&
+          request.resource.data.index is int &&
+          request.resource.data.index >= 0 &&
+          request.resource.data.index < 5 &&
+          request.resource.data.data is string &&
+          request.resource.data.data.size() < 900000;
+        allow delete: if isAdmin() ||
+          (canWrite() &&
+            get(/databases/$(database)/documents/listings/$(id)).data.ownerId == request.auth.uid);
+      }
+    }
+
+    // Reports: created by users, managed by admins
+    match /reports/{id} {
+      allow read: if isAdmin();
+      allow create: if canWrite() &&
+        request.resource.data.reporterId == request.auth.uid &&
+        request.resource.data.listingId is string &&
+        request.resource.data.reason is string;
+      allow update, delete: if isAdmin();
+    }
+  }
+}
