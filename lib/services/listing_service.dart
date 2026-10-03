@@ -41,17 +41,30 @@ class ListingService {
     required List<String> imagesB64,
   }) async {
     final doc = _col.doc();
-    final batch = _db.batch();
     final data = draft.toMap();
     data['imageCount'] = imagesB64.length;
-    batch.set(doc, data);
-    for (var i = 0; i < imagesB64.length; i++) {
-      batch.set(doc.collection('images').doc(), {
-        'index': i,
-        'data': imagesB64[i],
-      });
+    // Create the listing first: the images security rule reads the parent
+    // listing with get(), which cannot see documents created in the same
+    // batch — so images must be written in a second, separate commit.
+    await doc.set(data);
+    if (imagesB64.isNotEmpty) {
+      final batch = _db.batch();
+      for (var i = 0; i < imagesB64.length; i++) {
+        batch.set(doc.collection('images').doc(), {
+          'index': i,
+          'data': imagesB64[i],
+        });
+      }
+      try {
+        await batch.commit();
+      } catch (_) {
+        // Don't leave a listing without its images behind.
+        try {
+          await doc.delete();
+        } catch (_) {}
+        rethrow;
+      }
     }
-    await batch.commit();
     return doc.id;
   }
 
