@@ -75,6 +75,24 @@ class _ListingFormScreenState extends State<ListingFormScreen> {
     super.dispose();
   }
 
+  /// Phone is mandatory: the app has no chat, so contact happens by phone.
+  String? _validatePhone(String? value) {
+    if (_normalizePhone(value ?? '').isEmpty) {
+      return 'رقم الهاتف إجباري — لا توجد محادثات داخل التطبيق';
+    }
+    if (!RegExp(r'^0[2-7]\d{8}$').hasMatch(_normalizePhone(value!))) {
+      return 'رقم هاتف جزائري غير صالح (مثال: 0550123456)';
+    }
+    return null;
+  }
+
+  String _normalizePhone(String value) {
+    var p = value.trim().replaceAll(RegExp(r'[\s\-().]'), '');
+    if (p.startsWith('+213')) p = '0${p.substring(4)}';
+    if (p.startsWith('00213')) p = '0${p.substring(5)}';
+    return p;
+  }
+
   Future<void> _pickImages() async {
     try {
       final files = await _imageService.pickImages();
@@ -100,7 +118,7 @@ class _ListingFormScreenState extends State<ListingFormScreen> {
 
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
-    final phone = _phoneCtrl.text.trim();
+    final phone = _normalizePhone(_phoneCtrl.text);
     setState(() => _saving = true);
     try {
       if (_isEdit) {
@@ -116,7 +134,7 @@ class _ListingFormScreenState extends State<ListingFormScreen> {
           commune: _commune!,
           condition: _condition!,
           status: e.status,
-          contactPhone: phone.isEmpty ? null : phone,
+          contactPhone: phone,
           image0: e.image0,
           imageCount: e.imageCount,
         );
@@ -143,7 +161,7 @@ class _ListingFormScreenState extends State<ListingFormScreen> {
           commune: _commune!,
           condition: _condition!,
           status: statusAvailable,
-          contactPhone: phone.isEmpty ? null : phone,
+          contactPhone: phone,
           image0: _newThumb,
           imageCount: _newImages?.length ?? 0,
         );
@@ -251,10 +269,11 @@ class _ListingFormScreenState extends State<ListingFormScreen> {
                 controller: _phoneCtrl,
                 keyboardType: TextInputType.phone,
                 textDirection: TextDirection.ltr,
+                validator: _validatePhone,
                 decoration: const InputDecoration(
-                  labelText: 'رقم هاتف للتواصل (اختياري)',
+                  labelText: 'رقم هاتف للتواصل (إجباري)',
                   prefixIcon: Icon(Icons.phone_outlined),
-                  helperText: 'يظهر لمن يرغب بالتواصل معك فقط عند الضغط على زر',
+                  helperText: 'لا توجد محادثات داخل التطبيق — سيتواصل معك المعنيون عبر الهاتف',
                 ),
               ),
               const SizedBox(height: 24),

@@ -28,6 +28,7 @@ service cloud.firestore {
         data.wilaya is string && data.wilaya.size() > 0 &&
         data.commune is string && data.commune.size() > 0 &&
         data.condition is string && data.condition.size() > 0 &&
+        data.contactPhone is string && data.contactPhone.size() >= 9 && data.contactPhone.size() <= 20 &&
         data.status is string &&
         data.imageCount is int && data.imageCount >= 0 && data.imageCount <= 5;
     }
