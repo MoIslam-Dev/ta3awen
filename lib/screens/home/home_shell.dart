@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import '../auth/login_screen.dart';
+import '../auth_gate.dart';
 import 'feed_screen.dart';
 import '../listing/listing_form_screen.dart';
 import '../my_listings/my_listings_screen.dart';
@@ -118,9 +118,11 @@ class _HomeShellState extends State<HomeShell> {
     if (yes == true) {
       await FirebaseAuth.instance.signOut();
       if (mounted) {
+        // Return to a fresh AuthGate (never a bare LoginScreen) so that the
+        // auth state stays observed and the next login can navigate.
         Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (_) => const LoginScreen()),
-          (_) => false,
+          MaterialPageRoute(builder: (_) => const AuthGate()),
+          (route) => false,
         );
       }
     }

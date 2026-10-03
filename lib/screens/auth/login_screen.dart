@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../services/auth_service.dart';
 import '../../utils/errors.dart';
+import '../auth_gate.dart';
 import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -33,6 +34,14 @@ class _LoginScreenState extends State<LoginScreen> {
         email: _emailCtrl.text,
         password: _passwordCtrl.text,
       );
+      if (mounted) {
+        // Navigate to the home explicitly through a fresh AuthGate so login
+        // works even if the original AuthGate was removed from the tree.
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const AuthGate()),
+          (route) => false,
+        );
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

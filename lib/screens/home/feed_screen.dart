@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import '../../data/algeria_data.dart';
 import '../../models/listing.dart';
@@ -27,6 +29,7 @@ class _FeedScreenState extends State<FeedScreen>
   String? _wilaya;
   String? _commune;
   String _query = '';
+  StreamSubscription<List<Listing>>? _sub;
 
   @override
   bool get wantKeepAlive => true;
@@ -34,36 +37,41 @@ class _FeedScreenState extends State<FeedScreen>
   @override
   void initState() {
     super.initState();
-    _load();
+    _subscribe();
   }
 
   @override
   void dispose() {
+    _sub?.cancel();
     _searchCtrl.dispose();
     super.dispose();
   }
 
-  Future<void> _load() async {
-    setState(() {
-      _loading = true;
-      _error = null;
-    });
-    try {
-      final items = await _service.recent();
-      if (mounted) {
+  void _subscribe() {
+    _sub?.cancel();
+    _sub = _service.recentStream().listen(
+      (items) {
+        if (!mounted) return;
         setState(() {
           _all = items;
           _loading = false;
+          _error = null;
         });
-      }
-    } catch (e) {
-      if (mounted) {
+      },
+      onError: (Object e) {
+        if (!mounted) return;
         setState(() {
           _error = dataErrorMessage(e);
           _loading = false;
         });
-      }
-    }
+      },
+    );
+  }
+
+  /// Re-subscribes; used by pull-to-refresh and the error retry button.
+  Future<void> _load() async {
+    _subscribe();
+    await Future<void>.delayed(const Duration(milliseconds: 400));
   }
 
   bool get _hasFilters => _category != null ||

@@ -3,6 +3,7 @@ import '../../services/auth_service.dart';
 import '../../services/user_service.dart';
 import '../../utils/errors.dart';
 import '../../widgets/wilaya_commune_fields.dart';
+import '../auth_gate.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -49,7 +50,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('تم إنشاء الحساب بنجاح، مرحباً بك!')),
         );
-        Navigator.of(context).pop();
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const AuthGate()),
+          (route) => false,
+        );
       }
     } catch (e) {
       if (mounted) {

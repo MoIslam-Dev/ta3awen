@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../../models/listing.dart';
@@ -21,6 +23,7 @@ class _MyListingsScreenState extends State<MyListingsScreen>
   List<Listing> _items = [];
   bool _loading = true;
   String? _error;
+  StreamSubscription<List<Listing>>? _sub;
 
   @override
   bool get wantKeepAlive => true;
@@ -28,14 +31,17 @@ class _MyListingsScreenState extends State<MyListingsScreen>
   @override
   void initState() {
     super.initState();
-    _load();
+    _subscribe();
   }
 
-  Future<void> _load() async {
-    setState(() {
-      _loading = true;
-      _error = null;
-    });
+  @override
+  void dispose() {
+    _sub?.cancel();
+    super.dispose();
+  }
+
+  void _subscribe() {
+    _sub?.cancel();
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) {
       setState(() {
@@ -44,14 +50,29 @@ class _MyListingsScreenState extends State<MyListingsScreen>
       });
       return;
     }
-    try {
-      final items = await _service.myListings(uid);
-      if (mounted) setState(() => _items = items);
-    } catch (e) {
-      if (mounted) setState(() => _error = dataErrorMessage(e));
-    } finally {
-      if (mounted) setState(() => _loading = false);
-    }
+    _sub = _service.myStream(uid).listen(
+      (items) {
+        if (!mounted) return;
+        setState(() {
+          _items = items;
+          _loading = false;
+          _error = null;
+        });
+      },
+      onError: (Object e) {
+        if (!mounted) return;
+        setState(() {
+          _error = dataErrorMessage(e);
+          _loading = false;
+        });
+      },
+    );
+  }
+
+  /// Re-subscribes; used by pull-to-refresh and the error retry button.
+  Future<void> _load() async {
+    _subscribe();
+    await Future<void>.delayed(const Duration(milliseconds: 400));
   }
 
   Future<void> _toggleStatus(Listing listing) async {
@@ -59,7 +80,6 @@ class _MyListingsScreenState extends State<MyListingsScreen>
         listing.isAvailable ? 'تم التبرع به' : 'متاح';
     try {
       await _service.setStatus(listing.id, newStatus);
-      await _load();
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context)
@@ -93,7 +113,6 @@ class _MyListingsScreenState extends State<MyListingsScreen>
         ScaffoldMessenger.of(context)
             .showSnackBar(const SnackBar(content: Text('تم حذف الإعلان')));
       }
-      await _load();
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context)
@@ -108,7 +127,6 @@ class _MyListingsScreenState extends State<MyListingsScreen>
         builder: (_) => ListingFormScreen.edit(listing),
       ),
     );
-    await _load();
   }
 
   @override
@@ -124,16 +142,16 @@ class _MyListingsScreenState extends State<MyListingsScreen>
         child: EmptyView(
           icon: Icons.playlist_add_outlined,
           message: 'لم تنشر أي إعلان بعد',
-          action: FilledButton.tonal(
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => const ListingFormScreen.create(),
-                ),
-              ).then((_) => _load());
-            },
-            child: const Text('أضف إعلانك الأول'),
-          ),
+            action: FilledButton.tonal(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const ListingFormScreen.create(),
+                  ),
+                );
+              },
+              child: const Text('أضف إعلانك الأول'),
+            ),
         ),
       );
     }

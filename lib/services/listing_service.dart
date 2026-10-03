@@ -13,6 +13,27 @@ class ListingService {
     return snap.docs.map(Listing.fromDoc).toList();
   }
 
+  /// Live feed: emits immediately (from cache, including your own pending
+  /// writes) and again on every server change, so posts appear without a
+  /// manual refresh.
+  Stream<List<Listing>> recentStream({int limit = 40}) {
+    return _col
+        .orderBy('createdAt', descending: true)
+        .limit(limit)
+        .snapshots()
+        .map((snap) => snap.docs.map(Listing.fromDoc).toList());
+  }
+
+  /// Live version of [myListings] (single-field filter, no extra index).
+  Stream<List<Listing>> myStream(String uid) {
+    return _col.where('ownerId', isEqualTo: uid).snapshots().map((snap) {
+      final items = snap.docs.map(Listing.fromDoc).toList();
+      items.sort((a, b) => (b.createdAt ?? DateTime(2000))
+          .compareTo(a.createdAt ?? DateTime(2000)));
+      return items;
+    });
+  }
+
   Future<List<Listing>> myListings(String uid) async {
     final snap = await _col.where('ownerId', isEqualTo: uid).get();
     final items = snap.docs.map(Listing.fromDoc).toList();
