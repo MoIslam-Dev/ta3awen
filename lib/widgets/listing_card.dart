@@ -31,6 +31,7 @@ class ListingCard extends StatelessWidget {
               children: [
                 SizedBox(
                   width: 116,
+                  height: 116,
                   child: Base64Image(
                     data: listing.image0,
                     borderRadius: BorderRadius.circular(0),
