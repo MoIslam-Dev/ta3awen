@@ -1,0 +1,186 @@
+{
+  "@@locale": "fr",
+  "appName": "Ta3awen",
+  "tagline": "La chose dont tu n'as plus besoin, quelqu'un d'autre en a peut-être besoin",
+  "ok": "OK",
+  "cancel": "Annuler",
+  "save": "Enregistrer",
+  "delete": "Supprimer",
+  "retry": "Réessayer",
+  "clear": "Effacer",
+  "loading": "Chargement...",
+  "loginRequired": "Vous devez vous connecter",
+
+  "errTimeout": "La connexion a pris trop de temps, vérifiez votre réseau et réessayez",
+  "errBadCredentials": "E-mail ou mot de passe incorrect",
+  "errEmailInUse": "Cet e-mail est déjà enregistré",
+  "errWeakPassword": "Mot de passe faible (6 caractères minimum)",
+  "errInvalidEmail": "E-mail invalide",
+  "errNetwork": "Impossible de se connecter à Internet, vérifiez votre réseau",
+  "errTooMany": "Trop de tentatives, réessayez plus tard",
+  "errUserDisabled": "Ce compte est désactivé, contactez l'administration",
+  "errUnexpected": "Une erreur inattendue s'est produite, réessayez",
+  "errPermission": "Vous n'avez pas la permission d'effectuer cette opération",
+  "errNotFound": "Données introuvables",
+  "errGeneric": "Une erreur s'est produite, réessayez",
+
+  "email": "E-mail",
+  "password": "Mot de passe",
+  "passwordMin": "Mot de passe (6 caractères minimum)",
+  "invalidEmailMsg": "E-mail invalide",
+  "login": "Se connecter",
+  "forgotPassword": "Mot de passe oublié ?",
+  "noAccount": "Pas de compte ?",
+  "createAccount": "Créer un compte",
+  "enterEmailFirst": "Saisissez d'abord votre e-mail",
+  "resetEmailSent": "Lien de réinitialisation envoyé par e-mail",
+
+  "registerTitle": "Créer un compte",
+  "fullName": "Nom complet",
+  "enterFullName": "Saisissez votre nom complet",
+  "weakPasswordMsg": "Mot de passe faible",
+  "accountCreated": "Compte créé avec succès, bienvenue !",
+
+  "tabHome": "Accueil",
+  "tabMyListings": "Mes annonces",
+  "tabProfile": "Compte",
+  "addListing": "Ajouter",
+  "logoutTitle": "Déconnexion",
+  "logoutConfirm": "Voulez-vous vous déconnecter ?",
+  "logout": "Quitter",
+
+  "searchHint": "Rechercher une annonce...",
+  "filterCategory": "Catégorie",
+  "filterWilaya": "Wilaya",
+  "filterCommune": "Commune",
+  "loadingFeed": "Chargement des annonces...",
+  "noResults": "Aucun résultat correspondant",
+  "emptyFeed": "Aucune annonce pour le moment, soyez le premier à publier",
+  "clearFilters": "Effacer les filtres",
+  "loadMore": "Plus",
+  "allCategories": "Toutes les catégories",
+  "allWilayas": "Toutes les wilayas",
+  "allCommunes": "Toutes les communes",
+
+  "statusAvailable": "Disponible",
+  "statusGiven": "Donné",
+
+  "catClothes": "Vêtements",
+  "catFurniture": "Meubles",
+  "catBooks": "Livres",
+  "catElectronics": "Électronique",
+  "catSchool": "Fournitures scolaires",
+  "catHome": "Articles ménagers",
+  "catKids": "Articles pour bébés",
+  "catFood": "Produits alimentaires",
+  "catAid": "Équipement d'assistance",
+  "catOther": "Autres",
+
+  "condNew": "Neuf",
+  "condVeryGood": "Très bon état",
+  "condGood": "Bon état",
+  "condUsed": "Usagé",
+
+  "reasonInappropriate": "Contenu inapproprié",
+  "reasonFalseInfo": "Informations fausses",
+  "reasonAlreadyObtained": "Objet déjà obtenu",
+  "reasonDuplicate": "Annonce en double",
+  "reasonOther": "Autre",
+
+  "detailsTitle": "Détails de l'annonce",
+  "description": "Description",
+  "ownerLabel": "Propriétaire de l'annonce",
+  "showPhone": "Afficher le numéro",
+  "noPhone": "Le propriétaire n'a pas laissé de numéro",
+  "listingNotFound": "Annonce introuvable",
+  "report": "Signaler",
+  "reportTitle": "Signaler cette annonce",
+  "reportDescLabel": "Description supplémentaire (facultatif)",
+  "reportSubmit": "Envoyer le signalement",
+  "reportSent": "Signalement envoyé, merci pour votre aide",
+
+  "listingTitleLabel": "Titre de l'annonce",
+  "titleInvalid": "Saisissez un titre clair",
+  "descriptionLabel": "Description",
+  "descriptionHint": "Décrivez l'état de l'objet et les détails importants...",
+  "descriptionInvalid": "Saisissez une description courte",
+  "categoryLabel": "Catégorie",
+  "categoryInvalid": "Choisissez une catégorie",
+  "conditionLabel": "État",
+  "conditionInvalid": "Choisissez l'état",
+  "wilaya": "Wilaya",
+  "commune": "Commune",
+  "wilayaInvalid": "Choisissez la wilaya",
+  "communeInvalid": "Choisissez la commune",
+  "phoneLabel": "Téléphone (obligatoire)",
+  "phoneHelper": "Pas de chat dans l'app — les intéressés vous appelleront",
+  "phoneRequired": "Le téléphone est obligatoire, pas de chat dans l'app",
+  "phoneInvalid": "Numéro algérien invalide (ex. 0550123456)",
+  "images": "Photos",
+  "imagesCount": "({count}/5)",
+  "processingImages": "Impossible de traiter les images sélectionnées",
+  "addImages": "Ajouter des photos (max 5)",
+  "changeImages": "Changer les photos",
+  "createListingTitle": "Nouvelle annonce",
+  "editListingTitle": "Modifier l'annonce",
+  "saveChanges": "Enregistrer",
+  "publish": "Publier",
+  "editSaved": "Modifications enregistrées",
+  "published": "Annonce publiée avec succès",
+
+  "myListingsEmpty": "Vous n'avez pas encore publié d'annonce",
+  "addFirstListing": "Ajouter ma première annonce",
+  "edit": "Modifier",
+  "markGiven": "Marquer comme « Donné »",
+  "markAvailable": "Remettre « Disponible »",
+  "deleteListingTitle": "Supprimer l'annonce",
+  "deleteListingBody": "Voulez-vous supprimer \"{title}\" définitivement ?",
+  "@deleteListingBody": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "listingDeleted": "Annonce supprimée",
+
+  "settingsSection": "Paramètres",
+  "languageTitle": "Langue",
+  "themeTitle": "Thème",
+  "themeLight": "Clair",
+  "themeDark": "Sombre",
+  "themeSystem": "Système",
+  "adminPanel": "Administration",
+  "adminPanelSubtitle": "Gérer annonces, signalements et utilisateurs",
+  "aboutTitle": "À propos de Ta3awen",
+  "aboutBody": "App algérien pour donner un objet inutilisé\nà quelqu'un qui en a besoin.\nProjet caritatif en mémoire de ma mère — que Dieu l'accueille.",
+  "logoutButton": "Se déconnecter",
+
+  "adminTitle": "Administration",
+  "noAdminPermission": "Vous n'avez pas accès à l'administration",
+  "tabListings": "Annonces",
+  "tabReports": "Signalements",
+  "tabUsers": "Utilisateurs",
+  "noListings": "Aucune annonce",
+  "noReports": "Aucun signalement",
+  "noUsers": "Aucun utilisateur",
+  "reportPrefix": "Signalement : {title}",
+  "@reportPrefix": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "reportMeta": "Motif : {reason} • Par : {reporter}",
+  "@reportMeta": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      },
+      "reporter": {
+        "type": "String"
+      }
+    }
+  }
+}

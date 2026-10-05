@@ -1,48 +1,35 @@
 import 'dart:async';
 
-String authErrorMessage(Object error) {
-  if (error is TimeoutException) {
-    return 'استغرق تسجيل الدخول وقتاً طويلاً، تحقق من شبكتك وحاول مجدداً';
-  }
+import 'package:flutter/widgets.dart';
+import '../l10n/ext.dart';
+
+String authErrorMessage(BuildContext context, Object error) {
+  final l = context.l10n;
+  if (error is TimeoutException) return l.errTimeout;
   final code = error.toString();
   if (code.contains('user-not-found') ||
       code.contains('wrong-password') ||
       code.contains('invalid-credential')) {
-    return 'البريد الإلكتروني أو كلمة المرور غير صحيحة';
+    return l.errBadCredentials;
   }
-  if (code.contains('email-already-in-use')) {
-    return 'هذا البريد الإلكتروني مسجّل مسبقاً';
-  }
-  if (code.contains('weak-password')) {
-    return 'كلمة المرور ضعيفة (6 أحرف على الأقل)';
-  }
-  if (code.contains('invalid-email')) {
-    return 'بريد إلكتروني غير صالح';
-  }
-  if (code.contains('network-request-failed')) {
-    return 'تعذّر الاتصال بالإنترنت، تحقق من شبكتك';
-  }
-  if (code.contains('too-many-requests')) {
-    return 'محاولات كثيرة جداً، حاول لاحقاً';
-  }
-  if (code.contains('user-disabled')) {
-    return 'هذا الحساب معطّل، تواصل مع الإدارة';
-  }
-  return 'حدث خطأ غير متوقع، حاول مرة أخرى';
+  if (code.contains('email-already-in-use')) return l.errEmailInUse;
+  if (code.contains('weak-password')) return l.errWeakPassword;
+  if (code.contains('invalid-email')) return l.errInvalidEmail;
+  if (code.contains('network-request-failed')) return l.errNetwork;
+  if (code.contains('too-many-requests')) return l.errTooMany;
+  if (code.contains('user-disabled')) return l.errUserDisabled;
+  return l.errUnexpected;
 }
 
-String dataErrorMessage(Object error) {
+String dataErrorMessage(BuildContext context, Object error) {
+  final l = context.l10n;
   final code = error.toString();
-  if (code.contains('permission-denied')) {
-    return 'ليست لديك صلاحية لتنفيذ هذه العملية';
-  }
+  if (code.contains('permission-denied')) return l.errPermission;
   if (code.contains('unavailable') ||
       code.contains('network') ||
       code.contains('failed')) {
-    return 'تعذّر الاتصال بالإنترنت، تحقق من شبكتك';
+    return l.errNetwork;
   }
-  if (code.contains('not-found')) {
-    return 'لم يتم العثور على البيانات المطلوبة';
-  }
-  return 'حدث خطأ، حاول مرة أخرى';
+  if (code.contains('not-found')) return l.errNotFound;
+  return l.errGeneric;
 }

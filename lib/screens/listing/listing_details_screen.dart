@@ -1,14 +1,16 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '../../l10n/ext.dart';
 import '../../models/listing.dart';
 import '../../services/listing_service.dart';
-import '../../services/report_service.dart';
 import '../../services/user_service.dart';
 import '../../utils/constants.dart';
 import '../../utils/errors.dart';
 import '../../utils/formatters.dart';
+import '../../utils/labels.dart';
 import '../../widgets/base64_image.dart';
 import '../../widgets/state_views.dart';
+import '../../services/report_service.dart';
 
 class ListingDetailsScreen extends StatefulWidget {
   final String listingId;
@@ -21,19 +23,18 @@ class ListingDetailsScreen extends StatefulWidget {
 
 class _ListingDetailsScreenState extends State<ListingDetailsScreen> {
   final _listingService = ListingService();
-  final _reportService = ReportService();
   final _userService = UserService();
+  final _reportService = ReportService();
 
   Listing? _listing;
   List<String> _images = [];
+  int _imageIndex = 0;
   bool _loading = true;
   String? _error;
   bool _showContact = false;
-  int _imageIndex = 0;
 
   bool get _isOwner =>
-      _listing != null &&
-      _listing!.ownerId == FirebaseAuth.instance.currentUser?.uid;
+      FirebaseAuth.instance.currentUser?.uid == _listing?.ownerId;
 
   @override
   void initState() {
@@ -51,7 +52,7 @@ class _ListingDetailsScreenState extends State<ListingDetailsScreen> {
       if (listing == null) {
         if (mounted) {
           setState(() {
-            _error = 'لم يتم العثور على الإعلان';
+            _error = context.l10n.listingNotFound;
             _loading = false;
           });
         }
@@ -71,7 +72,7 @@ class _ListingDetailsScreenState extends State<ListingDetailsScreen> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _error = dataErrorMessage(e);
+          _error = dataErrorMessage(context, e);
           _loading = false;
         });
       }
@@ -79,13 +80,14 @@ class _ListingDetailsScreenState extends State<ListingDetailsScreen> {
   }
 
   Future<void> _report() async {
+    final l = context.l10n;
     String reason = kReportReasons.first;
     final descCtrl = TextEditingController();
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setDialogState) => AlertDialog(
-          title: const Text('الإبلاغ عن الإعلان'),
+          title: Text(l.reportTitle),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -93,7 +95,10 @@ class _ListingDetailsScreenState extends State<ListingDetailsScreen> {
                 value: reason,
                 isExpanded: true,
                 items: kReportReasons
-                    .map((r) => DropdownMenuItem(value: r, child: Text(r)))
+                    .map((r) => DropdownMenuItem(
+                          value: r,
+                          child: Text(reportReasonLabel(ctx, r)),
+                        ))
                     .toList(),
                 onChanged: (v) => setDialogState(() => reason = v!),
               ),
@@ -101,8 +106,8 @@ class _ListingDetailsScreenState extends State<ListingDetailsScreen> {
               TextField(
                 controller: descCtrl,
                 maxLines: 3,
-                decoration: const InputDecoration(
-                  labelText: 'وصف إضافي (اختياري)',
+                decoration: InputDecoration(
+                  labelText: l.reportDescLabel,
                 ),
               ),
             ],
@@ -110,11 +115,11 @@ class _ListingDetailsScreenState extends State<ListingDetailsScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('إلغاء'),
+              child: Text(l.cancel),
             ),
             FilledButton(
               onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('إرسال البلاغ'),
+              child: Text(l.reportSubmit),
             ),
           ],
         ),
@@ -134,13 +139,14 @@ class _ListingDetailsScreenState extends State<ListingDetailsScreen> {
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('تم إرسال البلاغ، شكراً لتعاونك')),
+          SnackBar(content: Text(context.l10n.reportSent)),
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(dataErrorMessage(e))));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(dataErrorMessage(context, e))),
+        );
       }
     }
   }
@@ -148,24 +154,28 @@ class _ListingDetailsScreenState extends State<ListingDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     if (_loading) {
-      return const Scaffold(body: LoadingView(message: 'جاري التحميل...'));
+      return Scaffold(
+        appBar: AppBar(),
+        body: LoadingView(message: context.l10n.loading),
+      );
     }
     if (_error != null || _listing == null) {
       return Scaffold(
         appBar: AppBar(),
-        body: ErrorView(message: _error ?? 'خطأ', onRetry: _load),
+        body: ErrorView(message: _error ?? context.l10n.errGeneric, onRetry: _load),
       );
     }
     final listing = _listing!;
     final theme = Theme.of(context);
+    final l = context.l10n;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('تفاصيل الإعلان'),
+        title: Text(l.detailsTitle),
         actions: [
           if (!_isOwner)
             IconButton(
-              tooltip: 'الإبلاغ',
+              tooltip: l.report,
               icon: const Icon(Icons.flag_outlined),
               onPressed: _report,
             ),
@@ -187,17 +197,18 @@ class _ListingDetailsScreenState extends State<ListingDetailsScreen> {
               ),
               if (_images.length > 1)
                 Padding(
-                  padding: const EdgeInsets.only(top: 8),
+                  padding: const EdgeInsets.only(top: 10),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(
                       _images.length,
-                      (i) => Container(
+                      (i) => AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
                         margin: const EdgeInsets.symmetric(horizontal: 3),
-                        width: 8,
+                        width: i == _imageIndex ? 18 : 8,
                         height: 8,
                         decoration: BoxDecoration(
-                          shape: BoxShape.circle,
+                          borderRadius: BorderRadius.circular(4),
                           color: i == _imageIndex
                               ? theme.colorScheme.primary
                               : theme.colorScheme.outlineVariant,
@@ -208,10 +219,13 @@ class _ListingDetailsScreenState extends State<ListingDetailsScreen> {
                 ),
             ] else
               Container(
-                height: 200,
+                height: 220,
                 color: theme.colorScheme.surfaceContainerHighest,
-                child: const Center(
-                    child: Icon(Icons.image_outlined, size: 64)),
+                child: Icon(
+                  Icons.image_outlined,
+                  size: 64,
+                  color: theme.colorScheme.outline,
+                ),
               ),
             Padding(
               padding: const EdgeInsets.all(16),
@@ -219,68 +233,107 @@ class _ListingDetailsScreenState extends State<ListingDetailsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
                         child: Text(
                           listing.title,
-                          style: theme.textTheme.headlineSmall
-                              ?.copyWith(fontWeight: FontWeight.bold),
+                          style: theme.textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.w800,
+                            height: 1.25,
+                          ),
                         ),
                       ),
+                      const SizedBox(width: 8),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 4),
+                            horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
                           color: listing.isAvailable
                               ? theme.colorScheme.primaryContainer
                               : theme.colorScheme.tertiaryContainer,
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(20),
                         ),
-                        child: Text(listing.status,
-                            style: theme.textTheme.labelMedium),
+                        child: Text(
+                          statusLabel(context, listing.status),
+                          style: theme.textTheme.labelLarge?.copyWith(
+                            color: listing.isAvailable
+                                ? theme.colorScheme.onPrimaryContainer
+                                : theme.colorScheme.onTertiaryContainer,
+                          ),
+                        ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 14),
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
                     children: [
-                      _InfoChip(icon: Icons.category_outlined, label: listing.category),
-                      _InfoChip(icon: Icons.star_outline, label: listing.condition),
-                      _InfoChip(
+                      InfoChip(
+                        icon: Icons.category_outlined,
+                        label: categoryLabel(context, listing.category),
+                      ),
+                      InfoChip(
+                        icon: Icons.star_outline,
+                        label: conditionLabel(context, listing.condition),
+                      ),
+                      InfoChip(
                         icon: Icons.place_outlined,
                         label: '${listing.wilaya} - ${listing.commune}',
                       ),
-                      _InfoChip(
+                      InfoChip(
                         icon: Icons.calendar_today_outlined,
                         label: formatDate(listing.createdAt),
                       ),
                     ],
                   ),
-                  const Divider(height: 32),
-                  Text('الوصف', style: theme.textTheme.titleMedium),
-                  const SizedBox(height: 6),
-                  Text(listing.description,
-                      style: theme.textTheme.bodyLarge),
-                  const Divider(height: 32),
-                  Row(
-                    children: [
-                      const CircleAvatar(
-                        child: Icon(Icons.person_outlined),
-                      ),
-                      const SizedBox(width: 12),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                  const SizedBox(height: 20),
+                  Text(l.description, style: theme.textTheme.titleMedium),
+                  const SizedBox(height: 8),
+                  Text(
+                    listing.description,
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                      height: 1.5,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(14),
+                      child: Row(
                         children: [
-                          Text(listing.ownerName,
-                              style: theme.textTheme.titleSmall),
-                          Text('صاحب الإعلان',
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                  color: theme.colorScheme.outline)),
+                          CircleAvatar(
+                            radius: 22,
+                            backgroundColor:
+                                theme.colorScheme.primaryContainer,
+                            child: Icon(
+                              Icons.person_outline,
+                              color: theme.colorScheme.onPrimaryContainer,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  listing.ownerName,
+                                  style: theme.textTheme.titleSmall,
+                                ),
+                                Text(
+                                  l.ownerLabel,
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: theme.colorScheme.outline,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ],
                       ),
-                    ],
+                    ),
                   ),
                   const SizedBox(height: 16),
                   if (listing.contactPhone != null &&
@@ -291,13 +344,22 @@ class _ListingDetailsScreenState extends State<ListingDetailsScreen> {
                         child: Padding(
                           padding: const EdgeInsets.all(16),
                           child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Icon(Icons.phone_outlined),
+                              Icon(
+                                Icons.phone_outlined,
+                                color:
+                                    theme.colorScheme.onSecondaryContainer,
+                              ),
                               const SizedBox(width: 12),
                               Text(
                                 listing.contactPhone!,
                                 textDirection: TextDirection.ltr,
-                                style: theme.textTheme.titleLarge,
+                                style: theme.textTheme.titleLarge?.copyWith(
+                                  color:
+                                      theme.colorScheme.onSecondaryContainer,
+                                  fontWeight: FontWeight.w700,
+                                ),
                               ),
                             ],
                           ),
@@ -307,17 +369,18 @@ class _ListingDetailsScreenState extends State<ListingDetailsScreen> {
                       SizedBox(
                         width: double.infinity,
                         child: FilledButton.tonalIcon(
-                          onPressed: () =>
-                              setState(() => _showContact = true),
+                          onPressed: () => setState(() => _showContact = true),
                           icon: const Icon(Icons.contact_phone_outlined),
-                          label: const Text('إظهار رقم التواصل'),
+                          label: Text(l.showPhone),
                         ),
                       ),
                   ] else if (!_isOwner)
                     Text(
-                      'صاحب الإعلان لم يترك رقم هاتف',
-                      style: theme.textTheme.bodySmall
-                          ?.copyWith(color: theme.colorScheme.outline),
+                      l.noPhone,
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.outline,
+                      ),
                     ),
                   const SizedBox(height: 24),
                 ],
@@ -325,32 +388,6 @@ class _ListingDetailsScreenState extends State<ListingDetailsScreen> {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _InfoChip extends StatelessWidget {
-  final IconData icon;
-  final String label;
-
-  const _InfoChip({required this.icon, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 16),
-          const SizedBox(width: 6),
-          Text(label, style: Theme.of(context).textTheme.labelMedium),
-        ],
       ),
     );
   }

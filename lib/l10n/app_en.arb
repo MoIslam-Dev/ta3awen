@@ -1,0 +1,186 @@
+{
+  "@@locale": "en",
+  "appName": "Ta3awen",
+  "tagline": "What you no longer need, someone else may need",
+  "ok": "OK",
+  "cancel": "Cancel",
+  "save": "Save",
+  "delete": "Delete",
+  "retry": "Retry",
+  "clear": "Clear",
+  "loading": "Loading...",
+  "loginRequired": "You must sign in",
+
+  "errTimeout": "Signing in took too long, check your network and try again",
+  "errBadCredentials": "Incorrect email or password",
+  "errEmailInUse": "This email is already registered",
+  "errWeakPassword": "Weak password (at least 6 characters)",
+  "errInvalidEmail": "Invalid email",
+  "errNetwork": "No internet connection, check your network",
+  "errTooMany": "Too many attempts, try again later",
+  "errUserDisabled": "This account is disabled, contact support",
+  "errUnexpected": "An unexpected error occurred, try again",
+  "errPermission": "You don't have permission to do this",
+  "errNotFound": "Requested data not found",
+  "errGeneric": "Something went wrong, try again",
+
+  "email": "Email",
+  "password": "Password",
+  "passwordMin": "Password (at least 6 characters)",
+  "invalidEmailMsg": "Invalid email",
+  "login": "Sign in",
+  "forgotPassword": "Forgot password?",
+  "noAccount": "Don't have an account?",
+  "createAccount": "Create account",
+  "enterEmailFirst": "Enter your email first",
+  "resetEmailSent": "Password reset link sent to your email",
+
+  "registerTitle": "Create an account",
+  "fullName": "Full name",
+  "enterFullName": "Enter your full name",
+  "weakPasswordMsg": "Weak password",
+  "accountCreated": "Account created successfully, welcome!",
+
+  "tabHome": "Home",
+  "tabMyListings": "My listings",
+  "tabProfile": "Account",
+  "addListing": "Add listing",
+  "logoutTitle": "Sign out",
+  "logoutConfirm": "Do you want to sign out?",
+  "logout": "Sign out",
+
+  "searchHint": "Search listings...",
+  "filterCategory": "Category",
+  "filterWilaya": "Wilaya",
+  "filterCommune": "Commune",
+  "loadingFeed": "Loading listings...",
+  "noResults": "No matching results",
+  "emptyFeed": "No listings yet — be the first to post one",
+  "clearFilters": "Clear filters",
+  "loadMore": "More",
+  "allCategories": "All categories",
+  "allWilayas": "All wilayas",
+  "allCommunes": "All communes",
+
+  "statusAvailable": "Available",
+  "statusGiven": "Donated",
+
+  "catClothes": "Clothes",
+  "catFurniture": "Furniture",
+  "catBooks": "Books",
+  "catElectronics": "Electronics",
+  "catSchool": "School supplies",
+  "catHome": "Home goods",
+  "catKids": "Baby & kids",
+  "catFood": "Food",
+  "catAid": "Assistance equipment",
+  "catOther": "Other",
+
+  "condNew": "New",
+  "condVeryGood": "Very good",
+  "condGood": "Good",
+  "condUsed": "Used",
+
+  "reasonInappropriate": "Inappropriate content",
+  "reasonFalseInfo": "False information",
+  "reasonAlreadyObtained": "Item already obtained",
+  "reasonDuplicate": "Duplicate listing",
+  "reasonOther": "Other",
+
+  "detailsTitle": "Listing details",
+  "description": "Description",
+  "ownerLabel": "Listing owner",
+  "showPhone": "Show contact number",
+  "noPhone": "The owner did not leave a phone number",
+  "listingNotFound": "Listing not found",
+  "report": "Report",
+  "reportTitle": "Report this listing",
+  "reportDescLabel": "Additional description (optional)",
+  "reportSubmit": "Send report",
+  "reportSent": "Report sent, thank you for helping",
+
+  "listingTitleLabel": "Listing title",
+  "titleInvalid": "Enter a clear title",
+  "descriptionLabel": "Description",
+  "descriptionHint": "Describe the item's condition and any important notes...",
+  "descriptionInvalid": "Enter a short description",
+  "categoryLabel": "Category",
+  "categoryInvalid": "Choose a category",
+  "conditionLabel": "Condition",
+  "conditionInvalid": "Choose a condition",
+  "wilaya": "Wilaya",
+  "commune": "Commune",
+  "wilayaInvalid": "Choose a wilaya",
+  "communeInvalid": "Choose a commune",
+  "phoneLabel": "Contact phone (required)",
+  "phoneHelper": "No in-app chat — interested people will call you",
+  "phoneRequired": "Phone is required — there is no in-app chat",
+  "phoneInvalid": "Invalid Algerian number (e.g. 0550123456)",
+  "images": "Photos",
+  "imagesCount": "({count}/5)",
+  "processingImages": "Could not process the selected images",
+  "addImages": "Add photos (up to 5)",
+  "changeImages": "Change photos",
+  "createListingTitle": "New listing",
+  "editListingTitle": "Edit listing",
+  "saveChanges": "Save changes",
+  "publish": "Publish",
+  "editSaved": "Changes saved",
+  "published": "Listing published successfully",
+
+  "myListingsEmpty": "You haven't posted a listing yet",
+  "addFirstListing": "Add my first listing",
+  "edit": "Edit",
+  "markGiven": "Mark as \"Donated\"",
+  "markAvailable": "Set back to \"Available\"",
+  "deleteListingTitle": "Delete listing",
+  "deleteListingBody": "Do you want to permanently delete \"{title}\"?",
+  "@deleteListingBody": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "listingDeleted": "Listing deleted",
+
+  "settingsSection": "Settings",
+  "languageTitle": "Language",
+  "themeTitle": "Theme",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "themeSystem": "System",
+  "adminPanel": "Admin panel",
+  "adminPanelSubtitle": "Manage listings, reports and users",
+  "aboutTitle": "About Ta3awen",
+  "aboutBody": "An Algerian app for giving away something you no longer use\nto someone who needs it.\nA charity project in memory of my mother — may God have mercy on her.",
+  "logoutButton": "Sign out",
+
+  "adminTitle": "Admin panel",
+  "noAdminPermission": "You don't have access to the admin panel",
+  "tabListings": "Listings",
+  "tabReports": "Reports",
+  "tabUsers": "Users",
+  "noListings": "No listings",
+  "noReports": "No reports",
+  "noUsers": "No users",
+  "reportPrefix": "Report: {title}",
+  "@reportPrefix": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "reportMeta": "Reason: {reason} • By: {reporter}",
+  "@reportMeta": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      },
+      "reporter": {
+        "type": "String"
+      }
+    }
+  }
+}

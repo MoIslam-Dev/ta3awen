@@ -1,11 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '../../l10n/ext.dart';
 import '../../models/listing.dart';
 import '../../services/image_service.dart';
 import '../../services/listing_service.dart';
 import '../../services/user_service.dart';
 import '../../utils/constants.dart';
 import '../../utils/errors.dart';
+import '../../utils/labels.dart';
 import '../../widgets/base64_image.dart';
 import '../../widgets/wilaya_commune_fields.dart';
 
@@ -77,11 +79,12 @@ class _ListingFormScreenState extends State<ListingFormScreen> {
 
   /// Phone is mandatory: the app has no chat, so contact happens by phone.
   String? _validatePhone(String? value) {
+    final l = context.l10n;
     if (_normalizePhone(value ?? '').isEmpty) {
-      return 'رقم الهاتف إجباري — لا توجد محادثات داخل التطبيق';
+      return l.phoneRequired;
     }
     if (!RegExp(r'^0[2-7]\d{8}$').hasMatch(_normalizePhone(value!))) {
-      return 'رقم هاتف جزائري غير صالح (مثال: 0550123456)';
+      return l.phoneInvalid;
     }
     return null;
   }
@@ -108,7 +111,7 @@ class _ListingFormScreenState extends State<ListingFormScreen> {
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('تعذّر معالجة الصور المختارة')),
+          SnackBar(content: Text(context.l10n.processingImages)),
         );
       }
     } finally {
@@ -173,7 +176,9 @@ class _ListingFormScreenState extends State<ListingFormScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(_isEdit ? 'تم حفظ التعديلات' : 'تم نشر الإعلان بنجاح'),
+            content: Text(_isEdit
+                ? context.l10n.editSaved
+                : context.l10n.published),
           ),
         );
         Navigator.of(context).pop(true);
@@ -181,7 +186,7 @@ class _ListingFormScreenState extends State<ListingFormScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(dataErrorMessage(e))));
+            .showSnackBar(SnackBar(content: Text(dataErrorMessage(context, e))));
       }
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -190,13 +195,15 @@ class _ListingFormScreenState extends State<ListingFormScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l = context.l10n;
     final images = _newImages ?? (_isEdit ? _existingImages : const <String>[]);
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEdit ? 'تعديل الإعلان' : 'إضافة إعلان جديد'),
+        title: Text(_isEdit ? l.editListingTitle : l.createListingTitle),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Form(
           key: _formKey,
           child: Column(
@@ -206,58 +213,67 @@ class _ListingFormScreenState extends State<ListingFormScreen> {
                 controller: _titleCtrl,
                 textInputAction: TextInputAction.next,
                 maxLength: 80,
-                decoration: const InputDecoration(
-                  labelText: 'عنوان الإعلان',
-                  prefixIcon: Icon(Icons.title_outlined),
+                decoration: InputDecoration(
+                  labelText: l.listingTitleLabel,
+                  prefixIcon: const Icon(Icons.title_outlined),
                 ),
                 validator: (v) =>
-                    (v == null || v.trim().length < 3) ? 'أدخل عنواناً واضحاً' : null,
+                    (v == null || v.trim().length < 3) ? l.titleInvalid : null,
               ),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _descCtrl,
                 maxLines: 4,
                 maxLength: 800,
-                decoration: const InputDecoration(
-                  labelText: 'الوصف',
-                  hintText: 'اذكر حالة الغرض وملاحظات مهمة...',
-                  prefixIcon: Icon(Icons.description_outlined),
+                decoration: InputDecoration(
+                  labelText: l.descriptionLabel,
+                  hintText: l.descriptionHint,
+                  prefixIcon: const Icon(Icons.notes_outlined),
+                  alignLabelWithHint: true,
                 ),
                 validator: (v) =>
-                    (v == null || v.trim().length < 5) ? 'أدخل وصفاً مختصراً' : null,
+                    (v == null || v.trim().length < 5) ? l.descriptionInvalid : null,
               ),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
                 value: _category,
                 isExpanded: true,
-                decoration: const InputDecoration(
-                  labelText: 'التصنيف',
-                  prefixIcon: Icon(Icons.category_outlined),
+                decoration: InputDecoration(
+                  labelText: l.categoryLabel,
+                  prefixIcon: const Icon(Icons.category_outlined),
                 ),
                 items: kCategories
-                    .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                    .map((c) => DropdownMenuItem(
+                          value: c,
+                          child: Text(categoryLabel(context, c)),
+                        ))
                     .toList(),
                 onChanged: (v) => setState(() => _category = v),
-                validator: (v) => v == null ? 'اختر التصنيف' : null,
+                validator: (v) => v == null ? l.categoryInvalid : null,
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
                 value: _condition,
                 isExpanded: true,
-                decoration: const InputDecoration(
-                  labelText: 'الحالة',
-                  prefixIcon: Icon(Icons.star_outline),
+                decoration: InputDecoration(
+                  labelText: l.conditionLabel,
+                  prefixIcon: const Icon(Icons.star_outline),
                 ),
                 items: kConditions
-                    .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                    .map((c) => DropdownMenuItem(
+                          value: c,
+                          child: Text(conditionLabel(context, c)),
+                        ))
                     .toList(),
                 onChanged: (v) => setState(() => _condition = v),
-                validator: (v) => v == null ? 'اختر الحالة' : null,
+                validator: (v) => v == null ? l.conditionInvalid : null,
               ),
               const SizedBox(height: 16),
               WilayaCommuneFields(
                 wilaya: _wilaya,
                 commune: _commune,
+                wilayaLabel: l.wilaya,
+                communeLabel: l.commune,
                 onWilaya: (v) => setState(() {
                   _wilaya = v;
                   _commune = null;
@@ -270,25 +286,27 @@ class _ListingFormScreenState extends State<ListingFormScreen> {
                 keyboardType: TextInputType.phone,
                 textDirection: TextDirection.ltr,
                 validator: _validatePhone,
-                decoration: const InputDecoration(
-                  labelText: 'رقم هاتف للتواصل (إجباري)',
-                  prefixIcon: Icon(Icons.phone_outlined),
-                  helperText: 'لا توجد محادثات داخل التطبيق — سيتواصل معك المعنيون عبر الهاتف',
+                decoration: InputDecoration(
+                  labelText: l.phoneLabel,
+                  prefixIcon: const Icon(Icons.phone_outlined),
+                  helperText: l.phoneHelper,
+                  helperMaxLines: 2,
                 ),
               ),
               const SizedBox(height: 24),
               Row(
                 children: [
-                  Text('الصور',
-                      style: Theme.of(context).textTheme.titleMedium),
+                  Text(l.images, style: theme.textTheme.titleMedium),
                   const SizedBox(width: 8),
                   Text(
-                    '(${images.length}/5)',
-                    style: Theme.of(context).textTheme.bodySmall,
+                    l.imagesCount(images.length),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.outline,
+                    ),
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 10),
               if (_loadingImages)
                 const Padding(
                   padding: EdgeInsets.all(24),
@@ -297,33 +315,33 @@ class _ListingFormScreenState extends State<ListingFormScreen> {
               else ...[
                 if (images.isNotEmpty)
                   SizedBox(
-                    height: 90,
+                    height: 96,
                     child: ListView.builder(
                       scrollDirection: Axis.horizontal,
                       itemCount: images.length,
                       itemBuilder: (context, i) => Padding(
-                        padding: const EdgeInsetsDirectional.only(end: 8),
+                        padding: const EdgeInsetsDirectional.only(end: 10),
                         child: ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(12),
                           child: Base64Image(
                             data: images[i],
-                            width: 90,
-                            height: 90,
+                            width: 96,
+                            height: 96,
                           ),
                         ),
                       ),
                     ),
                   ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 10),
                 OutlinedButton.icon(
                   onPressed: images.length >= 5 ? null : _pickImages,
                   icon: const Icon(Icons.add_photo_alternate_outlined),
-                  label: Text(images.isEmpty
-                      ? 'إضافة صور (حتى 5)'
-                      : 'تغيير الصور'),
+                  label: Text(
+                    images.isEmpty ? l.addImages : l.changeImages,
+                  ),
                 ),
               ],
-              const SizedBox(height: 24),
+              const SizedBox(height: 28),
               FilledButton(
                 onPressed: _saving ? null : _save,
                 child: _saving
@@ -332,7 +350,7 @@ class _ListingFormScreenState extends State<ListingFormScreen> {
                         width: 22,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : Text(_isEdit ? 'حفظ التعديلات' : 'نشر الإعلان'),
+                    : Text(_isEdit ? l.saveChanges : l.publish),
               ),
               const SizedBox(height: 24),
             ],

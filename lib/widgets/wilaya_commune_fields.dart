@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../data/algeria_data.dart';
+import '../l10n/ext.dart';
 
 class WilayaCommuneFields extends StatelessWidget {
   final String? wilaya;
@@ -15,12 +16,13 @@ class WilayaCommuneFields extends StatelessWidget {
     required this.commune,
     required this.onWilaya,
     required this.onCommune,
-    this.wilayaLabel = 'الولاية',
-    this.communeLabel = 'البلدية',
+    required this.wilayaLabel,
+    required this.communeLabel,
   });
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final communes =
         wilaya == null ? const <String>[] : AlgeriaData.communesOf(wilaya!);
     return Row(
@@ -37,7 +39,7 @@ class WilayaCommuneFields extends StatelessWidget {
                 .map((w) => DropdownMenuItem(value: w, child: Text(w)))
                 .toList(),
             onChanged: onWilaya,
-            validator: (v) => (v == null || v.isEmpty) ? 'اختر الولاية' : null,
+            validator: (v) => (v == null || v.isEmpty) ? l.wilayaInvalid : null,
           ),
         ),
         const SizedBox(width: 12),
@@ -53,8 +55,7 @@ class WilayaCommuneFields extends StatelessWidget {
                 .map((c) => DropdownMenuItem(value: c, child: Text(c)))
                 .toList(),
             onChanged: wilaya == null ? null : onCommune,
-            validator: (v) =>
-                (v == null || v.isEmpty) ? 'اختر البلدية' : null,
+            validator: (v) => (v == null || v.isEmpty) ? l.communeInvalid : null,
           ),
         ),
       ],

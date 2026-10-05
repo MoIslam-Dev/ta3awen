@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '../../l10n/ext.dart';
 import '../auth_gate.dart';
 import 'feed_screen.dart';
 import '../listing/listing_form_screen.dart';
@@ -15,8 +16,6 @@ class HomeShell extends StatefulWidget {
 
 class _HomeShellState extends State<HomeShell> {
   int _index = 0;
-
-  static const _titles = ['تعاون', 'إعلاناتي', 'حسابي'];
 
   // Tabs are created lazily so that logging in only starts the feed query
   // instead of firing feed + myListings + profile/admin requests at once.
@@ -47,12 +46,37 @@ class _HomeShellState extends State<HomeShell> {
     _ensurePage(0);
   }
 
+  String _title() {
+    switch (_index) {
+      case 0:
+        return context.l10n.appName;
+      case 1:
+        return context.l10n.tabMyListings;
+      default:
+        return context.l10n.tabProfile;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     return Scaffold(
       appBar: AppBar(
-        title: Text(_titles[_index]),
-        centerTitle: true,
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (_index == 0) ...[
+              Image.asset(
+                'assets/logo/launch_logo.png',
+                width: 26,
+                height: 26,
+              ),
+              const SizedBox(width: 8),
+            ],
+            Text(_title()),
+          ],
+        ),
       ),
       body: IndexedStack(
         index: _index,
@@ -70,27 +94,27 @@ class _HomeShellState extends State<HomeShell> {
                 );
               },
               icon: const Icon(Icons.add),
-              label: const Text('إضافة إعلان'),
+              label: Text(l.addListing),
             )
           : null,
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: _select,
-        destinations: const [
+        destinations: [
           NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
-            label: 'الرئيسية',
+            icon: const Icon(Icons.home_outlined),
+            selectedIcon: const Icon(Icons.home),
+            label: l.tabHome,
           ),
           NavigationDestination(
-            icon: Icon(Icons.list_alt_outlined),
-            selectedIcon: Icon(Icons.list_alt),
-            label: 'إعلاناتي',
+            icon: const Icon(Icons.inventory_2_outlined),
+            selectedIcon: const Icon(Icons.inventory_2),
+            label: l.tabMyListings,
           ),
           NavigationDestination(
-            icon: Icon(Icons.person_outlined),
-            selectedIcon: Icon(Icons.person),
-            label: 'حسابي',
+            icon: const Icon(Icons.person_outline),
+            selectedIcon: const Icon(Icons.person),
+            label: l.tabProfile,
           ),
         ],
       ),
@@ -98,19 +122,20 @@ class _HomeShellState extends State<HomeShell> {
   }
 
   Future<void> _confirmLogout() async {
+    final l = context.l10n;
     final yes = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('تسجيل الخروج'),
-        content: const Text('هل تريد تسجيل الخروج من حسابك؟'),
+        title: Text(l.logoutTitle),
+        content: Text(l.logoutConfirm),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('إلغاء'),
+            child: Text(l.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('خروج'),
+            child: Text(l.logout),
           ),
         ],
       ),

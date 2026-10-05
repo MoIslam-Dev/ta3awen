@@ -1,0 +1,453 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
+import 'app_localizations.dart';
+
+// ignore_for_file: type=lint
+
+/// The translations for English (`en`).
+class AppLocalizationsEn extends AppLocalizations {
+  AppLocalizationsEn([String locale = 'en']) : super(locale);
+
+  @override
+  String get appName => 'Ta3awen';
+
+  @override
+  String get tagline => 'What you no longer need, someone else may need';
+
+  @override
+  String get ok => 'OK';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
+  String get clear => 'Clear';
+
+  @override
+  String get loading => 'Loading...';
+
+  @override
+  String get loginRequired => 'You must sign in';
+
+  @override
+  String get errTimeout => 'Signing in took too long, check your network and try again';
+
+  @override
+  String get errBadCredentials => 'Incorrect email or password';
+
+  @override
+  String get errEmailInUse => 'This email is already registered';
+
+  @override
+  String get errWeakPassword => 'Weak password (at least 6 characters)';
+
+  @override
+  String get errInvalidEmail => 'Invalid email';
+
+  @override
+  String get errNetwork => 'No internet connection, check your network';
+
+  @override
+  String get errTooMany => 'Too many attempts, try again later';
+
+  @override
+  String get errUserDisabled => 'This account is disabled, contact support';
+
+  @override
+  String get errUnexpected => 'An unexpected error occurred, try again';
+
+  @override
+  String get errPermission => 'You don\'t have permission to do this';
+
+  @override
+  String get errNotFound => 'Requested data not found';
+
+  @override
+  String get errGeneric => 'Something went wrong, try again';
+
+  @override
+  String get email => 'Email';
+
+  @override
+  String get password => 'Password';
+
+  @override
+  String get passwordMin => 'Password (at least 6 characters)';
+
+  @override
+  String get invalidEmailMsg => 'Invalid email';
+
+  @override
+  String get login => 'Sign in';
+
+  @override
+  String get forgotPassword => 'Forgot password?';
+
+  @override
+  String get noAccount => 'Don\'t have an account?';
+
+  @override
+  String get createAccount => 'Create account';
+
+  @override
+  String get enterEmailFirst => 'Enter your email first';
+
+  @override
+  String get resetEmailSent => 'Password reset link sent to your email';
+
+  @override
+  String get registerTitle => 'Create an account';
+
+  @override
+  String get fullName => 'Full name';
+
+  @override
+  String get enterFullName => 'Enter your full name';
+
+  @override
+  String get weakPasswordMsg => 'Weak password';
+
+  @override
+  String get accountCreated => 'Account created successfully, welcome!';
+
+  @override
+  String get tabHome => 'Home';
+
+  @override
+  String get tabMyListings => 'My listings';
+
+  @override
+  String get tabProfile => 'Account';
+
+  @override
+  String get addListing => 'Add listing';
+
+  @override
+  String get logoutTitle => 'Sign out';
+
+  @override
+  String get logoutConfirm => 'Do you want to sign out?';
+
+  @override
+  String get logout => 'Sign out';
+
+  @override
+  String get searchHint => 'Search listings...';
+
+  @override
+  String get filterCategory => 'Category';
+
+  @override
+  String get filterWilaya => 'Wilaya';
+
+  @override
+  String get filterCommune => 'Commune';
+
+  @override
+  String get loadingFeed => 'Loading listings...';
+
+  @override
+  String get noResults => 'No matching results';
+
+  @override
+  String get emptyFeed => 'No listings yet — be the first to post one';
+
+  @override
+  String get clearFilters => 'Clear filters';
+
+  @override
+  String get loadMore => 'More';
+
+  @override
+  String get allCategories => 'All categories';
+
+  @override
+  String get allWilayas => 'All wilayas';
+
+  @override
+  String get allCommunes => 'All communes';
+
+  @override
+  String get statusAvailable => 'Available';
+
+  @override
+  String get statusGiven => 'Donated';
+
+  @override
+  String get catClothes => 'Clothes';
+
+  @override
+  String get catFurniture => 'Furniture';
+
+  @override
+  String get catBooks => 'Books';
+
+  @override
+  String get catElectronics => 'Electronics';
+
+  @override
+  String get catSchool => 'School supplies';
+
+  @override
+  String get catHome => 'Home goods';
+
+  @override
+  String get catKids => 'Baby & kids';
+
+  @override
+  String get catFood => 'Food';
+
+  @override
+  String get catAid => 'Assistance equipment';
+
+  @override
+  String get catOther => 'Other';
+
+  @override
+  String get condNew => 'New';
+
+  @override
+  String get condVeryGood => 'Very good';
+
+  @override
+  String get condGood => 'Good';
+
+  @override
+  String get condUsed => 'Used';
+
+  @override
+  String get reasonInappropriate => 'Inappropriate content';
+
+  @override
+  String get reasonFalseInfo => 'False information';
+
+  @override
+  String get reasonAlreadyObtained => 'Item already obtained';
+
+  @override
+  String get reasonDuplicate => 'Duplicate listing';
+
+  @override
+  String get reasonOther => 'Other';
+
+  @override
+  String get detailsTitle => 'Listing details';
+
+  @override
+  String get description => 'Description';
+
+  @override
+  String get ownerLabel => 'Listing owner';
+
+  @override
+  String get showPhone => 'Show contact number';
+
+  @override
+  String get noPhone => 'The owner did not leave a phone number';
+
+  @override
+  String get listingNotFound => 'Listing not found';
+
+  @override
+  String get report => 'Report';
+
+  @override
+  String get reportTitle => 'Report this listing';
+
+  @override
+  String get reportDescLabel => 'Additional description (optional)';
+
+  @override
+  String get reportSubmit => 'Send report';
+
+  @override
+  String get reportSent => 'Report sent, thank you for helping';
+
+  @override
+  String get listingTitleLabel => 'Listing title';
+
+  @override
+  String get titleInvalid => 'Enter a clear title';
+
+  @override
+  String get descriptionLabel => 'Description';
+
+  @override
+  String get descriptionHint => 'Describe the item\'s condition and any important notes...';
+
+  @override
+  String get descriptionInvalid => 'Enter a short description';
+
+  @override
+  String get categoryLabel => 'Category';
+
+  @override
+  String get categoryInvalid => 'Choose a category';
+
+  @override
+  String get conditionLabel => 'Condition';
+
+  @override
+  String get conditionInvalid => 'Choose a condition';
+
+  @override
+  String get wilaya => 'Wilaya';
+
+  @override
+  String get commune => 'Commune';
+
+  @override
+  String get wilayaInvalid => 'Choose a wilaya';
+
+  @override
+  String get communeInvalid => 'Choose a commune';
+
+  @override
+  String get phoneLabel => 'Contact phone (required)';
+
+  @override
+  String get phoneHelper => 'No in-app chat — interested people will call you';
+
+  @override
+  String get phoneRequired => 'Phone is required — there is no in-app chat';
+
+  @override
+  String get phoneInvalid => 'Invalid Algerian number (e.g. 0550123456)';
+
+  @override
+  String get images => 'Photos';
+
+  @override
+  String imagesCount(Object count) {
+    return '($count/5)';
+  }
+
+  @override
+  String get processingImages => 'Could not process the selected images';
+
+  @override
+  String get addImages => 'Add photos (up to 5)';
+
+  @override
+  String get changeImages => 'Change photos';
+
+  @override
+  String get createListingTitle => 'New listing';
+
+  @override
+  String get editListingTitle => 'Edit listing';
+
+  @override
+  String get saveChanges => 'Save changes';
+
+  @override
+  String get publish => 'Publish';
+
+  @override
+  String get editSaved => 'Changes saved';
+
+  @override
+  String get published => 'Listing published successfully';
+
+  @override
+  String get myListingsEmpty => 'You haven\'t posted a listing yet';
+
+  @override
+  String get addFirstListing => 'Add my first listing';
+
+  @override
+  String get edit => 'Edit';
+
+  @override
+  String get markGiven => 'Mark as \"Donated\"';
+
+  @override
+  String get markAvailable => 'Set back to \"Available\"';
+
+  @override
+  String get deleteListingTitle => 'Delete listing';
+
+  @override
+  String deleteListingBody(String title) {
+    return 'Do you want to permanently delete \"$title\"?';
+  }
+
+  @override
+  String get listingDeleted => 'Listing deleted';
+
+  @override
+  String get settingsSection => 'Settings';
+
+  @override
+  String get languageTitle => 'Language';
+
+  @override
+  String get themeTitle => 'Theme';
+
+  @override
+  String get themeLight => 'Light';
+
+  @override
+  String get themeDark => 'Dark';
+
+  @override
+  String get themeSystem => 'System';
+
+  @override
+  String get adminPanel => 'Admin panel';
+
+  @override
+  String get adminPanelSubtitle => 'Manage listings, reports and users';
+
+  @override
+  String get aboutTitle => 'About Ta3awen';
+
+  @override
+  String get aboutBody => 'An Algerian app for giving away something you no longer use\nto someone who needs it.\nA charity project in memory of my mother — may God have mercy on her.';
+
+  @override
+  String get logoutButton => 'Sign out';
+
+  @override
+  String get adminTitle => 'Admin panel';
+
+  @override
+  String get noAdminPermission => 'You don\'t have access to the admin panel';
+
+  @override
+  String get tabListings => 'Listings';
+
+  @override
+  String get tabReports => 'Reports';
+
+  @override
+  String get tabUsers => 'Users';
+
+  @override
+  String get noListings => 'No listings';
+
+  @override
+  String get noReports => 'No reports';
+
+  @override
+  String get noUsers => 'No users';
+
+  @override
+  String reportPrefix(String title) {
+    return 'Report: $title';
+  }
+
+  @override
+  String reportMeta(String reason, String reporter) {
+    return 'Reason: $reason • By: $reporter';
+  }
+}

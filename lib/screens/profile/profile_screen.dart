@@ -1,8 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '../../l10n/ext.dart';
 import '../../models/app_user.dart';
 import '../../services/admin_service.dart';
 import '../../services/user_service.dart';
+import '../../state/app_settings.dart';
 import '../../utils/errors.dart';
 import '../../widgets/state_views.dart';
 import '../admin/admin_screen.dart';
@@ -44,7 +46,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     if (uid == null) {
       setState(() {
         _loading = false;
-        _error = 'يجب تسجيل الدخول';
+        _error = context.l10n.loginRequired;
       });
       return;
     }
@@ -63,17 +65,129 @@ class _ProfileScreenState extends State<ProfileScreen>
     } catch (e) {
       if (mounted) {
         setState(() {
-          _error = dataErrorMessage(e);
+          _error = dataErrorMessage(context, e);
           _loading = false;
         });
       }
     }
   }
 
+  Future<void> _pickLanguage() async {
+    final settings = AppSettings.instance;
+    final current = settings.locale.value.languageCode;
+    await showModalBottomSheet<void>(
+      context: context,
+      builder: (ctx) {
+        Widget option(String code, String name) {
+          final selected = code == current;
+          return ListTile(
+            leading: selected
+                ? Icon(Icons.check_circle,
+                    color: Theme.of(ctx).colorScheme.primary)
+                : const Icon(Icons.language_outlined),
+            title: Text(name),
+            onTap: () {
+              Navigator.pop(ctx);
+              settings.setLocale(Locale(code));
+            },
+          );
+        }
+
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+                child: Text(
+                  context.l10n.languageTitle,
+                  style: Theme.of(ctx).textTheme.titleMedium,
+                ),
+              ),
+              option('ar', 'العربية'),
+              option('fr', 'Français'),
+              option('en', 'English'),
+              const SizedBox(height: 8),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _pickTheme() async {
+    final settings = AppSettings.instance;
+    final current = settings.themeMode.value;
+    await showModalBottomSheet<void>(
+      context: context,
+      builder: (ctx) {
+        final l = context.l10n;
+        Widget option(ThemeMode mode, IconData icon, String name) {
+          final selected = mode == current;
+          return ListTile(
+            leading: selected
+                ? Icon(Icons.check_circle,
+                    color: Theme.of(ctx).colorScheme.primary)
+                : Icon(icon),
+            title: Text(name),
+            onTap: () {
+              Navigator.pop(ctx);
+              settings.setThemeMode(mode);
+            },
+          );
+        }
+
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+                child: Text(
+                  l.themeTitle,
+                  style: Theme.of(ctx).textTheme.titleMedium,
+                ),
+              ),
+              option(ThemeMode.light, Icons.light_mode_outlined, l.themeLight),
+              option(ThemeMode.dark, Icons.dark_mode_outlined, l.themeDark),
+              option(ThemeMode.system, Icons.brightness_auto_outlined,
+                  l.themeSystem),
+              const SizedBox(height: 8),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  String _languageName() {
+    switch (AppSettings.instance.locale.value.languageCode) {
+      case 'fr':
+        return 'Français';
+      case 'en':
+        return 'English';
+      default:
+        return 'العربية';
+    }
+  }
+
+  String _themeName() {
+    final l = context.l10n;
+    switch (AppSettings.instance.themeMode.value) {
+      case ThemeMode.light:
+        return l.themeLight;
+      case ThemeMode.dark:
+        return l.themeDark;
+      case ThemeMode.system:
+        return l.themeSystem;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    if (_loading) return const LoadingView();
+    final l = context.l10n;
+    if (_loading) return LoadingView(message: l.loading);
     if (_error != null) {
       return ErrorView(message: _error!, onRetry: _load);
     }
@@ -87,47 +201,114 @@ class _ProfileScreenState extends State<ProfileScreen>
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.all(16),
         children: [
+          // Identity card
           Card(
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(20),
               child: Column(
                 children: [
-                  CircleAvatar(
-                    radius: 36,
-                    child: Text(
-                      (user?.fullName.isNotEmpty ?? false)
-                          ? user!.fullName.characters.first
-                          : '؟',
-                      style: theme.textTheme.headlineMedium,
+                  Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: theme.colorScheme.primary.withValues(alpha: 0.4),
+                        width: 3,
+                      ),
+                    ),
+                    child: CircleAvatar(
+                      radius: 38,
+                      backgroundColor: theme.colorScheme.primaryContainer,
+                      foregroundColor:
+                          theme.colorScheme.onPrimaryContainer,
+                      child: Text(
+                        (user?.fullName.isNotEmpty ?? false)
+                            ? user!.fullName.characters.first
+                            : '؟',
+                        style: theme.textTheme.headlineMedium?.copyWith(
+                          color: theme.colorScheme.onPrimaryContainer,
+                        ),
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  Text(user?.fullName ?? '',
-                      style: theme.textTheme.titleLarge),
+                  const SizedBox(height: 14),
+                  Text(
+                    user?.fullName ?? '',
+                    style: theme.textTheme.titleLarge,
+                  ),
                   const SizedBox(height: 4),
                   Text(
                     auth?.email ?? '',
                     textDirection: TextDirection.ltr,
-                    style: theme.textTheme.bodyMedium
-                        ?.copyWith(color: theme.colorScheme.outline),
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
                   ),
                   if (user != null) ...[
                     const SizedBox(height: 8),
-                    Text('${user.wilaya} - ${user.commune}',
-                        style: theme.textTheme.bodyMedium),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.place_outlined,
+                          size: 16,
+                          color: theme.colorScheme.outline,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${user.wilaya} - ${user.commune}',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 ],
               ),
             ),
           ),
           const SizedBox(height: 16),
+
+          // Settings: language + theme
+          Card(
+            child: Column(
+              children: [
+                ListTile(
+                  leading: Icon(
+                    Icons.translate_outlined,
+                    color: theme.colorScheme.primary,
+                  ),
+                  title: Text(l.languageTitle),
+                  subtitle: Text(_languageName()),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: _pickLanguage,
+                ),
+                const Divider(indent: 16, endIndent: 16),
+                ListTile(
+                  leading: Icon(
+                    Icons.dark_mode_outlined,
+                    color: theme.colorScheme.primary,
+                  ),
+                  title: Text(l.themeTitle),
+                  subtitle: Text(_themeName()),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: _pickTheme,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+
           if (_isAdmin)
             Card(
               child: ListTile(
-                leading: const Icon(Icons.admin_panel_settings_outlined),
-                title: const Text('لوحة الإدارة'),
-                subtitle: const Text('إدارة الإعلانات والبلاغات والمستخدمين'),
-                trailing: const Icon(Icons.chevron_left),
+                leading: Icon(
+                  Icons.admin_panel_settings_outlined,
+                  color: theme.colorScheme.primary,
+                ),
+                title: Text(l.adminPanel),
+                subtitle: Text(l.adminPanelSubtitle),
+                trailing: const Icon(Icons.chevron_right),
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(builder: (_) => const AdminScreen()),
@@ -135,21 +316,29 @@ class _ProfileScreenState extends State<ProfileScreen>
                 },
               ),
             ),
+          if (_isAdmin) const SizedBox(height: 16),
+
           Card(
             child: ListTile(
-              leading: Icon(Icons.info_outline,
-                  color: theme.colorScheme.primary),
-              title: const Text('عن تطبيق تعاون'),
-              subtitle: const Text(
-                'تطبيق جزائري للتبرع بالغرض الذي لم يعد يُستخدم\nليحتاجه شخص آخر.\nمشروع خيري في ذكرى والدتي - رحمها الله.',
+              leading: Icon(
+                Icons.favorite_outline,
+                color: theme.colorScheme.primary,
+              ),
+              title: Text(l.aboutTitle),
+              subtitle: Text(
+                l.aboutBody,
+                style: theme.textTheme.bodySmall?.copyWith(height: 1.5),
               ),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           FilledButton.tonalIcon(
             onPressed: widget.onLogoutRequested,
             icon: const Icon(Icons.logout),
-            label: const Text('تسجيل الخروج'),
+            label: Text(l.logoutButton),
+            style: FilledButton.styleFrom(
+              foregroundColor: theme.colorScheme.error,
+            ),
           ),
           const SizedBox(height: 48),
         ],

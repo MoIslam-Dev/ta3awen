@@ -1,11 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '../../l10n/ext.dart';
 import '../../models/app_user.dart';
 import '../../models/listing.dart';
 import '../../models/report.dart';
 import '../../services/admin_service.dart';
 import '../../utils/errors.dart';
 import '../../utils/formatters.dart';
+import '../../utils/labels.dart';
 import '../../widgets/state_views.dart';
 
 class AdminScreen extends StatefulWidget {
@@ -69,7 +71,7 @@ class _AdminScreenState extends State<AdminScreen> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _error = dataErrorMessage(e);
+          _error = dataErrorMessage(context, e);
           _loadingData = false;
         });
       }
@@ -77,18 +79,24 @@ class _AdminScreenState extends State<AdminScreen> {
   }
 
   Future<void> _confirmDeleteListing(Listing l) async {
+    final loc = context.l10n;
     final yes = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('حذف الإعلان'),
-        content: Text('حذف "${l.title}" نهائياً؟'),
+        title: Text(loc.deleteListingTitle),
+        content: Text(loc.deleteListingBody(l.title)),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('إلغاء')),
+              child: Text(loc.cancel)),
           FilledButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('حذف')),
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(ctx).colorScheme.error,
+              foregroundColor: Theme.of(ctx).colorScheme.onError,
+            ),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(loc.delete),
+          ),
         ],
       ),
     );
@@ -99,7 +107,7 @@ class _AdminScreenState extends State<AdminScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(dataErrorMessage(e))));
+            .showSnackBar(SnackBar(content: Text(dataErrorMessage(context, e))));
       }
     }
   }
@@ -111,7 +119,7 @@ class _AdminScreenState extends State<AdminScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(dataErrorMessage(e))));
+            .showSnackBar(SnackBar(content: Text(dataErrorMessage(context, e))));
       }
     }
   }
@@ -123,22 +131,26 @@ class _AdminScreenState extends State<AdminScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(dataErrorMessage(e))));
+            .showSnackBar(SnackBar(content: Text(dataErrorMessage(context, e))));
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     if (_checking) {
-      return const Scaffold(body: LoadingView());
+      return Scaffold(
+        appBar: AppBar(title: Text(l.adminTitle)),
+        body: LoadingView(message: l.loading),
+      );
     }
     if (!_authorized) {
       return Scaffold(
-        appBar: AppBar(title: const Text('لوحة الإدارة')),
-        body: const EmptyView(
+        appBar: AppBar(title: Text(l.adminTitle)),
+        body: EmptyView(
           icon: Icons.lock_outline,
-          message: 'ليست لديك صلاحية الدخول إلى لوحة الإدارة',
+          message: l.noAdminPermission,
         ),
       );
     }
@@ -146,17 +158,17 @@ class _AdminScreenState extends State<AdminScreen> {
       length: 3,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('لوحة الإدارة'),
-          bottom: const TabBar(
+          title: Text(l.adminTitle),
+          bottom: TabBar(
             tabs: [
-              Tab(text: 'الإعلانات'),
-              Tab(text: 'البلاغات'),
-              Tab(text: 'المستخدمون'),
+              Tab(text: l.tabListings),
+              Tab(text: l.tabReports),
+              Tab(text: l.tabUsers),
             ],
           ),
         ),
         body: _loadingData
-            ? const LoadingView()
+            ? LoadingView(message: l.loading)
             : _error != null
                 ? ErrorView(message: _error!, onRetry: _loadData)
                 : TabBarView(
@@ -171,22 +183,39 @@ class _AdminScreenState extends State<AdminScreen> {
   }
 
   Widget _listingsTab() {
+    final l = context.l10n;
     if (_listings.isEmpty) {
-      return const EmptyView(
-          icon: Icons.inventory_2_outlined, message: 'لا توجد إعلانات');
+      return EmptyView(
+        icon: Icons.inventory_2_outlined,
+        message: l.noListings,
+      );
     }
     return RefreshIndicator(
       onRefresh: _loadData,
       child: ListView.builder(
+        padding: const EdgeInsets.symmetric(vertical: 8),
         itemCount: _listings.length,
         itemBuilder: (context, i) {
-          final l = _listings[i];
-          return ListTile(
-            title: Text(l.title, maxLines: 1, overflow: TextOverflow.ellipsis),
-            subtitle: Text('${l.ownerName} • ${l.wilaya} • ${formatDate(l.createdAt)}'),
-            trailing: IconButton(
-              icon: const Icon(Icons.delete_outline, color: Colors.red),
-              onPressed: () => _confirmDeleteListing(l),
+          final item = _listings[i];
+          final theme = Theme.of(context);
+          return Card(
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            child: ListTile(
+              title: Text(
+                item.title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
+              subtitle: Text(
+                '${item.ownerName} • ${item.wilaya} • ${formatDate(item.createdAt)}',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              trailing: IconButton(
+                icon: Icon(Icons.delete_outline, color: theme.colorScheme.error),
+                onPressed: () => _confirmDeleteListing(item),
+              ),
             ),
           );
         },
@@ -195,34 +224,54 @@ class _AdminScreenState extends State<AdminScreen> {
   }
 
   Widget _reportsTab() {
+    final l = context.l10n;
+    final theme = Theme.of(context);
     if (_reports.isEmpty) {
-      return const EmptyView(
-          icon: Icons.flag_outlined, message: 'لا توجد بلاغات');
+      return EmptyView(icon: Icons.flag_outlined, message: l.noReports);
     }
     return RefreshIndicator(
       onRefresh: _loadData,
       child: ListView.builder(
+        padding: const EdgeInsets.symmetric(vertical: 8),
         itemCount: _reports.length,
         itemBuilder: (context, i) {
           final r = _reports[i];
           return Card(
-            margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
             child: ListTile(
-              title: Text('بلاغ: ${r.listingTitle}'),
+              title: Text(
+                l.reportPrefix(r.listingTitle),
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('السبب: ${r.reason} • المُبلِّغ: ${r.reporterName}'),
+                  const SizedBox(height: 4),
+                  Text(
+                    l.reportMeta(
+                      reportReasonLabel(context, r.reason),
+                      r.reporterName,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                   if (r.description != null && r.description!.isNotEmpty)
-                    Text(r.description!,
-                        maxLines: 2, overflow: TextOverflow.ellipsis),
-                  Text(formatDateTime(r.createdAt),
-                      style: Theme.of(context).textTheme.labelSmall),
+                    Text(
+                      r.description!,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  Text(
+                    formatDateTime(r.createdAt),
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: theme.colorScheme.outline,
+                    ),
+                  ),
                 ],
               ),
               isThreeLine: true,
               trailing: IconButton(
-                icon: const Icon(Icons.delete_outline, color: Colors.red),
+                icon: Icon(Icons.delete_outline, color: theme.colorScheme.error),
                 onPressed: () => _deleteReport(r),
               ),
             ),
@@ -233,27 +282,39 @@ class _AdminScreenState extends State<AdminScreen> {
   }
 
   Widget _usersTab() {
+    final l = context.l10n;
+    final theme = Theme.of(context);
     if (_users.isEmpty) {
-      return const EmptyView(
-          icon: Icons.people_outlined, message: 'لا توجد مستخدمين');
+      return EmptyView(icon: Icons.people_outlined, message: l.noUsers);
     }
     return RefreshIndicator(
       onRefresh: _loadData,
       child: ListView.builder(
+        padding: const EdgeInsets.symmetric(vertical: 8),
         itemCount: _users.length,
         itemBuilder: (context, i) {
           final u = _users[i];
-          return SwitchListTile(
-            title: Text(u.fullName),
-            subtitle: Text(
-              '${u.email} • ${u.wilaya}',
-              textDirection: TextDirection.ltr,
-            ),
-            value: !u.disabled,
-            onChanged: (_) => _toggleUser(u),
-            secondary: Icon(
-              u.disabled ? Icons.block : Icons.check_circle_outline,
-              color: u.disabled ? Colors.red : Colors.green,
+          return Card(
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            child: SwitchListTile(
+              title: Text(
+                u.fullName,
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
+              subtitle: Text(
+                '${u.email} • ${u.wilaya}',
+                textDirection: TextDirection.ltr,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              value: !u.disabled,
+              onChanged: (_) => _toggleUser(u),
+              secondary: Icon(
+                u.disabled ? Icons.block : Icons.check_circle_outline,
+                color: u.disabled
+                    ? theme.colorScheme.error
+                    : theme.colorScheme.primary,
+              ),
             ),
           );
         },

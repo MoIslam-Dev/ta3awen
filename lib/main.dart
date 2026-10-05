@@ -1,17 +1,21 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 import 'firebase_options.dart';
+import 'l10n/gen/app_localizations.dart';
 import 'screens/auth_gate.dart';
+import 'state/app_settings.dart';
+import 'theme/app_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  // All date locales (ar/fr/en) so formatDate can follow the UI language.
   try {
-    await initializeDateFormatting('ar');
+    await initializeDateFormatting();
   } catch (_) {}
+  await AppSettings.instance.load();
   runApp(const Ta3awenApp());
 }
 
@@ -20,32 +24,31 @@ class Ta3awenApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'تعاون',
-      debugShowCheckedModeBanner: false,
-      locale: const Locale('ar'),
-      supportedLocales: const [
-        Locale('ar'),
-        Locale('fr'),
-        Locale('en'),
-      ],
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF2E7D32),
-          brightness: Brightness.light,
-        ),
-        inputDecorationTheme: const InputDecorationTheme(
-          border: OutlineInputBorder(),
-        ),
-      ),
-      home: const AuthGate(),
+    final settings = AppSettings.instance;
+    return ValueListenableBuilder<Locale>(
+      valueListenable: settings.locale,
+      builder: (context, locale, _) {
+        return ValueListenableBuilder<ThemeMode>(
+          valueListenable: settings.themeMode,
+          builder: (context, themeMode, _) {
+            return MaterialApp(
+              title: 'Ta3awen',
+              debugShowCheckedModeBanner: false,
+              locale: locale,
+              supportedLocales: const [
+                Locale('ar'),
+                Locale('fr'),
+                Locale('en'),
+              ],
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              theme: AppTheme.light,
+              darkTheme: AppTheme.dark,
+              themeMode: themeMode,
+              home: const AuthGate(),
+            );
+          },
+        );
+      },
     );
   }
 }
-

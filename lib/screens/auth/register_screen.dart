@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/ext.dart';
 import '../../services/auth_service.dart';
 import '../../services/user_service.dart';
 import '../../utils/errors.dart';
@@ -48,7 +49,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('تم إنشاء الحساب بنجاح، مرحباً بك!')),
+          SnackBar(content: Text(context.l10n.accountCreated)),
         );
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (_) => const AuthGate()),
@@ -58,7 +59,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(authErrorMessage(e))));
+            .showSnackBar(SnackBar(content: Text(authErrorMessage(context, e))));
       }
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -67,8 +68,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: const Text('إنشاء حساب جديد')),
+      appBar: AppBar(title: Text(l.registerTitle)),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -80,12 +82,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 TextFormField(
                   controller: _nameCtrl,
                   textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(
-                    labelText: 'الاسم الكامل',
-                    prefixIcon: Icon(Icons.person_outlined),
+                  decoration: InputDecoration(
+                    labelText: l.fullName,
+                    prefixIcon: const Icon(Icons.person_outline),
                   ),
                   validator: (v) => (v == null || v.trim().length < 3)
-                      ? 'أدخل اسمك الكامل'
+                      ? l.enterFullName
                       : null,
                 ),
                 const SizedBox(height: 16),
@@ -94,36 +96,40 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   keyboardType: TextInputType.emailAddress,
                   textDirection: TextDirection.ltr,
                   textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(
-                    labelText: 'البريد الإلكتروني',
-                    prefixIcon: Icon(Icons.email_outlined),
+                  autofillHints: const [AutofillHints.email],
+                  decoration: InputDecoration(
+                    labelText: l.email,
+                    prefixIcon: const Icon(Icons.mail_outline),
                   ),
                   validator: (v) =>
-                      (v == null || !v.contains('@')) ? 'بريد إلكتروني غير صالح' : null,
+                      (v == null || !v.contains('@')) ? l.invalidEmailMsg : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _passwordCtrl,
                   obscureText: true,
                   textDirection: TextDirection.ltr,
-                  decoration: const InputDecoration(
-                    labelText: 'كلمة المرور (6 أحرف على الأقل)',
-                    prefixIcon: Icon(Icons.lock_outlined),
+                  autofillHints: const [AutofillHints.newPassword],
+                  decoration: InputDecoration(
+                    labelText: l.passwordMin,
+                    prefixIcon: const Icon(Icons.lock_outline),
                   ),
                   validator: (v) =>
-                      (v == null || v.length < 6) ? 'كلمة المرور ضعيفة' : null,
+                      (v == null || v.length < 6) ? l.weakPasswordMsg : null,
                 ),
                 const SizedBox(height: 16),
                 WilayaCommuneFields(
                   wilaya: _wilaya,
                   commune: _commune,
+                  wilayaLabel: l.wilaya,
+                  communeLabel: l.commune,
                   onWilaya: (v) => setState(() {
                     _wilaya = v;
                     _commune = null;
                   }),
                   onCommune: (v) => setState(() => _commune = v),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 28),
                 FilledButton(
                   onPressed: _loading ? null : _register,
                   child: _loading
@@ -132,7 +138,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           width: 22,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
-                      : const Text('إنشاء الحساب'),
+                      : Text(l.createAccount),
                 ),
               ],
             ),

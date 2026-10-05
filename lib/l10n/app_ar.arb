@@ -1,0 +1,186 @@
+{
+  "@@locale": "ar",
+  "appName": "تعاون",
+  "tagline": "الحاجة اللي ما تحتاجهاش، ممكن يحتاجها واحد آخر",
+  "ok": "موافق",
+  "cancel": "إلغاء",
+  "save": "حفظ",
+  "delete": "حذف",
+  "retry": "إعادة المحاولة",
+  "clear": "مسح",
+  "loading": "جاري التحميل...",
+  "loginRequired": "يجب تسجيل الدخول",
+
+  "errTimeout": "استغرق تسجيل الدخول وقتاً طويلاً، تحقق من شبكتك وحاول مجدداً",
+  "errBadCredentials": "البريد الإلكتروني أو كلمة المرور غير صحيحة",
+  "errEmailInUse": "هذا البريد الإلكتروني مسجّل مسبقاً",
+  "errWeakPassword": "كلمة المرور ضعيفة (6 أحرف على الأقل)",
+  "errInvalidEmail": "بريد إلكتروني غير صالح",
+  "errNetwork": "تعذّر الاتصال بالإنترنت، تحقق من شبكتك",
+  "errTooMany": "محاولات كثيرة جداً، حاول لاحقاً",
+  "errUserDisabled": "هذا الحساب معطّل، تواصل مع الإدارة",
+  "errUnexpected": "حدث خطأ غير متوقع، حاول مرة أخرى",
+  "errPermission": "ليست لديك صلاحية لتنفيذ هذه العملية",
+  "errNotFound": "لم يتم العثور على البيانات المطلوبة",
+  "errGeneric": "حدث خطأ، حاول مرة أخرى",
+
+  "email": "البريد الإلكتروني",
+  "password": "كلمة المرور",
+  "passwordMin": "كلمة المرور (6 أحرف على الأقل)",
+  "invalidEmailMsg": "بريد إلكتروني غير صالح",
+  "login": "تسجيل الدخول",
+  "forgotPassword": "نسيت كلمة المرور؟",
+  "noAccount": "ليس لديك حساب؟",
+  "createAccount": "إنشاء حساب",
+  "enterEmailFirst": "أدخل بريدك الإلكتروني أولاً",
+  "resetEmailSent": "تم إرسال رابط إعادة تعيين كلمة المرور",
+
+  "registerTitle": "إنشاء حساب جديد",
+  "fullName": "الاسم الكامل",
+  "enterFullName": "أدخل اسمك الكامل",
+  "weakPasswordMsg": "كلمة المرور ضعيفة",
+  "accountCreated": "تم إنشاء الحساب بنجاح، مرحباً بك!",
+
+  "tabHome": "الرئيسية",
+  "tabMyListings": "إعلاناتي",
+  "tabProfile": "حسابي",
+  "addListing": "إضافة إعلان",
+  "logoutTitle": "تسجيل الخروج",
+  "logoutConfirm": "هل تريد تسجيل الخروج من حسابك؟",
+  "logout": "خروج",
+
+  "searchHint": "ابحث عن إعلان...",
+  "filterCategory": "التصنيف",
+  "filterWilaya": "الولاية",
+  "filterCommune": "البلدية",
+  "loadingFeed": "جاري تحميل الإعلانات...",
+  "noResults": "لا توجد نتائج مطابقة للبحث",
+  "emptyFeed": "لا توجد إعلانات بعد، كن أول من ينشر إعلاناً",
+  "clearFilters": "مسح عوامل التصفية",
+  "loadMore": "المزيد",
+  "allCategories": "كل التصنيفات",
+  "allWilayas": "كل الولايات",
+  "allCommunes": "كل البلديات",
+
+  "statusAvailable": "متاح",
+  "statusGiven": "تم التبرع به",
+
+  "catClothes": "ملابس",
+  "catFurniture": "أثاث",
+  "catBooks": "كتب",
+  "catElectronics": "إلكترونيات",
+  "catSchool": "أدوات مدرسية",
+  "catHome": "أدوات منزلية",
+  "catKids": "مستلزمات أطفال",
+  "catFood": "مواد غذائية",
+  "catAid": "معدات مساعدة",
+  "catOther": "أخرى",
+
+  "condNew": "جديد",
+  "condVeryGood": "جيد جداً",
+  "condGood": "جيد",
+  "condUsed": "مستعمل",
+
+  "reasonInappropriate": "محتوى غير مناسب",
+  "reasonFalseInfo": "معلومات كاذبة",
+  "reasonAlreadyObtained": "الغرض تم الحصول عليه مسبقاً",
+  "reasonDuplicate": "إعلان مكرر",
+  "reasonOther": "أخرى",
+
+  "detailsTitle": "تفاصيل الإعلان",
+  "description": "الوصف",
+  "ownerLabel": "صاحب الإعلان",
+  "showPhone": "إظهار رقم التواصل",
+  "noPhone": "صاحب الإعلان لم يترك رقم هاتف",
+  "listingNotFound": "لم يتم العثور على الإعلان",
+  "report": "الإبلاغ",
+  "reportTitle": "الإبلاغ عن الإعلان",
+  "reportDescLabel": "وصف إضافي (اختياري)",
+  "reportSubmit": "إرسال البلاغ",
+  "reportSent": "تم إرسال البلاغ، شكراً لتعاونك",
+
+  "listingTitleLabel": "عنوان الإعلان",
+  "titleInvalid": "أدخل عنواناً واضحاً",
+  "descriptionLabel": "الوصف",
+  "descriptionHint": "اذكر حالة الغرض وملاحظات مهمة...",
+  "descriptionInvalid": "أدخل وصفاً مختصراً",
+  "categoryLabel": "التصنيف",
+  "categoryInvalid": "اختر التصنيف",
+  "conditionLabel": "الحالة",
+  "conditionInvalid": "اختر الحالة",
+  "wilaya": "الولاية",
+  "commune": "البلدية",
+  "wilayaInvalid": "اختر الولاية",
+  "communeInvalid": "اختر البلدية",
+  "phoneLabel": "رقم هاتف للتواصل (إجباري)",
+  "phoneHelper": "لا توجد محادثات داخل التطبيق — سيتواصل معك المعنيون عبر الهاتف",
+  "phoneRequired": "رقم الهاتف إجباري — لا توجد محادثات داخل التطبيق",
+  "phoneInvalid": "رقم هاتف جزائري غير صالح (مثال: 0550123456)",
+  "images": "الصور",
+  "imagesCount": "({count}/5)",
+  "processingImages": "تعذّر معالجة الصور المختارة",
+  "addImages": "إضافة صور (حتى 5)",
+  "changeImages": "تغيير الصور",
+  "createListingTitle": "إضافة إعلان جديد",
+  "editListingTitle": "تعديل الإعلان",
+  "saveChanges": "حفظ التعديلات",
+  "publish": "نشر الإعلان",
+  "editSaved": "تم حفظ التعديلات",
+  "published": "تم نشر الإعلان بنجاح",
+
+  "myListingsEmpty": "لم تنشر أي إعلان بعد",
+  "addFirstListing": "أضف إعلانك الأول",
+  "edit": "تعديل",
+  "markGiven": "تعليم كـ «تم التبرع به»",
+  "markAvailable": "إعادة إلى «متاح»",
+  "deleteListingTitle": "حذف الإعلان",
+  "deleteListingBody": "هل تريد حذف \"{title}\" نهائياً؟",
+  "@deleteListingBody": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "listingDeleted": "تم حذف الإعلان",
+
+  "settingsSection": "الإعدادات",
+  "languageTitle": "اللغة",
+  "themeTitle": "المظهر",
+  "themeLight": "فاتح",
+  "themeDark": "داكن",
+  "themeSystem": "حسب النظام",
+  "adminPanel": "لوحة الإدارة",
+  "adminPanelSubtitle": "إدارة الإعلانات والبلاغات والمستخدمين",
+  "aboutTitle": "عن تطبيق تعاون",
+  "aboutBody": "تطبيق جزائري للتبرع بالغرض الذي لم يعد يُستخدم\nليحتاجه شخص آخر.\nمشروع خيري في ذكرى والدتي - رحمها الله.",
+  "logoutButton": "تسجيل الخروج",
+
+  "adminTitle": "لوحة الإدارة",
+  "noAdminPermission": "ليس لديك صلاحية الدخول إلى لوحة الإدارة",
+  "tabListings": "الإعلانات",
+  "tabReports": "البلاغات",
+  "tabUsers": "المستخدمون",
+  "noListings": "لا توجد إعلانات",
+  "noReports": "لا توجد بلاغات",
+  "noUsers": "لا توجد مستخدمين",
+  "reportPrefix": "بلاغ: {title}",
+  "@reportPrefix": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "reportMeta": "السبب: {reason} • المُبلِّغ: {reporter}",
+  "@reportMeta": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      },
+      "reporter": {
+        "type": "String"
+      }
+    }
+  }
+}

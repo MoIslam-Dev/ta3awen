@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../l10n/ext.dart';
 import '../../services/auth_service.dart';
+import '../../theme/app_theme.dart';
 import '../../utils/errors.dart';
 import '../auth_gate.dart';
 import 'register_screen.dart';
@@ -45,7 +47,7 @@ class _LoginScreenState extends State<LoginScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(authErrorMessage(e))),
+          SnackBar(content: Text(authErrorMessage(context, e))),
         );
       }
     } finally {
@@ -55,9 +57,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _resetPassword() async {
     final email = _emailCtrl.text.trim();
+    final l = context.l10n;
     if (email.isEmpty || !email.contains('@')) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('أدخل بريدك الإلكتروني أولاً')),
+        SnackBar(content: Text(l.enterEmailFirst)),
       );
       return;
     }
@@ -65,13 +68,13 @@ class _LoginScreenState extends State<LoginScreen> {
       await _auth.sendPasswordReset(email);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('تم إرسال رابط إعادة تعيين كلمة المرور')),
+          SnackBar(content: Text(context.l10n.resetEmailSent)),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(authErrorMessage(e))));
+            .showSnackBar(SnackBar(content: Text(authErrorMessage(context, e))));
       }
     }
   }
@@ -79,105 +82,141 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l = context.l10n;
     return Scaffold(
       body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Icon(Icons.handshake_outlined,
-                      size: 72, color: theme.colorScheme.primary),
-                  const SizedBox(height: 8),
-                  Text(
-                    'تعاون',
-                    textAlign: TextAlign.center,
-                    style: theme.textTheme.headlineLarge
-                        ?.copyWith(fontWeight: FontWeight.bold),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Brand hero: continues the green splash into the app.
+              Container(
+                padding: const EdgeInsets.fromLTRB(24, 40, 24, 36),
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [AppColors.primary, AppColors.primaryDark],
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'الحاجة اللي ما تحتاجهاش، ممكن يحتاجها واحد آخر',
-                    textAlign: TextAlign.center,
-                    style: theme.textTheme.bodyMedium
-                        ?.copyWith(color: theme.colorScheme.outline),
+                  borderRadius: BorderRadius.vertical(
+                    bottom: Radius.circular(32),
                   ),
-                  const SizedBox(height: 32),
-                  TextFormField(
-                    controller: _emailCtrl,
-                    keyboardType: TextInputType.emailAddress,
-                    textDirection: TextDirection.ltr,
-                    decoration: const InputDecoration(
-                      labelText: 'البريد الإلكتروني',
-                      prefixIcon: Icon(Icons.email_outlined),
+                ),
+                child: Column(
+                  children: [
+                    Image.asset(
+                      'assets/logo/launch_logo.png',
+                      width: 64,
+                      height: 64,
                     ),
-                    validator: (v) =>
-                        (v == null || !v.contains('@')) ? 'بريد إلكتروني غير صالح' : null,
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _passwordCtrl,
-                    obscureText: _obscure,
-                    textDirection: TextDirection.ltr,
-                    decoration: InputDecoration(
-                      labelText: 'كلمة المرور',
-                      prefixIcon: const Icon(Icons.lock_outlined),
-                      suffixIcon: IconButton(
-                        icon: Icon(_obscure
-                            ? Icons.visibility_outlined
-                            : Icons.visibility_off_outlined),
-                        onPressed: () => setState(() => _obscure = !_obscure),
+                    const SizedBox(height: 12),
+                    Text(
+                      l.appName,
+                      style: theme.textTheme.headlineMedium?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
-                    validator: (v) =>
-                        (v == null || v.length < 6) ? 'كلمة المرور (6 أحرف على الأقل)' : null,
-                    onFieldSubmitted: (_) => _login(),
-                  ),
-                  const SizedBox(height: 8),
-                  Align(
-                    alignment: AlignmentDirectional.centerStart,
-                    child: TextButton(
-                      onPressed: _loading ? null : _resetPassword,
-                      child: const Text('نسيت كلمة المرور؟'),
+                    const SizedBox(height: 6),
+                    Text(
+                      l.tagline,
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: Colors.white.withValues(alpha: 0.85),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  FilledButton(
-                    onPressed: _loading ? null : _login,
-                    child: _loading
-                        ? const SizedBox(
-                            height: 22,
-                            width: 22,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Text('تسجيل الدخول'),
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(24),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const Text('ليس لديك حساب؟'),
-                      TextButton(
-                        onPressed: _loading
-                            ? null
-                            : () {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (_) => const RegisterScreen(),
-                                  ),
-                                );
-                              },
-                        child: const Text('إنشاء حساب'),
+                      TextFormField(
+                        controller: _emailCtrl,
+                        keyboardType: TextInputType.emailAddress,
+                        textDirection: TextDirection.ltr,
+                        autofillHints: const [AutofillHints.email],
+                        decoration: InputDecoration(
+                          labelText: l.email,
+                          prefixIcon: const Icon(Icons.mail_outline),
+                        ),
+                        validator: (v) =>
+                            (v == null || !v.contains('@')) ? l.invalidEmailMsg : null,
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _passwordCtrl,
+                        obscureText: _obscure,
+                        textDirection: TextDirection.ltr,
+                        autofillHints: const [AutofillHints.password],
+                        textInputAction: TextInputAction.done,
+                        decoration: InputDecoration(
+                          labelText: l.password,
+                          prefixIcon: const Icon(Icons.lock_outline),
+                          suffixIcon: IconButton(
+                            icon: Icon(_obscure
+                                ? Icons.visibility_outlined
+                                : Icons.visibility_off_outlined),
+                            onPressed: () => setState(() => _obscure = !_obscure),
+                          ),
+                        ),
+                        validator: (v) =>
+                            (v == null || v.length < 6) ? l.passwordMin : null,
+                        onFieldSubmitted: (_) => _login(),
+                      ),
+                      Align(
+                        alignment: AlignmentDirectional.centerEnd,
+                        child: TextButton(
+                          onPressed: _loading ? null : _resetPassword,
+                          child: Text(l.forgotPassword),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      FilledButton(
+                        onPressed: _loading ? null : _login,
+                        child: _loading
+                            ? const SizedBox(
+                                height: 22,
+                                width: 22,
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2),
+                              )
+                            : Text(l.login),
+                      ),
+                      const SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            l.noAccount,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          TextButton(
+                            onPressed: _loading
+                                ? null
+                                : () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (_) => const RegisterScreen(),
+                                      ),
+                                    );
+                                  },
+                            child: Text(l.createAccount),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
         ),
       ),

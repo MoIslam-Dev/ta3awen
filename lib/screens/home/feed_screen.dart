@@ -3,10 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../data/algeria_data.dart';
+import '../../l10n/ext.dart';
 import '../../models/listing.dart';
 import '../../services/listing_service.dart';
 import '../../utils/constants.dart';
 import '../../utils/errors.dart';
+import '../../utils/labels.dart';
 import '../../widgets/listing_card.dart';
 import '../../widgets/state_views.dart';
 import '../listing/listing_details_screen.dart';
@@ -110,7 +112,7 @@ class _FeedScreenState extends State<FeedScreen>
       onError: (Object e) {
         if (!mounted) return;
         setState(() {
-          _error = dataErrorMessage(e);
+          _error = dataErrorMessage(context, e);
           _loading = false;
         });
       },
@@ -144,7 +146,7 @@ class _FeedScreenState extends State<FeedScreen>
       if (!mounted) return;
       setState(() => _loadingMore = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(dataErrorMessage(e))),
+        SnackBar(content: Text(dataErrorMessage(context, e))),
       );
     }
   }
@@ -191,15 +193,16 @@ class _FeedScreenState extends State<FeedScreen>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    final l = context.l10n;
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
           child: TextField(
             controller: _searchCtrl,
             textInputAction: TextInputAction.search,
             decoration: InputDecoration(
-              hintText: 'ابحث عن إعلان...',
+              hintText: l.searchHint,
               prefixIcon: const Icon(Icons.search),
               suffixIcon: _rawQuery.isNotEmpty
                   ? IconButton(
@@ -212,30 +215,52 @@ class _FeedScreenState extends State<FeedScreen>
           ),
         ),
         SizedBox(
-          height: 72,
+          height: 68,
           child: ListView(
             scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             children: [
               FilterChip(
-                label: Text(_category ?? 'التصنيف'),
+                label: Text(
+                  _category != null
+                      ? categoryLabel(context, _category!)
+                      : l.filterCategory,
+                ),
                 selected: _category != null,
-                avatar: const Icon(Icons.category_outlined, size: 18),
+                avatar: Icon(
+                  Icons.category_outlined,
+                  size: 18,
+                  color: _category != null
+                      ? Theme.of(context).colorScheme.primary
+                      : Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
                 onSelected: (_) => _pickCategory(),
               ),
               const SizedBox(width: 8),
               FilterChip(
-                label: Text(_wilaya ?? 'الولاية'),
+                label: Text(_wilaya ?? l.filterWilaya),
                 selected: _wilaya != null,
-                avatar: const Icon(Icons.place_outlined, size: 18),
+                avatar: Icon(
+                  Icons.place_outlined,
+                  size: 18,
+                  color: _wilaya != null
+                      ? Theme.of(context).colorScheme.primary
+                      : Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
                 onSelected: (_) => _pickWilaya(),
               ),
               if (_wilaya != null) ...[
                 const SizedBox(width: 8),
                 FilterChip(
-                  label: Text(_commune ?? 'البلدية'),
+                  label: Text(_commune ?? l.filterCommune),
                   selected: _commune != null,
-                  avatar: const Icon(Icons.location_city_outlined, size: 18),
+                  avatar: Icon(
+                    Icons.location_city_outlined,
+                    size: 18,
+                    color: _commune != null
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
                   onSelected: (_) => _pickCommune(),
                 ),
               ],
@@ -243,7 +268,7 @@ class _FeedScreenState extends State<FeedScreen>
                 const SizedBox(width: 8),
                 ActionChip(
                   avatar: const Icon(Icons.close, size: 18),
-                  label: const Text('مسح'),
+                  label: Text(l.clear),
                   onPressed: _clearFilters,
                 ),
               ],
@@ -256,7 +281,8 @@ class _FeedScreenState extends State<FeedScreen>
   }
 
   Widget _buildBody() {
-    if (_loading) return const LoadingView(message: 'جاري تحميل الإعلانات...');
+    final l = context.l10n;
+    if (_loading) return LoadingView(message: l.loadingFeed);
     if (_error != null) {
       return ErrorView(message: _error!, onRetry: _load);
     }
@@ -266,13 +292,11 @@ class _FeedScreenState extends State<FeedScreen>
         onRefresh: _load,
         child: EmptyView(
           icon: Icons.inventory_2_outlined,
-          message: _hasFilters
-              ? 'لا توجد نتائج مطابقة للبحث'
-              : 'لا توجد إعلانات بعد، كن أول من ينشر إعلاناً',
+          message: _hasFilters ? l.noResults : l.emptyFeed,
           action: _hasFilters
               ? OutlinedButton(
                   onPressed: _clearFilters,
-                  child: const Text('مسح عوامل التصفية'),
+                  child: Text(l.clearFilters),
                 )
               : null,
         ),
@@ -282,6 +306,7 @@ class _FeedScreenState extends State<FeedScreen>
       onRefresh: _load,
       child: ListView.builder(
         physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.only(top: 4, bottom: 80),
         itemCount: items.length + (_hasMore ? 1 : 0),
         itemBuilder: (context, i) {
           if (i >= items.length) {
@@ -296,7 +321,7 @@ class _FeedScreenState extends State<FeedScreen>
                       )
                     : OutlinedButton(
                         onPressed: _loadMore,
-                        child: const Text('المزيد'),
+                        child: Text(l.loadMore),
                       ),
               ),
             );
@@ -317,24 +342,47 @@ class _FeedScreenState extends State<FeedScreen>
     );
   }
 
+  Widget _sheetOption(
+    BuildContext ctx, {
+    required String title,
+    required IconData icon,
+    required bool selected,
+    required VoidCallback onTap,
+  }) {
+    return ListTile(
+      leading: Icon(icon),
+      title: Text(title),
+      selected: selected,
+      trailing: selected
+          ? Icon(
+              Icons.check_circle,
+              color: Theme.of(ctx).colorScheme.primary,
+            )
+          : null,
+      onTap: onTap,
+    );
+  }
+
   Future<void> _pickCategory() async {
+    final l = context.l10n;
     final selected = await showModalBottomSheet<String?>(
       context: context,
       builder: (ctx) => SafeArea(
         child: ListView(
           shrinkWrap: true,
+          padding: const EdgeInsets.only(bottom: 12),
           children: [
-            ListTile(
-              title: const Text('كل التصنيفات'),
-              leading: const Icon(Icons.category_outlined),
-              onTap: () => Navigator.pop(ctx, '__all__'),
-            ),
+            _sheetOption(ctx,
+                title: l.allCategories,
+                icon: Icons.category_outlined,
+                selected: false,
+                onTap: () => Navigator.pop(ctx, '__all__')),
             ...kCategories.map(
-              (c) => ListTile(
-                title: Text(c),
-                selected: _category == c,
-                onTap: () => Navigator.pop(ctx, c),
-              ),
+              (c) => _sheetOption(ctx,
+                  title: categoryLabel(ctx, c),
+                  icon: Icons.category_outlined,
+                  selected: _category == c,
+                  onTap: () => Navigator.pop(ctx, c)),
             ),
           ],
         ),
@@ -348,23 +396,25 @@ class _FeedScreenState extends State<FeedScreen>
   }
 
   Future<void> _pickWilaya() async {
+    final l = context.l10n;
     final selected = await showModalBottomSheet<String?>(
       context: context,
       builder: (ctx) => SafeArea(
         child: ListView(
           shrinkWrap: true,
+          padding: const EdgeInsets.only(bottom: 12),
           children: [
-            ListTile(
-              title: const Text('كل الولايات'),
-              leading: const Icon(Icons.place_outlined),
-              onTap: () => Navigator.pop(ctx, '__all__'),
-            ),
+            _sheetOption(ctx,
+                title: l.allWilayas,
+                icon: Icons.place_outlined,
+                selected: false,
+                onTap: () => Navigator.pop(ctx, '__all__')),
             ...AlgeriaData.wilayas.map(
-              (w) => ListTile(
-                title: Text(w),
-                selected: _wilaya == w,
-                onTap: () => Navigator.pop(ctx, w),
-              ),
+              (w) => _sheetOption(ctx,
+                  title: w,
+                  icon: Icons.place_outlined,
+                  selected: _wilaya == w,
+                  onTap: () => Navigator.pop(ctx, w)),
             ),
           ],
         ),
@@ -380,24 +430,26 @@ class _FeedScreenState extends State<FeedScreen>
 
   Future<void> _pickCommune() async {
     if (_wilaya == null) return;
+    final l = context.l10n;
     final communes = AlgeriaData.communesOf(_wilaya!);
     final selected = await showModalBottomSheet<String?>(
       context: context,
       builder: (ctx) => SafeArea(
         child: ListView(
           shrinkWrap: true,
+          padding: const EdgeInsets.only(bottom: 12),
           children: [
-            ListTile(
-              title: const Text('كل البلديات'),
-              leading: const Icon(Icons.location_city_outlined),
-              onTap: () => Navigator.pop(ctx, '__all__'),
-            ),
+            _sheetOption(ctx,
+                title: l.allCommunes,
+                icon: Icons.location_city_outlined,
+                selected: false,
+                onTap: () => Navigator.pop(ctx, '__all__')),
             ...communes.map(
-              (c) => ListTile(
-                title: Text(c),
-                selected: _commune == c,
-                onTap: () => Navigator.pop(ctx, c),
-              ),
+              (c) => _sheetOption(ctx,
+                  title: c,
+                  icon: Icons.location_city_outlined,
+                  selected: _commune == c,
+                  onTap: () => Navigator.pop(ctx, c)),
             ),
           ],
         ),
