@@ -154,7 +154,7 @@ class ListingService {
     if (imagesB64.isNotEmpty) {
       final batch = _db.batch();
       for (var i = 0; i < imagesB64.length; i++) {
-        batch.set(doc.collection('images').doc(), {
+        batch.set(doc.collection('images').doc('$i'), {
           'index': i,
           'data': imagesB64[i],
         });
@@ -207,7 +207,7 @@ class ListingService {
         batch.delete(d.reference);
       }
       for (var i = 0; i < newImagesB64.length; i++) {
-        batch.set(doc.collection('images').doc(), {
+        batch.set(doc.collection('images').doc('$i'), {
           'index': i,
           'data': newImagesB64[i],
         });

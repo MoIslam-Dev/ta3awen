@@ -29,23 +29,48 @@ service cloud.firestore {
         data.commune is string && data.commune.size() > 0 &&
         data.condition is string && data.condition.size() > 0 &&
         data.contactPhone is string && data.contactPhone.size() >= 9 && data.contactPhone.size() <= 20 &&
+        data.ownerName is string && data.ownerName.size() <= 100 &&
         data.status is string &&
-        data.imageCount is int && data.imageCount >= 0 && data.imageCount <= 5;
+        data.imageCount is int && data.imageCount >= 0 && data.imageCount <= 5 &&
+        data.keywords is list && data.keywords.size() <= 3000 &&
+        (data.image0 == null || (data.image0 is string && data.image0.size() < 150000));
     }
 
-    // User profiles
+    // Owners may only move a listing between the two canonical statuses;
+    // admins bypass every content check (moderation edits).
+    function ownerListing(data) {
+      return validListing(data) &&
+        data.status in ['متاح', 'تم التبرع به'];
+    }
+
+    // User profiles: PII — readable only by the owner and admins.
     match /users/{uid} {
-      allow read: if signedIn();
+      allow read: if isAdmin() || (signedIn() && request.auth.uid == uid);
       allow create: if signedIn() && request.auth.uid == uid &&
-        request.resource.data.disabled == false;
+        request.resource.data.keys().hasOnly(
+          ['fullName', 'email', 'wilaya', 'commune', 'contactPhone', 'disabled', 'createdAt']) &&
+        request.resource.data.disabled == false &&
+        request.resource.data.fullName is string &&
+        request.resource.data.fullName.size() > 0 &&
+        request.resource.data.fullName.size() <= 100 &&
+        request.resource.data.email is string && request.resource.data.email.size() <= 200 &&
+        request.resource.data.wilaya is string && request.resource.data.wilaya.size() <= 60 &&
+        request.resource.data.commune is string && request.resource.data.commune.size() <= 60 &&
+        (request.resource.data.contactPhone == null ||
+          (request.resource.data.contactPhone is string &&
+            request.resource.data.contactPhone.size() <= 20));
       allow update: if isAdmin() ||
         (signedIn() && request.auth.uid == uid &&
           request.resource.data.diff(resource.data).affectedKeys()
-            .hasOnly(['fullName', 'wilaya', 'commune', 'contactPhone']));
+            .hasOnly(['fullName', 'wilaya', 'commune', 'contactPhone']) &&
+          request.resource.data.fullName is string &&
+          request.resource.data.fullName.size() > 0 &&
+          request.resource.data.fullName.size() <= 100 &&
+          request.resource.data.disabled == resource.data.disabled);
       allow delete: if isAdmin();
     }
 
-    // Admin membership: writable only from the Firebase console / Admin SDK
+    // Admin membership: writable only from the Firebase console / Admin SDK.
     match /admins/{uid} {
       allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
       allow write: if false;
@@ -57,16 +82,20 @@ service cloud.firestore {
       allow create: if canWrite() &&
         request.resource.data.ownerId == request.auth.uid &&
         validListing(request.resource.data) &&
-        request.resource.data.status == 'متاح';
+        request.resource.data.status == 'متاح' &&
+        request.resource.data.createdAt == request.time &&
+        request.resource.data.updatedAt == request.time;
       allow update: if isAdmin() ||
         (canWrite() &&
           resource.data.ownerId == request.auth.uid &&
           request.resource.data.ownerId == resource.data.ownerId &&
-          validListing(request.resource.data));
+          request.resource.data.createdAt == resource.data.createdAt &&
+          ownerListing(request.resource.data));
       allow delete: if isAdmin() ||
         (canWrite() && resource.data.ownerId == request.auth.uid);
 
-      // Listing images (base64 payloads)
+      // Listing images (base64 payloads). The document id is the image
+      // index ('0'..'4'), which caps each listing at 5 image documents.
       match /images/{imgId} {
         allow read: if signedIn();
         allow create, update: if canWrite() &&
@@ -74,6 +103,7 @@ service cloud.firestore {
           request.resource.data.index is int &&
           request.resource.data.index >= 0 &&
           request.resource.data.index < 5 &&
+          string(request.resource.data.index) == imgId &&
           request.resource.data.data is string &&
           request.resource.data.data.size() < 900000;
         allow delete: if isAdmin() ||
@@ -82,13 +112,31 @@ service cloud.firestore {
       }
     }
 
-    // Reports: created by users, managed by admins
+    // Reports: created by users, managed by admins. Reason is a fixed enum
+    // (kReportReasons in lib/utils/constants.dart).
     match /reports/{id} {
       allow read: if isAdmin();
       allow create: if canWrite() &&
+        request.resource.data.keys().hasOnly(
+          ['listingId', 'listingTitle', 'reporterId', 'reporterName', 'reason', 'description', 'createdAt']) &&
         request.resource.data.reporterId == request.auth.uid &&
         request.resource.data.listingId is string &&
-        request.resource.data.reason is string;
+        request.resource.data.listingId.size() > 0 &&
+        request.resource.data.listingId.size() <= 64 &&
+        request.resource.data.listingTitle is string &&
+        request.resource.data.listingTitle.size() <= 80 &&
+        request.resource.data.reporterName is string &&
+        request.resource.data.reporterName.size() <= 100 &&
+        request.resource.data.reason in [
+          'محتوى غير مناسب',
+          'معلومات كاذبة',
+          'الغرض تم الحصول عليه مسبقاً',
+          'إعلان مكرر',
+          'أخرى'] &&
+        (request.resource.data.description == null ||
+          (request.resource.data.description is string &&
+            request.resource.data.description.size() <= 1000)) &&
+        request.resource.data.createdAt == request.time;
       allow update, delete: if isAdmin();
     }
   }

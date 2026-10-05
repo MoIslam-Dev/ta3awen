@@ -102,4 +102,39 @@ void main() {
       expect(keywordsMatch(keywords, 'كرسي'), false);
     });
   });
+
+  group('rules caps (must stay under firestore.rules limits)', () {
+    test('adversarial max-length texts stay within 3000 keywords', () {
+      const alphabet = 'abcdefghijklmnopqrstuvwxy';
+      String dense(int n) {
+        final buf = StringBuffer();
+        for (var i = 0; buf.length < n; i++) {
+          buf.write(alphabet[i % alphabet.length]);
+          if (i % 5 == 4) buf.write(' ');
+        }
+        return buf.toString().substring(0, n);
+      }
+
+      final keywords = buildKeywords(
+        title: dense(80),
+        description: dense(800),
+        category: 'aaaaaaaaaaaaaaaa',
+        wilaya: 'bbbbbbbbbbbbbbbb',
+        commune: 'cccccccccccccccc',
+        condition: 'dddddddddddddddd',
+      );
+      expect(keywords.length, lessThanOrEqualTo(3000));
+      expect(keywords.every((k) => k.length <= 16), true);
+      expect(keywords, isNotEmpty);
+    });
+
+    test('max-length single tokens produce at most 16 prefixes each', () {
+      final keywords = buildKeywords(
+        title: 'z' * 80,
+        description: 'y' * 800,
+      );
+      expect(keywords.every((k) => k.length <= 16), true);
+      expect(keywords.length, lessThanOrEqualTo(3000));
+    });
+  });
 }

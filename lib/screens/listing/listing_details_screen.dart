@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../l10n/ext.dart';
 import '../../models/listing.dart';
 import '../../services/listing_service.dart';
@@ -106,6 +107,7 @@ class _ListingDetailsScreenState extends State<ListingDetailsScreen> {
               TextField(
                 controller: descCtrl,
                 maxLines: 3,
+                inputFormatters: [LengthLimitingTextInputFormatter(1000)],
                 decoration: InputDecoration(
                   labelText: l.reportDescLabel,
                 ),
