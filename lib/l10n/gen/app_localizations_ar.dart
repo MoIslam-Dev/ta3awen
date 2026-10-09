@@ -450,4 +450,42 @@ class AppLocalizationsAr extends AppLocalizations {
   String reportMeta(String reason, String reporter) {
     return 'السبب: $reason • المُبلِّغ: $reporter';
   }
+
+  @override
+  String get statusReserved => 'محجوز';
+
+  @override
+  String get claimRequest => 'احجز هذا الإعلان';
+
+  @override
+  String get claimCancel => 'إلغاء حجزي';
+
+  @override
+  String get claimRelease => 'إلغاء حجز المستخدم';
+
+  @override
+  String get confirmDelivery => 'تأكيد التسليم';
+
+  @override
+  String get claimSuccess => 'تم حجز الإعلان، بانتظار تأكيد المالك';
+
+  @override
+  String get claimTaken => 'سبقك مستخدم آخر وحجز الإعلان';
+
+  @override
+  String get claimCancelled => 'تم إلغاء الحجز';
+
+  @override
+  String get deliveryConfirmed => 'تم تأكيد التسليم';
+
+  @override
+  String get myReservations => 'حجوزاتي';
+
+  @override
+  String get reservationsEmpty => 'لم تحجز أي إعلان بعد';
+
+  @override
+  String reservedBy(String name) {
+    return 'محجوز من طرف $name';
+  }
 }

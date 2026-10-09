@@ -182,5 +182,25 @@
         "type": "String"
       }
     }
+  },
+
+  "statusReserved": "Réservé",
+  "claimRequest": "Réserver cette annonce",
+  "claimCancel": "Annuler ma réservation",
+  "claimRelease": "Libérer la réservation",
+  "confirmDelivery": "Confirmer la remise",
+  "claimSuccess": "Annonce réservée, en attente de confirmation",
+  "claimTaken": "Un autre utilisateur l'a déjà réservée",
+  "claimCancelled": "Réservation annulée",
+  "deliveryConfirmed": "Remise confirmée",
+  "myReservations": "Mes réservations",
+  "reservationsEmpty": "Vous n'avez réservé aucune annonce",
+  "reservedBy": "Réservé par {name}",
+  "@reservedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   }
 }

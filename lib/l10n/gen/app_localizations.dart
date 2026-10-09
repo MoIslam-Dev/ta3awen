@@ -966,6 +966,78 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'السبب: {reason} • المُبلِّغ: {reporter}'**
   String reportMeta(String reason, String reporter);
+
+  /// No description provided for @statusReserved.
+  ///
+  /// In ar, this message translates to:
+  /// **'محجوز'**
+  String get statusReserved;
+
+  /// No description provided for @claimRequest.
+  ///
+  /// In ar, this message translates to:
+  /// **'احجز هذا الإعلان'**
+  String get claimRequest;
+
+  /// No description provided for @claimCancel.
+  ///
+  /// In ar, this message translates to:
+  /// **'إلغاء حجزي'**
+  String get claimCancel;
+
+  /// No description provided for @claimRelease.
+  ///
+  /// In ar, this message translates to:
+  /// **'إلغاء حجز المستخدم'**
+  String get claimRelease;
+
+  /// No description provided for @confirmDelivery.
+  ///
+  /// In ar, this message translates to:
+  /// **'تأكيد التسليم'**
+  String get confirmDelivery;
+
+  /// No description provided for @claimSuccess.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم حجز الإعلان، بانتظار تأكيد المالك'**
+  String get claimSuccess;
+
+  /// No description provided for @claimTaken.
+  ///
+  /// In ar, this message translates to:
+  /// **'سبقك مستخدم آخر وحجز الإعلان'**
+  String get claimTaken;
+
+  /// No description provided for @claimCancelled.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم إلغاء الحجز'**
+  String get claimCancelled;
+
+  /// No description provided for @deliveryConfirmed.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم تأكيد التسليم'**
+  String get deliveryConfirmed;
+
+  /// No description provided for @myReservations.
+  ///
+  /// In ar, this message translates to:
+  /// **'حجوزاتي'**
+  String get myReservations;
+
+  /// No description provided for @reservationsEmpty.
+  ///
+  /// In ar, this message translates to:
+  /// **'لم تحجز أي إعلان بعد'**
+  String get reservationsEmpty;
+
+  /// No description provided for @reservedBy.
+  ///
+  /// In ar, this message translates to:
+  /// **'محجوز من طرف {name}'**
+  String reservedBy(String name);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -19,6 +19,9 @@ class Listing {
   final List<String> keywords;
   final DateTime? createdAt;
   final DateTime? updatedAt;
+  final String? claimedBy;
+  final String? claimedByName;
+  final DateTime? claimedAt;
 
   const Listing({
     required this.id,
@@ -37,9 +40,16 @@ class Listing {
     this.keywords = const [],
     this.createdAt,
     this.updatedAt,
+    this.claimedBy,
+    this.claimedByName,
+    this.claimedAt,
   });
 
   bool get isAvailable => status == statusAvailable;
+
+  /// Reserved by another user — hidden from the feed until the owner
+  /// confirms delivery or the claim is cancelled.
+  bool get isReserved => status == statusReserved;
 
   factory Listing.fromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
     final d = doc.data() ?? <String, dynamic>{};
@@ -60,6 +70,9 @@ class Listing {
       keywords: List<String>.from(d['keywords'] as List? ?? const []),
       createdAt: (d['createdAt'] as Timestamp?)?.toDate(),
       updatedAt: (d['updatedAt'] as Timestamp?)?.toDate(),
+      claimedBy: d['claimedBy'] as String?,
+      claimedByName: d['claimedByName'] as String?,
+      claimedAt: (d['claimedAt'] as Timestamp?)?.toDate(),
     );
   }
 
@@ -90,4 +103,5 @@ class Listing {
 }
 
 const String statusAvailable = 'متاح';
+const String statusReserved = 'محجوز';
 const String statusGiven = 'تم التبرع به';

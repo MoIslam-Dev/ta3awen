@@ -450,4 +450,42 @@ class AppLocalizationsEn extends AppLocalizations {
   String reportMeta(String reason, String reporter) {
     return 'Reason: $reason • By: $reporter';
   }
+
+  @override
+  String get statusReserved => 'Reserved';
+
+  @override
+  String get claimRequest => 'Reserve this listing';
+
+  @override
+  String get claimCancel => 'Cancel my reservation';
+
+  @override
+  String get claimRelease => 'Release reservation';
+
+  @override
+  String get confirmDelivery => 'Confirm delivery';
+
+  @override
+  String get claimSuccess => 'Listing reserved, waiting for the owner';
+
+  @override
+  String get claimTaken => 'Someone else already reserved it';
+
+  @override
+  String get claimCancelled => 'Reservation cancelled';
+
+  @override
+  String get deliveryConfirmed => 'Delivery confirmed';
+
+  @override
+  String get myReservations => 'My reservations';
+
+  @override
+  String get reservationsEmpty => 'You haven\'t reserved any listing yet';
+
+  @override
+  String reservedBy(String name) {
+    return 'Reserved by $name';
+  }
 }

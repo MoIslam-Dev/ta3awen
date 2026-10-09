@@ -18,6 +18,64 @@ void main() {
 
   test('listing status constants', () {
     expect(statusAvailable, 'متاح');
+    expect(statusReserved, 'محجوز');
     expect(statusGiven, 'تم التبرع به');
+  });
+
+  test('reservation flags and claim fields', () {
+    const base = Listing(
+      id: 'L1',
+      ownerId: 'alice',
+      ownerName: 'User alice',
+      title: 'Chaise',
+      description: 'desc',
+      category: 'أثاث',
+      wilaya: 'الجزائر',
+      commune: 'باب الزوار',
+      condition: 'جيد',
+      status: statusAvailable,
+    );
+    expect(base.isAvailable, true);
+    expect(base.isReserved, false);
+    expect(base.claimedBy, isNull);
+
+    const reserved = Listing(
+      id: 'L1',
+      ownerId: 'alice',
+      ownerName: 'User alice',
+      title: 'Chaise',
+      description: 'desc',
+      category: 'أثاث',
+      wilaya: 'الجزائر',
+      commune: 'باب الزوار',
+      condition: 'جيد',
+      status: statusReserved,
+      claimedBy: 'bob',
+      claimedByName: 'User bob',
+    );
+    expect(reserved.isAvailable, false);
+    expect(reserved.isReserved, true);
+    expect(reserved.claimedBy, 'bob');
+  });
+
+  test('toMap never plants claim fields (create rule rejects them)', () {
+    const listing = Listing(
+      id: 'L1',
+      ownerId: 'alice',
+      ownerName: 'User alice',
+      title: 'Chaise',
+      description: 'desc',
+      category: 'أثاث',
+      wilaya: 'الجزائر',
+      commune: 'باب الزوار',
+      condition: 'جيد',
+      status: statusReserved,
+      claimedBy: 'bob',
+    );
+    final map = listing.toMap();
+    expect(map.containsKey('claimedBy'), false);
+    expect(map.containsKey('claimedByName'), false);
+    expect(map.containsKey('claimedAt'), false);
+    expect(map['status'], statusReserved);
   });
 }

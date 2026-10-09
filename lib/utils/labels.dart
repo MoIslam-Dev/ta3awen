@@ -52,6 +52,8 @@ String statusLabel(BuildContext context, String storage) {
   switch (storage) {
     case 'متاح':
       return context.l10n.statusAvailable;
+    case 'محجوز':
+      return context.l10n.statusReserved;
     case 'تم التبرع به':
       return context.l10n.statusGiven;
     default:

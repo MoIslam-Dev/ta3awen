@@ -182,5 +182,25 @@
         "type": "String"
       }
     }
+  },
+
+  "statusReserved": "محجوز",
+  "claimRequest": "احجز هذا الإعلان",
+  "claimCancel": "إلغاء حجزي",
+  "claimRelease": "إلغاء حجز المستخدم",
+  "confirmDelivery": "تأكيد التسليم",
+  "claimSuccess": "تم حجز الإعلان، بانتظار تأكيد المالك",
+  "claimTaken": "سبقك مستخدم آخر وحجز الإعلان",
+  "claimCancelled": "تم إلغاء الحجز",
+  "deliveryConfirmed": "تم تأكيد التسليم",
+  "myReservations": "حجوزاتي",
+  "reservationsEmpty": "لم تحجز أي إعلان بعد",
+  "reservedBy": "محجوز من طرف {name}",
+  "@reservedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   }
 }

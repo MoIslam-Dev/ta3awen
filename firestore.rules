@@ -43,6 +43,16 @@ service cloud.firestore {
         data.status in ['متاح', 'تم التبرع به'];
     }
 
+    function unchangedFrozen(data) {
+      return data.ownerId == resource.data.ownerId &&
+        data.createdAt == resource.data.createdAt;
+    }
+
+    function claimKeysUntouched() {
+      return !request.resource.data.diff(resource.data).affectedKeys()
+        .hasAny(['claimedBy', 'claimedByName', 'claimedAt']);
+    }
+
     // User profiles: PII — readable only by the owner and admins.
     match /users/{uid} {
       allow read: if isAdmin() || (signedIn() && request.auth.uid == uid);
@@ -76,7 +86,10 @@ service cloud.firestore {
       allow write: if false;
     }
 
-    // Listings
+    // Listings — status lifecycle:
+    //   متاح  --claim-->  محجوز  --owner confirms-->  تم التبرع به
+    //   (owner may also go متاح <-> تم التبرع به directly, as before;
+    //    cancel returns محجوز -> متاح and clears the claim fields)
     match /listings/{id} {
       allow read: if signedIn();
       allow create: if canWrite() &&
@@ -84,13 +97,56 @@ service cloud.firestore {
         validListing(request.resource.data) &&
         request.resource.data.status == 'متاح' &&
         request.resource.data.createdAt == request.time &&
-        request.resource.data.updatedAt == request.time;
+        request.resource.data.updatedAt == request.time &&
+        !request.resource.data.keys()
+          .hasAny(['claimedBy', 'claimedByName', 'claimedAt']);
+
       allow update: if isAdmin() ||
+        // (A) Owner content / canonical status edits. Claim fields are
+        //     never touched here, and a reservation may only leave the
+        //     reservation paths below — never by flipping status alone.
         (canWrite() &&
           resource.data.ownerId == request.auth.uid &&
-          request.resource.data.ownerId == resource.data.ownerId &&
-          request.resource.data.createdAt == resource.data.createdAt &&
-          ownerListing(request.resource.data));
+          unchangedFrozen(request.resource.data) &&
+          validListing(request.resource.data) &&
+          (ownerListing(request.resource.data) ||
+            request.resource.data.status == resource.data.status) &&
+          claimKeysUntouched() &&
+          (resource.data.status != 'محجوز' ||
+            request.resource.data.status == 'محجوز')) ||
+        // (B) Claim: any signed-in non-owner reserves an available listing.
+        (canWrite() &&
+          resource.data.status == 'متاح' &&
+          request.resource.data.status == 'محجوز' &&
+          request.resource.data.claimedBy == request.auth.uid &&
+          request.resource.data.claimedBy != resource.data.ownerId &&
+          request.resource.data.claimedByName is string &&
+          request.resource.data.claimedByName.size() <= 100 &&
+          request.resource.data.claimedAt == request.time &&
+          unchangedFrozen(request.resource.data) &&
+          request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['status', 'claimedBy', 'claimedByName', 'claimedAt', 'updatedAt'])) ||
+        // (C) Cancel: owner or claimant releases the reservation.
+        (canWrite() &&
+          resource.data.status == 'محجوز' &&
+          request.resource.data.status == 'متاح' &&
+          request.resource.data.claimedBy == null &&
+          request.resource.data.claimedByName == null &&
+          request.resource.data.claimedAt == null &&
+          unchangedFrozen(request.resource.data) &&
+          (request.auth.uid == resource.data.ownerId ||
+            request.auth.uid == resource.data.claimedBy) &&
+          request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['status', 'claimedBy', 'claimedByName', 'claimedAt', 'updatedAt'])) ||
+        // (D) Confirm delivery: owner only; claim fields stay for trust.
+        (canWrite() &&
+          resource.data.status == 'محجوز' &&
+          request.resource.data.status == 'تم التبرع به' &&
+          request.auth.uid == resource.data.ownerId &&
+          unchangedFrozen(request.resource.data) &&
+          request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['status', 'updatedAt']));
+
       allow delete: if isAdmin() ||
         (canWrite() && resource.data.ownerId == request.auth.uid);
 

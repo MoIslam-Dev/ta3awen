@@ -182,5 +182,25 @@
         "type": "String"
       }
     }
+  },
+
+  "statusReserved": "Reserved",
+  "claimRequest": "Reserve this listing",
+  "claimCancel": "Cancel my reservation",
+  "claimRelease": "Release reservation",
+  "confirmDelivery": "Confirm delivery",
+  "claimSuccess": "Listing reserved, waiting for the owner",
+  "claimTaken": "Someone else already reserved it",
+  "claimCancelled": "Reservation cancelled",
+  "deliveryConfirmed": "Delivery confirmed",
+  "myReservations": "My reservations",
+  "reservationsEmpty": "You haven't reserved any listing yet",
+  "reservedBy": "Reserved by {name}",
+  "@reservedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   }
 }

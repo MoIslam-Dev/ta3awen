@@ -224,6 +224,53 @@ class ListingService {
     });
   }
 
+  /// Reserve an available listing (claim path in the security rules).
+  /// Throws `FirebaseException(permission-denied)` when another user won
+  /// the race — the caller probes [byId] to tell the difference between
+  /// "taken" and a generic failure.
+  Future<void> claim(String id, {required String uid, required String name}) {
+    return _col.doc(id).update({
+      'status': statusReserved,
+      'claimedBy': uid,
+      'claimedByName': name,
+      'claimedAt': FieldValue.serverTimestamp(),
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+  /// Owner or claimant releases the reservation back to the feed.
+  Future<void> cancelClaim(String id) {
+    return _col.doc(id).update({
+      'status': statusAvailable,
+      'claimedBy': null,
+      'claimedByName': null,
+      'claimedAt': null,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+  /// Owner-only: a reserved listing becomes donated. The claim fields are
+  /// kept so the community can see who received it.
+  Future<void> confirmDelivery(String id) {
+    return _col.doc(id).update({
+      'status': statusGiven,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+  /// Live reservations made by [uid] (the "حجوزاتي" tab), newest claim first.
+  Stream<List<Listing>> reservationsStream(String uid) {
+    return _col.where('claimedBy', isEqualTo: uid).snapshots().map((snap) {
+      final items = snap.docs.map(Listing.fromDoc).toList();
+      items.sort((a, b) {
+        final ta = a.claimedAt ?? a.createdAt ?? DateTime(2000);
+        final tb = b.claimedAt ?? b.createdAt ?? DateTime(2000);
+        return tb.compareTo(ta);
+      });
+      return items;
+    });
+  }
+
   Future<void> delete(String id) async {
     final doc = _col.doc(id);
     final imgs = await doc.collection('images').get();

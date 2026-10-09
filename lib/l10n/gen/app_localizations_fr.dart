@@ -450,4 +450,42 @@ class AppLocalizationsFr extends AppLocalizations {
   String reportMeta(String reason, String reporter) {
     return 'Motif : $reason • Par : $reporter';
   }
+
+  @override
+  String get statusReserved => 'Réservé';
+
+  @override
+  String get claimRequest => 'Réserver cette annonce';
+
+  @override
+  String get claimCancel => 'Annuler ma réservation';
+
+  @override
+  String get claimRelease => 'Libérer la réservation';
+
+  @override
+  String get confirmDelivery => 'Confirmer la remise';
+
+  @override
+  String get claimSuccess => 'Annonce réservée, en attente de confirmation';
+
+  @override
+  String get claimTaken => 'Un autre utilisateur l\'a déjà réservée';
+
+  @override
+  String get claimCancelled => 'Réservation annulée';
+
+  @override
+  String get deliveryConfirmed => 'Remise confirmée';
+
+  @override
+  String get myReservations => 'Mes réservations';
+
+  @override
+  String get reservationsEmpty => 'Vous n\'avez réservé aucune annonce';
+
+  @override
+  String reservedBy(String name) {
+    return 'Réservé par $name';
+  }
 }

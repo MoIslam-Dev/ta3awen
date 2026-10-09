@@ -96,14 +96,18 @@ class ListingCard extends StatelessWidget {
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 8, vertical: 3),
                                 decoration: BoxDecoration(
-                                  color: theme.colorScheme.tertiaryContainer,
+                                  color: listing.isReserved
+                                      ? theme.colorScheme.secondaryContainer
+                                      : theme.colorScheme.tertiaryContainer,
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Text(
                                   statusLabel(context, listing.status),
                                   style: theme.textTheme.labelSmall?.copyWith(
-                                    color:
-                                        theme.colorScheme.onTertiaryContainer,
+                                    color: listing.isReserved
+                                        ? theme
+                                            .colorScheme.onSecondaryContainer
+                                        : theme.colorScheme.onTertiaryContainer,
                                   ),
                                 ),
                               ),
