@@ -17,6 +17,12 @@ class RequestPost {
   final String commune;
   final String? contactPhone;
   final String status;
+
+  /// 'general' (default) or 'blood' — blood posts are always type need
+  /// and carry a valid [bloodType].
+  final String kind;
+  final String? bloodType;
+
   final String? matchedBy;
   final String? matchedName;
   final DateTime? matchedAt;
@@ -36,6 +42,8 @@ class RequestPost {
     required this.commune,
     this.contactPhone,
     this.status = requestStatusOpen,
+    this.kind = requestKindGeneral,
+    this.bloodType,
     this.matchedBy,
     this.matchedName,
     this.matchedAt,
@@ -49,6 +57,8 @@ class RequestPost {
   bool get isMatched => status == requestStatusMatched;
 
   bool get isClosed => status == requestStatusClosed;
+
+  bool get isBlood => kind == requestKindBlood;
 
   factory RequestPost.fromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
     final d = doc.data() ?? <String, dynamic>{};
@@ -64,6 +74,8 @@ class RequestPost {
       commune: (d['commune'] ?? '') as String,
       contactPhone: d['contactPhone'] as String?,
       status: (d['status'] ?? requestStatusOpen) as String,
+      kind: (d['kind'] ?? requestKindGeneral) as String,
+      bloodType: d['bloodType'] as String?,
       matchedBy: d['matchedBy'] as String?,
       matchedName: d['matchedName'] as String?,
       matchedAt: (d['matchedAt'] as Timestamp?)?.toDate(),
@@ -86,6 +98,8 @@ class RequestPost {
         'commune': commune,
         'contactPhone': contactPhone,
         'status': requestStatusOpen,
+        'kind': kind,
+        'bloodType': bloodType,
         'keywords': buildKeywords(
           title: title,
           description: description,
@@ -104,3 +118,6 @@ const String requestStatusClosed = 'closed';
 
 const String requestTypeNeed = 'need';
 const String requestTypeOffer = 'offer';
+
+const String requestKindGeneral = 'general';
+const String requestKindBlood = 'blood';

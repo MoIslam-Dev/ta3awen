@@ -12,13 +12,21 @@ import '../../widgets/wilaya_commune_fields.dart';
 class RequestFormScreen extends StatefulWidget {
   final RequestPost? existing;
 
-  const RequestFormScreen.create({super.key, this.initialType})
-      : existing = null;
+  const RequestFormScreen.create({
+    super.key,
+    this.initialType,
+    this.initialKind = requestKindGeneral,
+  }) : existing = null;
 
-  const RequestFormScreen.edit(this.existing, {super.key}) : initialType = null;
+  const RequestFormScreen.edit(this.existing, {super.key})
+      : initialType = null,
+        initialKind = requestKindGeneral;
 
   /// Preselects the "need" / "offer" chip when creating from the board.
   final String? initialType;
+
+  /// 'blood' opens the blood-donation form (type fixed to need).
+  final String initialKind;
 
   @override
   State<RequestFormScreen> createState() => _RequestFormScreenState();
@@ -33,6 +41,8 @@ class _RequestFormScreenState extends State<RequestFormScreen> {
   final _userService = UserService();
 
   String _type = requestTypeNeed;
+  String _kind = requestKindGeneral;
+  String? _bloodType;
   String? _category;
   String? _wilaya;
   String? _commune;
@@ -40,12 +50,16 @@ class _RequestFormScreenState extends State<RequestFormScreen> {
 
   bool get _isEdit => widget.existing != null;
 
+  bool get _isBlood => _kind == requestKindBlood;
+
   @override
   void initState() {
     super.initState();
     final e = widget.existing;
     if (e != null) {
+      _kind = e.kind;
       _type = e.type;
+      _bloodType = e.bloodType;
       _titleCtrl.text = e.title;
       _descCtrl.text = e.description;
       _phoneCtrl.text = e.contactPhone ?? '';
@@ -53,8 +67,15 @@ class _RequestFormScreenState extends State<RequestFormScreen> {
       _wilaya = e.wilaya;
       _commune = e.commune;
     } else {
+      _kind = widget.initialKind;
       _type = widget.initialType ?? requestTypeNeed;
-      _category = kCategories.first;
+      if (_isBlood) {
+        // Blood posts are always needs with a fixed category.
+        _type = requestTypeNeed;
+        _category = kBloodCategory;
+      } else {
+        _category = kCategories.first;
+      }
     }
   }
 
@@ -90,20 +111,25 @@ class _RequestFormScreenState extends State<RequestFormScreen> {
     final phone = _normalizePhone(_phoneCtrl.text);
     setState(() => _saving = true);
     try {
+      // Blood posts are always needs under the fixed blood category.
+      final type = _isBlood ? requestTypeNeed : _type;
+      final category = _isBlood ? kBloodCategory : _category!;
       if (_isEdit) {
         final e = widget.existing!;
         final draft = RequestPost(
           id: e.id,
           uid: e.uid,
           userName: e.userName,
-          type: e.type,
+          type: type,
           title: _titleCtrl.text.trim(),
           description: _descCtrl.text.trim(),
-          category: _category!,
+          category: category,
           wilaya: _wilaya!,
           commune: _commune!,
           contactPhone: phone,
           status: e.status,
+          kind: _kind,
+          bloodType: _bloodType,
         );
         await _requestService.update(draft);
       } else {
@@ -117,13 +143,15 @@ class _RequestFormScreenState extends State<RequestFormScreen> {
           id: '',
           uid: uid,
           userName: userName,
-          type: _type,
+          type: type,
           title: _titleCtrl.text.trim(),
           description: _descCtrl.text.trim(),
-          category: _category!,
+          category: category,
           wilaya: _wilaya!,
           commune: _commune!,
           contactPhone: phone,
+          kind: _kind,
+          bloodType: _bloodType,
         );
         await _requestService.create(draft);
       }
@@ -162,7 +190,7 @@ class _RequestFormScreenState extends State<RequestFormScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              if (!_isEdit) ...[
+              if (!_isEdit && !_isBlood) ...[
                 SegmentedButton<String>(
                   showSelectedIcon: false,
                   segments: [
@@ -183,13 +211,32 @@ class _RequestFormScreenState extends State<RequestFormScreen> {
                 ),
                 const SizedBox(height: 16),
               ],
+              if (_isBlood) ...[
+                DropdownButtonFormField<String>(
+                  value: _bloodType,
+                  isExpanded: true,
+                  decoration: InputDecoration(
+                    labelText: l.reqBloodTypeLabel,
+                    prefixIcon: const Icon(Icons.bloodtype_outlined),
+                  ),
+                  items: kBloodTypes
+                      .map((t) => DropdownMenuItem(value: t, child: Text(t)))
+                      .toList(),
+                  onChanged: (v) => setState(() => _bloodType = v),
+                  validator: (v) =>
+                      v == null ? l.reqBloodTypeInvalid : null,
+                ),
+                const SizedBox(height: 16),
+              ],
               TextFormField(
                 controller: _titleCtrl,
                 textInputAction: TextInputAction.next,
                 maxLength: 80,
                 decoration: InputDecoration(
                   labelText: l.listingTitleLabel,
-                  hintText: isNeed ? l.reqTitleNeed : l.reqTitleOffer,
+                  hintText: _isBlood
+                      ? l.reqBloodTitle
+                      : (isNeed ? l.reqTitleNeed : l.reqTitleOffer),
                   prefixIcon: const Icon(Icons.title_outlined),
                 ),
                 validator: (v) =>
@@ -202,7 +249,9 @@ class _RequestFormScreenState extends State<RequestFormScreen> {
                 maxLength: 800,
                 decoration: InputDecoration(
                   labelText: l.descriptionLabel,
-                  hintText: isNeed ? l.reqDescNeed : l.reqDescOffer,
+                  hintText: _isBlood
+                      ? l.reqBloodDesc
+                      : (isNeed ? l.reqDescNeed : l.reqDescOffer),
                   prefixIcon: const Icon(Icons.notes_outlined),
                   alignLabelWithHint: true,
                 ),
@@ -211,23 +260,25 @@ class _RequestFormScreenState extends State<RequestFormScreen> {
                     : null,
               ),
               const SizedBox(height: 8),
-              DropdownButtonFormField<String>(
-                value: _category,
-                isExpanded: true,
-                decoration: InputDecoration(
-                  labelText: l.categoryLabel,
-                  prefixIcon: const Icon(Icons.category_outlined),
+              if (!_isBlood) ...[
+                DropdownButtonFormField<String>(
+                  value: _category,
+                  isExpanded: true,
+                  decoration: InputDecoration(
+                    labelText: l.categoryLabel,
+                    prefixIcon: const Icon(Icons.category_outlined),
+                  ),
+                  items: kCategories
+                      .map((c) => DropdownMenuItem(
+                            value: c,
+                            child: Text(categoryLabel(context, c)),
+                          ))
+                      .toList(),
+                  onChanged: (v) => setState(() => _category = v),
+                  validator: (v) => v == null ? l.categoryInvalid : null,
                 ),
-                items: kCategories
-                    .map((c) => DropdownMenuItem(
-                          value: c,
-                          child: Text(categoryLabel(context, c)),
-                        ))
-                    .toList(),
-                onChanged: (v) => setState(() => _category = v),
-                validator: (v) => v == null ? l.categoryInvalid : null,
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 16),
+              ],
               WilayaCommuneFields(
                 wilaya: _wilaya,
                 commune: _commune,

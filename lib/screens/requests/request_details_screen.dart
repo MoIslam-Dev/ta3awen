@@ -421,6 +421,11 @@ class _RequestDetailsScreenState extends State<RequestDetailsScreen> {
                       : Icons.volunteer_activism_outlined,
                   label: requestTypeLabel(context, r.type),
                 ),
+                if (r.isBlood && r.bloodType != null)
+                  InfoChip(
+                    icon: Icons.bloodtype_outlined,
+                    label: '${l.reqBloodTypeLabel}: ${r.bloodType}',
+                  ),
                 InfoChip(
                   icon: Icons.category_outlined,
                   label: categoryLabel(context, r.category),

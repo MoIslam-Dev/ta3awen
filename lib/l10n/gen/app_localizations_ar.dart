@@ -629,4 +629,28 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get reqDeleted => 'تم حذف الطلب';
+
+  @override
+  String get reqKindBlood => 'دم';
+
+  @override
+  String get reqBloodTypeLabel => 'فصيلة الدم';
+
+  @override
+  String get reqBloodTypeInvalid => 'اختر فصيلة الدم من القائمة';
+
+  @override
+  String get reqBloodEmpty => 'لا توجد طلبات تبرع بالدم مفتوحة';
+
+  @override
+  String get reqAddBlood => 'انشر طلب تبرع بالدم';
+
+  @override
+  String get reqBloodTitle => 'ما فصيلة الدم التي تحتاجها؟';
+
+  @override
+  String get reqBloodDesc => 'اذكر المستشفى/المكان ومتى تحتاج الدم (قبل عملية، مرض، إصابة...)';
+
+  @override
+  String get catBlood => 'التبرع بالدم';
 }

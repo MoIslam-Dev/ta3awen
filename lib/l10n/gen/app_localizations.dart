@@ -1308,6 +1308,54 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'تم حذف الطلب'**
   String get reqDeleted;
+
+  /// No description provided for @reqKindBlood.
+  ///
+  /// In ar, this message translates to:
+  /// **'دم'**
+  String get reqKindBlood;
+
+  /// No description provided for @reqBloodTypeLabel.
+  ///
+  /// In ar, this message translates to:
+  /// **'فصيلة الدم'**
+  String get reqBloodTypeLabel;
+
+  /// No description provided for @reqBloodTypeInvalid.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختر فصيلة الدم من القائمة'**
+  String get reqBloodTypeInvalid;
+
+  /// No description provided for @reqBloodEmpty.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد طلبات تبرع بالدم مفتوحة'**
+  String get reqBloodEmpty;
+
+  /// No description provided for @reqAddBlood.
+  ///
+  /// In ar, this message translates to:
+  /// **'انشر طلب تبرع بالدم'**
+  String get reqAddBlood;
+
+  /// No description provided for @reqBloodTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'ما فصيلة الدم التي تحتاجها؟'**
+  String get reqBloodTitle;
+
+  /// No description provided for @reqBloodDesc.
+  ///
+  /// In ar, this message translates to:
+  /// **'اذكر المستشفى/المكان ومتى تحتاج الدم (قبل عملية، مرض، إصابة...)'**
+  String get reqBloodDesc;
+
+  /// No description provided for @catBlood.
+  ///
+  /// In ar, this message translates to:
+  /// **'التبرع بالدم'**
+  String get catBlood;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

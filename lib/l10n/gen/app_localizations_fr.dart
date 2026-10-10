@@ -629,4 +629,28 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get reqDeleted => 'Demande supprimée';
+
+  @override
+  String get reqKindBlood => 'Sang';
+
+  @override
+  String get reqBloodTypeLabel => 'Groupe sanguin';
+
+  @override
+  String get reqBloodTypeInvalid => 'Choisissez un groupe sanguin dans la liste';
+
+  @override
+  String get reqBloodEmpty => 'Aucune demande de don de sang ouverte';
+
+  @override
+  String get reqAddBlood => 'Publier une demande de sang';
+
+  @override
+  String get reqBloodTitle => 'De quel groupe sanguin avez-vous besoin ?';
+
+  @override
+  String get reqBloodDesc => 'Indiquez l\'hôpital et quand le sang est nécessaire (opération, maladie, blessure...)';
+
+  @override
+  String get catBlood => 'Don de sang';
 }

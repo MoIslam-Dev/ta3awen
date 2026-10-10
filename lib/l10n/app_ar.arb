@@ -274,5 +274,14 @@
       }
     }
   },
-  "reqDeleted": "تم حذف الطلب"
+  "reqDeleted": "تم حذف الطلب",
+
+  "reqKindBlood": "دم",
+  "reqBloodTypeLabel": "فصيلة الدم",
+  "reqBloodTypeInvalid": "اختر فصيلة الدم من القائمة",
+  "reqBloodEmpty": "لا توجد طلبات تبرع بالدم مفتوحة",
+  "reqAddBlood": "انشر طلب تبرع بالدم",
+  "reqBloodTitle": "ما فصيلة الدم التي تحتاجها؟",
+  "reqBloodDesc": "اذكر المستشفى/المكان ومتى تحتاج الدم (قبل عملية، مرض، إصابة...)",
+  "catBlood": "التبرع بالدم"
 }

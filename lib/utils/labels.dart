@@ -27,6 +27,8 @@ String categoryLabel(BuildContext context, String storage) {
       return context.l10n.catFood;
     case 'معدات مساعدة':
       return context.l10n.catAid;
+    case 'التبرع بالدم':
+      return context.l10n.catBlood;
     case 'أخرى':
       return context.l10n.catOther;
     default:

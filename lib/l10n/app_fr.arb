@@ -274,5 +274,14 @@
       }
     }
   },
-  "reqDeleted": "Demande supprimée"
+  "reqDeleted": "Demande supprimée",
+
+  "reqKindBlood": "Sang",
+  "reqBloodTypeLabel": "Groupe sanguin",
+  "reqBloodTypeInvalid": "Choisissez un groupe sanguin dans la liste",
+  "reqBloodEmpty": "Aucune demande de don de sang ouverte",
+  "reqAddBlood": "Publier une demande de sang",
+  "reqBloodTitle": "De quel groupe sanguin avez-vous besoin ?",
+  "reqBloodDesc": "Indiquez l'hôpital et quand le sang est nécessaire (opération, maladie, blessure...)",
+  "catBlood": "Don de sang"
 }

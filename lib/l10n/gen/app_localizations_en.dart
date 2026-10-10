@@ -629,4 +629,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reqDeleted => 'Request deleted';
+
+  @override
+  String get reqKindBlood => 'Blood';
+
+  @override
+  String get reqBloodTypeLabel => 'Blood type';
+
+  @override
+  String get reqBloodTypeInvalid => 'Choose a blood type from the list';
+
+  @override
+  String get reqBloodEmpty => 'No open blood donation requests';
+
+  @override
+  String get reqAddBlood => 'Post a blood request';
+
+  @override
+  String get reqBloodTitle => 'What blood type do you need?';
+
+  @override
+  String get reqBloodDesc => 'Mention the hospital and when the blood is needed (surgery, illness, injury...)';
+
+  @override
+  String get catBlood => 'Blood donation';
 }

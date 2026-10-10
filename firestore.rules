@@ -54,6 +54,12 @@ service cloud.firestore {
     }
 
     // Board posts (requests): type need|offer, status open|matched|closed.
+    // kind general|blood (absent = general, pre-blood clients); blood posts
+    // are always type need and carry a valid bloodType.
+    function kBloodTypes() {
+      return ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
+    }
+
     function validRequest(data) {
       return data.uid is string && data.uid.size() > 0 &&
         data.userName is string && data.userName.size() <= 100 &&
@@ -65,12 +71,29 @@ service cloud.firestore {
         data.commune is string && data.commune.size() > 0 &&
         data.contactPhone is string && data.contactPhone.size() >= 9 && data.contactPhone.size() <= 20 &&
         data.keywords is list && data.keywords.size() <= 3000 &&
-        data.status in ['open', 'matched', 'closed'];
+        data.status in ['open', 'matched', 'closed'] &&
+        data.get('kind', 'general') in ['general', 'blood'] &&
+        (data.get('bloodType', null) == null ||
+          data.get('bloodType', null) in kBloodTypes()) &&
+        (data.get('kind', 'general') != 'blood' ||
+          (data.type == 'need' &&
+            data.get('bloodType', null) in kBloodTypes()));
     }
 
     function requestMatchKeysUntouched() {
       return !request.resource.data.diff(resource.data).affectedKeys()
         .hasAny(['matchedBy', 'matchedName', 'matchedAt']);
+    }
+
+    // Content edits may never convert a post between general and blood;
+    // bloodType may only stay as-is or change to another valid type.
+    function requestKindEditAllowed() {
+      return request.resource.data.get('kind', 'general') ==
+          resource.data.get('kind', 'general') &&
+        (request.resource.data.get('bloodType', null) ==
+            resource.data.get('bloodType', null) ||
+          (request.resource.data.get('bloodType', null) is string &&
+            request.resource.data.get('bloodType', null) in kBloodTypes()));
     }
 
     // User profiles: PII — readable only by the owner and admins.
@@ -232,13 +255,14 @@ service cloud.firestore {
           .hasAny(['matchedBy', 'matchedName', 'matchedAt']);
 
       allow update: if isAdmin() ||
-        // (A) Owner content edit — status and match untouched.
+        // (A) Owner content edit — status, match keys and kind untouched.
         (canWrite() &&
           resource.data.uid == request.auth.uid &&
           request.resource.data.uid == resource.data.uid &&
           request.resource.data.createdAt == resource.data.createdAt &&
           request.resource.data.status == resource.data.status &&
           validRequest(request.resource.data) &&
+          requestKindEditAllowed() &&
           requestMatchKeysUntouched()) ||
         // (B) Owner toggles open <-> closed.
         (canWrite() &&

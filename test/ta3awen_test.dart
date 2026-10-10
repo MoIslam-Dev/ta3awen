@@ -162,4 +162,81 @@ void main() {
         reason: 'create always starts open');
     expect((map['keywords'] as List).isNotEmpty, true);
   });
+
+  test('request kind constants and blood flags', () {
+    expect(requestKindGeneral, 'general');
+    expect(requestKindBlood, 'blood');
+
+    const general = RequestPost(
+      id: 'R1',
+      uid: 'alice',
+      userName: 'User alice',
+      type: requestTypeNeed,
+      title: 'Chaise',
+      description: 'desc',
+      category: 'أثاث',
+      wilaya: 'الجزائر',
+      commune: 'باب الزوار',
+    );
+    expect(general.kind, requestKindGeneral);
+    expect(general.isBlood, false);
+    expect(general.bloodType, isNull);
+
+    const blood = RequestPost(
+      id: 'R2',
+      uid: 'sara',
+      userName: 'User sara',
+      type: requestTypeNeed,
+      title: 'Sang A+ urgent',
+      description: 'Hopital Beni Messous',
+      category: 'التبرع بالدم',
+      wilaya: 'الجزائر',
+      commune: 'القبة',
+      kind: requestKindBlood,
+      bloodType: 'A+',
+    );
+    expect(blood.isBlood, true);
+    expect(blood.type, requestTypeNeed);
+  });
+
+  test('request toMap writes kind and bloodType (null for general)', () {
+    const general = RequestPost(
+      id: 'R1',
+      uid: 'alice',
+      userName: 'User alice',
+      type: requestTypeNeed,
+      title: 'Chaise',
+      description: 'desc',
+      category: 'أثاث',
+      wilaya: 'الجزائر',
+      commune: 'باب الزوار',
+    );
+    final gmap = general.toMap();
+    expect(gmap['kind'], requestKindGeneral);
+    expect(gmap['bloodType'], isNull);
+
+    const blood = RequestPost(
+      id: 'R2',
+      uid: 'sara',
+      userName: 'User sara',
+      type: requestTypeNeed,
+      title: 'Sang O- urgent',
+      description: 'Hopital',
+      category: 'التبرع بالدم',
+      wilaya: 'الجزائر',
+      commune: 'القبة',
+      kind: requestKindBlood,
+      bloodType: 'O-',
+    );
+    final bmap = blood.toMap();
+    expect(bmap['kind'], requestKindBlood);
+    expect(bmap['bloodType'], 'O-');
+    expect(bmap['type'], requestTypeNeed);
+    expect(bmap['status'], requestStatusOpen);
+  });
+
+  test('kBloodTypes holds the 8 designations', () {
+    expect(kBloodTypes,
+        ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']);
+  });
 }

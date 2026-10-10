@@ -18,12 +18,17 @@ class RequestService {
     return items;
   }
 
-  /// Live board of open posts (optionally narrowed to one type),
-  /// newest first. Matching / closed posts drop out automatically.
-  Stream<List<RequestPost>> boardStream({String? type}) {
+  /// Live board of open posts, newest first. Optionally narrowed to one
+  /// type (need/offer, general posts only) or to the blood board.
+  /// Matching / closed posts drop out automatically.
+  Stream<List<RequestPost>> boardStream({String? type, String? kind}) {
     Query<Map<String, dynamic>> q =
         _col.where('status', isEqualTo: requestStatusOpen);
-    if (type != null) q = q.where('type', isEqualTo: type);
+    if (kind != null) {
+      q = q.where('kind', isEqualTo: kind);
+    } else if (type != null) {
+      q = q.where('type', isEqualTo: type);
+    }
     return q.snapshots().map((snap) => _sorted(snap.docs));
   }
 
@@ -55,6 +60,8 @@ class RequestService {
       'wilaya': draft.wilaya,
       'commune': draft.commune,
       'contactPhone': draft.contactPhone,
+      'kind': draft.kind,
+      'bloodType': draft.bloodType,
       'keywords': buildKeywords(
         title: draft.title,
         description: draft.description,

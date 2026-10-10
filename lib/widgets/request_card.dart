@@ -84,11 +84,17 @@ class RequestCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  categoryLabel(context, request.category),
+                  request.isBlood && request.bloodType != null
+                      ? '${categoryLabel(context, request.category)} • ${request.bloodType}'
+                      : categoryLabel(context, request.category),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
+                    color: request.isBlood
+                        ? theme.colorScheme.error
+                        : theme.colorScheme.onSurfaceVariant,
+                    fontWeight:
+                        request.isBlood ? FontWeight.w700 : null,
                   ),
                 ),
                 const SizedBox(height: 6),
