@@ -488,4 +488,145 @@ class AppLocalizationsFr extends AppLocalizations {
   String reservedBy(String name) {
     return 'Réservé par $name';
   }
+
+  @override
+  String get tabRequests => 'Demandes';
+
+  @override
+  String get addRequest => 'Ajouter';
+
+  @override
+  String get reqTypeAll => 'Tous';
+
+  @override
+  String get reqTypeNeed => 'J\'ai besoin';
+
+  @override
+  String get reqTypeOffer => 'Je peux offrir';
+
+  @override
+  String get reqTypeLabel => 'Type de demande';
+
+  @override
+  String get reqTitleNeed => 'De quoi avez-vous besoin ?';
+
+  @override
+  String get reqTitleOffer => 'Que pouvez-vous proposer ?';
+
+  @override
+  String get reqDescNeed => 'Détails : ce dont vous avez besoin exactement, la quantité, et quand...';
+
+  @override
+  String get reqDescOffer => 'Détails : ce que vous pouvez proposer, la quantité, et quand remettre...';
+
+  @override
+  String get reqTypeInvalid => 'Choisissez le type de demande';
+
+  @override
+  String get reqStatusOpen => 'Ouverte';
+
+  @override
+  String get reqStatusMatched => 'Appariée';
+
+  @override
+  String get reqStatusClosed => 'Clôturée';
+
+  @override
+  String get reqCreateTitle => 'Nouvelle demande';
+
+  @override
+  String get reqEditTitle => 'Modifier la demande';
+
+  @override
+  String get reqPublished => 'Demande publiée avec succès';
+
+  @override
+  String get reqSearchHint => 'Rechercher des demandes...';
+
+  @override
+  String get reqSegmentBoard => 'Tableau';
+
+  @override
+  String get reqSegmentMine => 'Mes demandes';
+
+  @override
+  String get reqEmptyBoard => 'Aucune demande ouverte pour le moment';
+
+  @override
+  String get reqEmptyMine => 'Vous n\'avez publié aucune demande';
+
+  @override
+  String get reqAddFirst => 'Publiez votre première demande';
+
+  @override
+  String reqMatchedBy(String name) {
+    return 'Apparié avec $name';
+  }
+
+  @override
+  String get reqDetailsTitle => 'Détails de la demande';
+
+  @override
+  String get reqNotFound => 'Demande introuvable';
+
+  @override
+  String get reqAuthor => 'Auteur de la demande';
+
+  @override
+  String get reqMatchHelp => 'Je suis intéressé';
+
+  @override
+  String get reqMatchSuccess => 'Apparié ! Contactez l\'auteur pour convenir des détails';
+
+  @override
+  String get reqMatchTaken => 'Quelqu\'un a déjà répondu à cette demande';
+
+  @override
+  String get reqWithdrawMatch => 'Se retirer';
+
+  @override
+  String get reqMatchWithdrawn => 'Retiré, la demande est de nouveau ouverte';
+
+  @override
+  String get reqReleaseMatch => 'Libérer l\'appariement';
+
+  @override
+  String get reqFinalizeMatch => 'Marquer comme terminé';
+
+  @override
+  String get reqMatchReleased => 'Demande rouverte';
+
+  @override
+  String get reqMatchFinalized => 'Demande terminée avec succès';
+
+  @override
+  String get reqMatchedWithYou => 'Apparié avec vous';
+
+  @override
+  String reqMatchedByUser(String name) {
+    return 'Répondu par : $name';
+  }
+
+  @override
+  String get reqReopen => 'Rouvrir la demande';
+
+  @override
+  String get reqClose => 'Clôturer la demande';
+
+  @override
+  String get reqClosed => 'Demande clôturée';
+
+  @override
+  String get reqReopened => 'La demande est de nouveau ouverte';
+
+  @override
+  String get reqDeleteTitle => 'Supprimer la demande';
+
+  @override
+  String reqDeleteBody(String title) {
+    return 'Voulez-vous supprimer définitivement « $title » ?';
+  }
+
+  @override
+  String get reqDeleted => 'Demande supprimée';
 }

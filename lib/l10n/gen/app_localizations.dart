@@ -1038,6 +1038,276 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'محجوز من طرف {name}'**
   String reservedBy(String name);
+
+  /// No description provided for @tabRequests.
+  ///
+  /// In ar, this message translates to:
+  /// **'الطلبات'**
+  String get tabRequests;
+
+  /// No description provided for @addRequest.
+  ///
+  /// In ar, this message translates to:
+  /// **'إضافة طلب'**
+  String get addRequest;
+
+  /// No description provided for @reqTypeAll.
+  ///
+  /// In ar, this message translates to:
+  /// **'الكل'**
+  String get reqTypeAll;
+
+  /// No description provided for @reqTypeNeed.
+  ///
+  /// In ar, this message translates to:
+  /// **'أحتاج'**
+  String get reqTypeNeed;
+
+  /// No description provided for @reqTypeOffer.
+  ///
+  /// In ar, this message translates to:
+  /// **'أقدّر'**
+  String get reqTypeOffer;
+
+  /// No description provided for @reqTypeLabel.
+  ///
+  /// In ar, this message translates to:
+  /// **'نوع الطلب'**
+  String get reqTypeLabel;
+
+  /// No description provided for @reqTitleNeed.
+  ///
+  /// In ar, this message translates to:
+  /// **'ما الذي تحتاجه؟'**
+  String get reqTitleNeed;
+
+  /// No description provided for @reqTitleOffer.
+  ///
+  /// In ar, this message translates to:
+  /// **'ما الذي يمكنك تقديمه؟'**
+  String get reqTitleOffer;
+
+  /// No description provided for @reqDescNeed.
+  ///
+  /// In ar, this message translates to:
+  /// **'اذكر التفاصيل: ما تحتاجه بالضبط، الكمية، ومتى تحتاجه...'**
+  String get reqDescNeed;
+
+  /// No description provided for @reqDescOffer.
+  ///
+  /// In ar, this message translates to:
+  /// **'اذكر التفاصيل: ما يمكنك تقديمه، الكمية، ومتى يمكن تسليمه...'**
+  String get reqDescOffer;
+
+  /// No description provided for @reqTypeInvalid.
+  ///
+  /// In ar, this message translates to:
+  /// **'اختر نوع الطلب'**
+  String get reqTypeInvalid;
+
+  /// No description provided for @reqStatusOpen.
+  ///
+  /// In ar, this message translates to:
+  /// **'مفتوح'**
+  String get reqStatusOpen;
+
+  /// No description provided for @reqStatusMatched.
+  ///
+  /// In ar, this message translates to:
+  /// **'تمت المطابقة'**
+  String get reqStatusMatched;
+
+  /// No description provided for @reqStatusClosed.
+  ///
+  /// In ar, this message translates to:
+  /// **'مغلق'**
+  String get reqStatusClosed;
+
+  /// No description provided for @reqCreateTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'نشر طلب جديد'**
+  String get reqCreateTitle;
+
+  /// No description provided for @reqEditTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعديل الطلب'**
+  String get reqEditTitle;
+
+  /// No description provided for @reqPublished.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم نشر الطلب بنجاح'**
+  String get reqPublished;
+
+  /// No description provided for @reqSearchHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'ابحث في الطلبات...'**
+  String get reqSearchHint;
+
+  /// No description provided for @reqSegmentBoard.
+  ///
+  /// In ar, this message translates to:
+  /// **'اللوحة'**
+  String get reqSegmentBoard;
+
+  /// No description provided for @reqSegmentMine.
+  ///
+  /// In ar, this message translates to:
+  /// **'طلباتي'**
+  String get reqSegmentMine;
+
+  /// No description provided for @reqEmptyBoard.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد طلبات مفتوحة حالياً'**
+  String get reqEmptyBoard;
+
+  /// No description provided for @reqEmptyMine.
+  ///
+  /// In ar, this message translates to:
+  /// **'لم تنشر أي طلب بعد'**
+  String get reqEmptyMine;
+
+  /// No description provided for @reqAddFirst.
+  ///
+  /// In ar, this message translates to:
+  /// **'أضف طلبك الأول'**
+  String get reqAddFirst;
+
+  /// No description provided for @reqMatchedBy.
+  ///
+  /// In ar, this message translates to:
+  /// **'تمت المطابقة مع {name}'**
+  String reqMatchedBy(String name);
+
+  /// No description provided for @reqDetailsTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'تفاصيل الطلب'**
+  String get reqDetailsTitle;
+
+  /// No description provided for @reqNotFound.
+  ///
+  /// In ar, this message translates to:
+  /// **'لم يتم العثور على الطلب'**
+  String get reqNotFound;
+
+  /// No description provided for @reqAuthor.
+  ///
+  /// In ar, this message translates to:
+  /// **'صاحب الطلب'**
+  String get reqAuthor;
+
+  /// No description provided for @reqMatchHelp.
+  ///
+  /// In ar, this message translates to:
+  /// **'أنا معني بهذا الطلب'**
+  String get reqMatchHelp;
+
+  /// No description provided for @reqMatchSuccess.
+  ///
+  /// In ar, this message translates to:
+  /// **'تمت المطابقة، تواصل مع صاحب الطلب لترتيب التفاصيل'**
+  String get reqMatchSuccess;
+
+  /// No description provided for @reqMatchTaken.
+  ///
+  /// In ar, this message translates to:
+  /// **'سبقك مستخدم آخر وأجاب على هذا الطلب'**
+  String get reqMatchTaken;
+
+  /// No description provided for @reqWithdrawMatch.
+  ///
+  /// In ar, this message translates to:
+  /// **'سحب الموافقة'**
+  String get reqWithdrawMatch;
+
+  /// No description provided for @reqMatchWithdrawn.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم سحب الموافقة، الطلب مفتوح مجدداً'**
+  String get reqMatchWithdrawn;
+
+  /// No description provided for @reqReleaseMatch.
+  ///
+  /// In ar, this message translates to:
+  /// **'إلغاء المطابقة'**
+  String get reqReleaseMatch;
+
+  /// No description provided for @reqFinalizeMatch.
+  ///
+  /// In ar, this message translates to:
+  /// **'تأكيد الإتمام'**
+  String get reqFinalizeMatch;
+
+  /// No description provided for @reqMatchReleased.
+  ///
+  /// In ar, this message translates to:
+  /// **'تمت إعادة فتح الطلب'**
+  String get reqMatchReleased;
+
+  /// No description provided for @reqMatchFinalized.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم إتمام الطلب بنجاح'**
+  String get reqMatchFinalized;
+
+  /// No description provided for @reqMatchedWithYou.
+  ///
+  /// In ar, this message translates to:
+  /// **'تمت المطابقة معك'**
+  String get reqMatchedWithYou;
+
+  /// No description provided for @reqMatchedByUser.
+  ///
+  /// In ar, this message translates to:
+  /// **'أجاب: {name}'**
+  String reqMatchedByUser(String name);
+
+  /// No description provided for @reqReopen.
+  ///
+  /// In ar, this message translates to:
+  /// **'إعادة فتح الطلب'**
+  String get reqReopen;
+
+  /// No description provided for @reqClose.
+  ///
+  /// In ar, this message translates to:
+  /// **'إغلاق الطلب'**
+  String get reqClose;
+
+  /// No description provided for @reqClosed.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم إغلاق الطلب'**
+  String get reqClosed;
+
+  /// No description provided for @reqReopened.
+  ///
+  /// In ar, this message translates to:
+  /// **'الطلب مفتوح مجدداً'**
+  String get reqReopened;
+
+  /// No description provided for @reqDeleteTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'حذف الطلب'**
+  String get reqDeleteTitle;
+
+  /// No description provided for @reqDeleteBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'هل تريد حذف \"{title}\" نهائياً؟'**
+  String reqDeleteBody(String title);
+
+  /// No description provided for @reqDeleted.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم حذف الطلب'**
+  String get reqDeleted;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

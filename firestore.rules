@@ -53,6 +53,26 @@ service cloud.firestore {
         .hasAny(['claimedBy', 'claimedByName', 'claimedAt']);
     }
 
+    // Board posts (requests): type need|offer, status open|matched|closed.
+    function validRequest(data) {
+      return data.uid is string && data.uid.size() > 0 &&
+        data.userName is string && data.userName.size() <= 100 &&
+        data.type in ['need', 'offer'] &&
+        data.title is string && data.title.size() >= 1 && data.title.size() <= 80 &&
+        data.description is string && data.description.size() >= 1 && data.description.size() <= 800 &&
+        data.category is string && data.category.size() > 0 && data.category.size() <= 50 &&
+        data.wilaya is string && data.wilaya.size() > 0 &&
+        data.commune is string && data.commune.size() > 0 &&
+        data.contactPhone is string && data.contactPhone.size() >= 9 && data.contactPhone.size() <= 20 &&
+        data.keywords is list && data.keywords.size() <= 3000 &&
+        data.status in ['open', 'matched', 'closed'];
+    }
+
+    function requestMatchKeysUntouched() {
+      return !request.resource.data.diff(resource.data).affectedKeys()
+        .hasAny(['matchedBy', 'matchedName', 'matchedAt']);
+    }
+
     // User profiles: PII — readable only by the owner and admins.
     match /users/{uid} {
       allow read: if isAdmin() || (signedIn() && request.auth.uid == uid);
@@ -194,6 +214,76 @@ service cloud.firestore {
             request.resource.data.description.size() <= 1000)) &&
         request.resource.data.createdAt == request.time;
       allow update, delete: if isAdmin();
+    }
+
+    // Board posts — status lifecycle:
+    //   open --another user matches--> matched
+    //   matched --matcher/owner--> open (release)  |  --owner--> closed
+    //   open <-> closed (owner toggle)
+    match /requests/{id} {
+      allow read: if signedIn();
+      allow create: if canWrite() &&
+        request.resource.data.uid == request.auth.uid &&
+        validRequest(request.resource.data) &&
+        request.resource.data.status == 'open' &&
+        request.resource.data.createdAt == request.time &&
+        request.resource.data.updatedAt == request.time &&
+        !request.resource.data.keys()
+          .hasAny(['matchedBy', 'matchedName', 'matchedAt']);
+
+      allow update: if isAdmin() ||
+        // (A) Owner content edit — status and match untouched.
+        (canWrite() &&
+          resource.data.uid == request.auth.uid &&
+          request.resource.data.uid == resource.data.uid &&
+          request.resource.data.createdAt == resource.data.createdAt &&
+          request.resource.data.status == resource.data.status &&
+          validRequest(request.resource.data) &&
+          requestMatchKeysUntouched()) ||
+        // (B) Owner toggles open <-> closed.
+        (canWrite() &&
+          resource.data.uid == request.auth.uid &&
+          request.resource.data.uid == resource.data.uid &&
+          request.resource.data.createdAt == resource.data.createdAt &&
+          resource.data.status in ['open', 'closed'] &&
+          request.resource.data.status in ['open', 'closed'] &&
+          request.resource.data.status != resource.data.status &&
+          validRequest(request.resource.data) &&
+          requestMatchKeysUntouched() &&
+          request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['status', 'updatedAt'])) ||
+        // (C) Match: any signed-in non-author answers an open post.
+        (canWrite() &&
+          resource.data.status == 'open' &&
+          request.resource.data.status == 'matched' &&
+          request.resource.data.matchedBy == request.auth.uid &&
+          request.resource.data.matchedBy != resource.data.uid &&
+          request.resource.data.matchedName is string &&
+          request.resource.data.matchedName.size() <= 100 &&
+          request.resource.data.matchedAt == request.time &&
+          request.resource.data.uid == resource.data.uid &&
+          request.resource.data.createdAt == resource.data.createdAt &&
+          request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['status', 'matchedBy', 'matchedName', 'matchedAt', 'updatedAt'])) ||
+        // (D) Leave matched: matcher or author releases back to open;
+        //     only the author may finalize to closed.
+        (canWrite() &&
+          resource.data.status == 'matched' &&
+          request.resource.data.matchedBy == null &&
+          request.resource.data.matchedName == null &&
+          request.resource.data.matchedAt == null &&
+          ((request.resource.data.status == 'open' &&
+              (request.auth.uid == resource.data.uid ||
+                request.auth.uid == resource.data.matchedBy)) ||
+            (request.resource.data.status == 'closed' &&
+              request.auth.uid == resource.data.uid)) &&
+          request.resource.data.uid == resource.data.uid &&
+          request.resource.data.createdAt == resource.data.createdAt &&
+          request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['status', 'matchedBy', 'matchedName', 'matchedAt', 'updatedAt']));
+
+      allow delete: if isAdmin() ||
+        (canWrite() && resource.data.uid == request.auth.uid);
     }
   }
 }

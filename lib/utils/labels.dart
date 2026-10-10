@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../l10n/ext.dart';
+import '../models/request_post.dart';
 
 /// Maps stored (Arabic) data values to localized display labels.
 ///
@@ -75,5 +76,29 @@ String reportReasonLabel(BuildContext context, String storage) {
       return context.l10n.reasonOther;
     default:
       return storage;
+  }
+}
+
+String requestTypeLabel(BuildContext context, String type) {
+  switch (type) {
+    case requestTypeNeed:
+      return context.l10n.reqTypeNeed;
+    case requestTypeOffer:
+      return context.l10n.reqTypeOffer;
+    default:
+      return type;
+  }
+}
+
+String requestStatusLabel(BuildContext context, String status) {
+  switch (status) {
+    case requestStatusOpen:
+      return context.l10n.reqStatusOpen;
+    case requestStatusMatched:
+      return context.l10n.reqStatusMatched;
+    case requestStatusClosed:
+      return context.l10n.reqStatusClosed;
+    default:
+      return status;
   }
 }

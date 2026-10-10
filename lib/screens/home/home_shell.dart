@@ -6,6 +6,8 @@ import 'feed_screen.dart';
 import '../listing/listing_form_screen.dart';
 import '../my_listings/my_listings_screen.dart';
 import '../profile/profile_screen.dart';
+import '../requests/request_form_screen.dart';
+import '../requests/requests_screen.dart';
 
 class HomeShell extends StatefulWidget {
   const HomeShell({super.key});
@@ -18,8 +20,9 @@ class _HomeShellState extends State<HomeShell> {
   int _index = 0;
 
   // Tabs are created lazily so that logging in only starts the feed query
-  // instead of firing feed + myListings + profile/admin requests at once.
-  final List<Widget?> _pages = List<Widget?>.filled(3, null);
+  // instead of firing feed + requests + myListings + profile/admin requests
+  // at once.
+  final List<Widget?> _pages = List<Widget?>.filled(4, null);
 
   void _ensurePage(int i) {
     if (_pages[i] != null) return;
@@ -27,9 +30,11 @@ class _HomeShellState extends State<HomeShell> {
       case 0:
         _pages[0] = const FeedScreen();
       case 1:
-        _pages[1] = const MyListingsScreen();
+        _pages[1] = const RequestsScreen();
+      case 2:
+        _pages[2] = const MyListingsScreen();
       default:
-        _pages[2] = ProfileScreen(onLogoutRequested: _confirmLogout);
+        _pages[3] = ProfileScreen(onLogoutRequested: _confirmLogout);
     }
   }
 
@@ -51,6 +56,8 @@ class _HomeShellState extends State<HomeShell> {
       case 0:
         return context.l10n.appName;
       case 1:
+        return context.l10n.tabRequests;
+      case 2:
         return context.l10n.tabMyListings;
       default:
         return context.l10n.tabProfile;
@@ -84,19 +91,31 @@ class _HomeShellState extends State<HomeShell> {
           for (final page in _pages) page ?? const SizedBox.shrink(),
         ],
       ),
-      floatingActionButton: _index == 0
-          ? FloatingActionButton.extended(
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => const ListingFormScreen.create(),
-                  ),
-                );
-              },
-              icon: const Icon(Icons.add),
-              label: Text(l.addListing),
-            )
-          : null,
+      floatingActionButton: switch (_index) {
+        0 => FloatingActionButton.extended(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const ListingFormScreen.create(),
+                ),
+              );
+            },
+            icon: const Icon(Icons.add),
+            label: Text(l.addListing),
+          ),
+        1 => FloatingActionButton.extended(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const RequestFormScreen.create(),
+                ),
+              );
+            },
+            icon: const Icon(Icons.add),
+            label: Text(l.addRequest),
+          ),
+        _ => null,
+      },
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: _select,
@@ -105,6 +124,11 @@ class _HomeShellState extends State<HomeShell> {
             icon: const Icon(Icons.home_outlined),
             selectedIcon: const Icon(Icons.home),
             label: l.tabHome,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.forum_outlined),
+            selectedIcon: const Icon(Icons.forum),
+            label: l.tabRequests,
           ),
           NavigationDestination(
             icon: const Icon(Icons.inventory_2_outlined),

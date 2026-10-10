@@ -202,5 +202,77 @@
         "type": "String"
       }
     }
-  }
+  },
+
+  "tabRequests": "Demandes",
+  "addRequest": "Ajouter",
+
+  "reqTypeAll": "Tous",
+  "reqTypeNeed": "J'ai besoin",
+  "reqTypeOffer": "Je peux offrir",
+  "reqTypeLabel": "Type de demande",
+  "reqTitleNeed": "De quoi avez-vous besoin ?",
+  "reqTitleOffer": "Que pouvez-vous proposer ?",
+  "reqDescNeed": "Détails : ce dont vous avez besoin exactement, la quantité, et quand...",
+  "reqDescOffer": "Détails : ce que vous pouvez proposer, la quantité, et quand remettre...",
+  "reqTypeInvalid": "Choisissez le type de demande",
+
+  "reqStatusOpen": "Ouverte",
+  "reqStatusMatched": "Appariée",
+  "reqStatusClosed": "Clôturée",
+
+  "reqCreateTitle": "Nouvelle demande",
+  "reqEditTitle": "Modifier la demande",
+  "reqPublished": "Demande publiée avec succès",
+
+  "reqSearchHint": "Rechercher des demandes...",
+  "reqSegmentBoard": "Tableau",
+  "reqSegmentMine": "Mes demandes",
+  "reqEmptyBoard": "Aucune demande ouverte pour le moment",
+  "reqEmptyMine": "Vous n'avez publié aucune demande",
+  "reqAddFirst": "Publiez votre première demande",
+  "reqMatchedBy": "Apparié avec {name}",
+  "@reqMatchedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+
+  "reqDetailsTitle": "Détails de la demande",
+  "reqNotFound": "Demande introuvable",
+  "reqAuthor": "Auteur de la demande",
+  "reqMatchHelp": "Je suis intéressé",
+  "reqMatchSuccess": "Apparié ! Contactez l'auteur pour convenir des détails",
+  "reqMatchTaken": "Quelqu'un a déjà répondu à cette demande",
+  "reqWithdrawMatch": "Se retirer",
+  "reqMatchWithdrawn": "Retiré, la demande est de nouveau ouverte",
+  "reqReleaseMatch": "Libérer l'appariement",
+  "reqFinalizeMatch": "Marquer comme terminé",
+  "reqMatchReleased": "Demande rouverte",
+  "reqMatchFinalized": "Demande terminée avec succès",
+  "reqMatchedWithYou": "Apparié avec vous",
+  "reqMatchedByUser": "Répondu par : {name}",
+  "@reqMatchedByUser": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "reqReopen": "Rouvrir la demande",
+  "reqClose": "Clôturer la demande",
+  "reqClosed": "Demande clôturée",
+  "reqReopened": "La demande est de nouveau ouverte",
+  "reqDeleteTitle": "Supprimer la demande",
+  "reqDeleteBody": "Voulez-vous supprimer définitivement « {title} » ?",
+  "@reqDeleteBody": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "reqDeleted": "Demande supprimée"
 }

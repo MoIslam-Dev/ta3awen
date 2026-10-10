@@ -202,5 +202,77 @@
         "type": "String"
       }
     }
-  }
+  },
+
+  "tabRequests": "الطلبات",
+  "addRequest": "إضافة طلب",
+
+  "reqTypeAll": "الكل",
+  "reqTypeNeed": "أحتاج",
+  "reqTypeOffer": "أقدّر",
+  "reqTypeLabel": "نوع الطلب",
+  "reqTitleNeed": "ما الذي تحتاجه؟",
+  "reqTitleOffer": "ما الذي يمكنك تقديمه؟",
+  "reqDescNeed": "اذكر التفاصيل: ما تحتاجه بالضبط، الكمية، ومتى تحتاجه...",
+  "reqDescOffer": "اذكر التفاصيل: ما يمكنك تقديمه، الكمية، ومتى يمكن تسليمه...",
+  "reqTypeInvalid": "اختر نوع الطلب",
+
+  "reqStatusOpen": "مفتوح",
+  "reqStatusMatched": "تمت المطابقة",
+  "reqStatusClosed": "مغلق",
+
+  "reqCreateTitle": "نشر طلب جديد",
+  "reqEditTitle": "تعديل الطلب",
+  "reqPublished": "تم نشر الطلب بنجاح",
+
+  "reqSearchHint": "ابحث في الطلبات...",
+  "reqSegmentBoard": "اللوحة",
+  "reqSegmentMine": "طلباتي",
+  "reqEmptyBoard": "لا توجد طلبات مفتوحة حالياً",
+  "reqEmptyMine": "لم تنشر أي طلب بعد",
+  "reqAddFirst": "أضف طلبك الأول",
+  "reqMatchedBy": "تمت المطابقة مع {name}",
+  "@reqMatchedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+
+  "reqDetailsTitle": "تفاصيل الطلب",
+  "reqNotFound": "لم يتم العثور على الطلب",
+  "reqAuthor": "صاحب الطلب",
+  "reqMatchHelp": "أنا معني بهذا الطلب",
+  "reqMatchSuccess": "تمت المطابقة، تواصل مع صاحب الطلب لترتيب التفاصيل",
+  "reqMatchTaken": "سبقك مستخدم آخر وأجاب على هذا الطلب",
+  "reqWithdrawMatch": "سحب الموافقة",
+  "reqMatchWithdrawn": "تم سحب الموافقة، الطلب مفتوح مجدداً",
+  "reqReleaseMatch": "إلغاء المطابقة",
+  "reqFinalizeMatch": "تأكيد الإتمام",
+  "reqMatchReleased": "تمت إعادة فتح الطلب",
+  "reqMatchFinalized": "تم إتمام الطلب بنجاح",
+  "reqMatchedWithYou": "تمت المطابقة معك",
+  "reqMatchedByUser": "أجاب: {name}",
+  "@reqMatchedByUser": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "reqReopen": "إعادة فتح الطلب",
+  "reqClose": "إغلاق الطلب",
+  "reqClosed": "تم إغلاق الطلب",
+  "reqReopened": "الطلب مفتوح مجدداً",
+  "reqDeleteTitle": "حذف الطلب",
+  "reqDeleteBody": "هل تريد حذف \"{title}\" نهائياً؟",
+  "@reqDeleteBody": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "reqDeleted": "تم حذف الطلب"
 }

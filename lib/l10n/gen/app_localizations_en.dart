@@ -488,4 +488,145 @@ class AppLocalizationsEn extends AppLocalizations {
   String reservedBy(String name) {
     return 'Reserved by $name';
   }
+
+  @override
+  String get tabRequests => 'Requests';
+
+  @override
+  String get addRequest => 'Add';
+
+  @override
+  String get reqTypeAll => 'All';
+
+  @override
+  String get reqTypeNeed => 'I need';
+
+  @override
+  String get reqTypeOffer => 'I can offer';
+
+  @override
+  String get reqTypeLabel => 'Request type';
+
+  @override
+  String get reqTitleNeed => 'What do you need?';
+
+  @override
+  String get reqTitleOffer => 'What can you offer?';
+
+  @override
+  String get reqDescNeed => 'Details: what exactly you need, quantity, and when...';
+
+  @override
+  String get reqDescOffer => 'Details: what you can offer, quantity, and when it can be handed over...';
+
+  @override
+  String get reqTypeInvalid => 'Choose a request type';
+
+  @override
+  String get reqStatusOpen => 'Open';
+
+  @override
+  String get reqStatusMatched => 'Matched';
+
+  @override
+  String get reqStatusClosed => 'Closed';
+
+  @override
+  String get reqCreateTitle => 'New request';
+
+  @override
+  String get reqEditTitle => 'Edit request';
+
+  @override
+  String get reqPublished => 'Request published successfully';
+
+  @override
+  String get reqSearchHint => 'Search requests...';
+
+  @override
+  String get reqSegmentBoard => 'Board';
+
+  @override
+  String get reqSegmentMine => 'My requests';
+
+  @override
+  String get reqEmptyBoard => 'No open requests right now';
+
+  @override
+  String get reqEmptyMine => 'You haven\'t posted any request yet';
+
+  @override
+  String get reqAddFirst => 'Post your first request';
+
+  @override
+  String reqMatchedBy(String name) {
+    return 'Matched with $name';
+  }
+
+  @override
+  String get reqDetailsTitle => 'Request details';
+
+  @override
+  String get reqNotFound => 'Request not found';
+
+  @override
+  String get reqAuthor => 'Request author';
+
+  @override
+  String get reqMatchHelp => 'I\'m interested';
+
+  @override
+  String get reqMatchSuccess => 'Matched! Contact the author to arrange the details';
+
+  @override
+  String get reqMatchTaken => 'Someone else already answered this request';
+
+  @override
+  String get reqWithdrawMatch => 'Withdraw';
+
+  @override
+  String get reqMatchWithdrawn => 'Withdrawn, the request is open again';
+
+  @override
+  String get reqReleaseMatch => 'Release match';
+
+  @override
+  String get reqFinalizeMatch => 'Mark as completed';
+
+  @override
+  String get reqMatchReleased => 'Request reopened';
+
+  @override
+  String get reqMatchFinalized => 'Request completed successfully';
+
+  @override
+  String get reqMatchedWithYou => 'Matched with you';
+
+  @override
+  String reqMatchedByUser(String name) {
+    return 'Answered by: $name';
+  }
+
+  @override
+  String get reqReopen => 'Reopen request';
+
+  @override
+  String get reqClose => 'Close request';
+
+  @override
+  String get reqClosed => 'Request closed';
+
+  @override
+  String get reqReopened => 'The request is open again';
+
+  @override
+  String get reqDeleteTitle => 'Delete request';
+
+  @override
+  String reqDeleteBody(String title) {
+    return 'Do you want to permanently delete \"$title\"?';
+  }
+
+  @override
+  String get reqDeleted => 'Request deleted';
 }

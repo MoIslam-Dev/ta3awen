@@ -202,5 +202,77 @@
         "type": "String"
       }
     }
-  }
+  },
+
+  "tabRequests": "Requests",
+  "addRequest": "Add",
+
+  "reqTypeAll": "All",
+  "reqTypeNeed": "I need",
+  "reqTypeOffer": "I can offer",
+  "reqTypeLabel": "Request type",
+  "reqTitleNeed": "What do you need?",
+  "reqTitleOffer": "What can you offer?",
+  "reqDescNeed": "Details: what exactly you need, quantity, and when...",
+  "reqDescOffer": "Details: what you can offer, quantity, and when it can be handed over...",
+  "reqTypeInvalid": "Choose a request type",
+
+  "reqStatusOpen": "Open",
+  "reqStatusMatched": "Matched",
+  "reqStatusClosed": "Closed",
+
+  "reqCreateTitle": "New request",
+  "reqEditTitle": "Edit request",
+  "reqPublished": "Request published successfully",
+
+  "reqSearchHint": "Search requests...",
+  "reqSegmentBoard": "Board",
+  "reqSegmentMine": "My requests",
+  "reqEmptyBoard": "No open requests right now",
+  "reqEmptyMine": "You haven't posted any request yet",
+  "reqAddFirst": "Post your first request",
+  "reqMatchedBy": "Matched with {name}",
+  "@reqMatchedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+
+  "reqDetailsTitle": "Request details",
+  "reqNotFound": "Request not found",
+  "reqAuthor": "Request author",
+  "reqMatchHelp": "I'm interested",
+  "reqMatchSuccess": "Matched! Contact the author to arrange the details",
+  "reqMatchTaken": "Someone else already answered this request",
+  "reqWithdrawMatch": "Withdraw",
+  "reqMatchWithdrawn": "Withdrawn, the request is open again",
+  "reqReleaseMatch": "Release match",
+  "reqFinalizeMatch": "Mark as completed",
+  "reqMatchReleased": "Request reopened",
+  "reqMatchFinalized": "Request completed successfully",
+  "reqMatchedWithYou": "Matched with you",
+  "reqMatchedByUser": "Answered by: {name}",
+  "@reqMatchedByUser": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "reqReopen": "Reopen request",
+  "reqClose": "Close request",
+  "reqClosed": "Request closed",
+  "reqReopened": "The request is open again",
+  "reqDeleteTitle": "Delete request",
+  "reqDeleteBody": "Do you want to permanently delete \"{title}\"?",
+  "@reqDeleteBody": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "reqDeleted": "Request deleted"
 }

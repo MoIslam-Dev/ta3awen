@@ -488,4 +488,145 @@ class AppLocalizationsAr extends AppLocalizations {
   String reservedBy(String name) {
     return 'محجوز من طرف $name';
   }
+
+  @override
+  String get tabRequests => 'الطلبات';
+
+  @override
+  String get addRequest => 'إضافة طلب';
+
+  @override
+  String get reqTypeAll => 'الكل';
+
+  @override
+  String get reqTypeNeed => 'أحتاج';
+
+  @override
+  String get reqTypeOffer => 'أقدّر';
+
+  @override
+  String get reqTypeLabel => 'نوع الطلب';
+
+  @override
+  String get reqTitleNeed => 'ما الذي تحتاجه؟';
+
+  @override
+  String get reqTitleOffer => 'ما الذي يمكنك تقديمه؟';
+
+  @override
+  String get reqDescNeed => 'اذكر التفاصيل: ما تحتاجه بالضبط، الكمية، ومتى تحتاجه...';
+
+  @override
+  String get reqDescOffer => 'اذكر التفاصيل: ما يمكنك تقديمه، الكمية، ومتى يمكن تسليمه...';
+
+  @override
+  String get reqTypeInvalid => 'اختر نوع الطلب';
+
+  @override
+  String get reqStatusOpen => 'مفتوح';
+
+  @override
+  String get reqStatusMatched => 'تمت المطابقة';
+
+  @override
+  String get reqStatusClosed => 'مغلق';
+
+  @override
+  String get reqCreateTitle => 'نشر طلب جديد';
+
+  @override
+  String get reqEditTitle => 'تعديل الطلب';
+
+  @override
+  String get reqPublished => 'تم نشر الطلب بنجاح';
+
+  @override
+  String get reqSearchHint => 'ابحث في الطلبات...';
+
+  @override
+  String get reqSegmentBoard => 'اللوحة';
+
+  @override
+  String get reqSegmentMine => 'طلباتي';
+
+  @override
+  String get reqEmptyBoard => 'لا توجد طلبات مفتوحة حالياً';
+
+  @override
+  String get reqEmptyMine => 'لم تنشر أي طلب بعد';
+
+  @override
+  String get reqAddFirst => 'أضف طلبك الأول';
+
+  @override
+  String reqMatchedBy(String name) {
+    return 'تمت المطابقة مع $name';
+  }
+
+  @override
+  String get reqDetailsTitle => 'تفاصيل الطلب';
+
+  @override
+  String get reqNotFound => 'لم يتم العثور على الطلب';
+
+  @override
+  String get reqAuthor => 'صاحب الطلب';
+
+  @override
+  String get reqMatchHelp => 'أنا معني بهذا الطلب';
+
+  @override
+  String get reqMatchSuccess => 'تمت المطابقة، تواصل مع صاحب الطلب لترتيب التفاصيل';
+
+  @override
+  String get reqMatchTaken => 'سبقك مستخدم آخر وأجاب على هذا الطلب';
+
+  @override
+  String get reqWithdrawMatch => 'سحب الموافقة';
+
+  @override
+  String get reqMatchWithdrawn => 'تم سحب الموافقة، الطلب مفتوح مجدداً';
+
+  @override
+  String get reqReleaseMatch => 'إلغاء المطابقة';
+
+  @override
+  String get reqFinalizeMatch => 'تأكيد الإتمام';
+
+  @override
+  String get reqMatchReleased => 'تمت إعادة فتح الطلب';
+
+  @override
+  String get reqMatchFinalized => 'تم إتمام الطلب بنجاح';
+
+  @override
+  String get reqMatchedWithYou => 'تمت المطابقة معك';
+
+  @override
+  String reqMatchedByUser(String name) {
+    return 'أجاب: $name';
+  }
+
+  @override
+  String get reqReopen => 'إعادة فتح الطلب';
+
+  @override
+  String get reqClose => 'إغلاق الطلب';
+
+  @override
+  String get reqClosed => 'تم إغلاق الطلب';
+
+  @override
+  String get reqReopened => 'الطلب مفتوح مجدداً';
+
+  @override
+  String get reqDeleteTitle => 'حذف الطلب';
+
+  @override
+  String reqDeleteBody(String title) {
+    return 'هل تريد حذف \"$title\" نهائياً؟';
+  }
+
+  @override
+  String get reqDeleted => 'تم حذف الطلب';
 }
