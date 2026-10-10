@@ -48,7 +48,16 @@ class RequestService {
 
   Future<String> create(RequestPost post) async {
     final doc = _col.doc();
-    await doc.set(post.toMap());
+    // Create the post and bump the lifetime post counter in one batch
+    // (rules enforce stats/{uid}.postCount < 100 on every create).
+    final batch = _db.batch();
+    batch.set(doc, post.toMap());
+    batch.set(
+      _db.collection('stats').doc(post.uid),
+      {'postCount': FieldValue.increment(1)},
+      SetOptions(merge: true),
+    );
+    await batch.commit();
     return doc.id;
   }
 

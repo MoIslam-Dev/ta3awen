@@ -147,10 +147,16 @@ class ListingService {
     final doc = _col.doc();
     final data = draft.toMap();
     data['imageCount'] = imagesB64.length;
-    // Create the listing first: the images security rule reads the parent
-    // listing with get(), which cannot see documents created in the same
-    // batch — so images must be written in a second, separate commit.
-    await doc.set(data);
+    // Create the listing and bump the lifetime post counter in one batch
+    // (rules enforce stats/{uid}.postCount < 100 on every create).
+    final batch = _db.batch();
+    batch.set(doc, data);
+    batch.set(
+      _db.collection('stats').doc(draft.ownerId),
+      {'postCount': FieldValue.increment(1)},
+      SetOptions(merge: true),
+    );
+    await batch.commit();
     if (imagesB64.isNotEmpty) {
       final batch = _db.batch();
       for (var i = 0; i < imagesB64.length; i++) {

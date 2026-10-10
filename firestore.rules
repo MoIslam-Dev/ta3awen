@@ -11,6 +11,15 @@ service cloud.firestore {
         exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
 
+    // Anti-spam: lifetime posts (listings + requests) per account.
+    // stats/{uid}.postCount is maintained by the client in the same batch
+    // as each create; only +1 steps by the owner are allowed.
+    function postCountOk() {
+      return !exists(/databases/$(database)/documents/stats/$(request.auth.uid)) ||
+        get(/databases/$(database)/documents/stats/$(request.auth.uid))
+          .data.get('postCount', 0) < 100;
+    }
+
     function requesterDisabled() {
       return signedIn() &&
         exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
@@ -129,6 +138,22 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // Lifetime post counter (anti-spam). Clients bump postCount by exactly
+    // +1 in the same batch as each listing/request create.
+    match /stats/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow create: if signedIn() && request.auth.uid == uid &&
+        request.resource.data.keys().hasOnly(['postCount']) &&
+        request.resource.data.postCount is int &&
+        request.resource.data.postCount == 1;
+      allow update: if signedIn() && request.auth.uid == uid &&
+        request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['postCount']) &&
+        request.resource.data.postCount is int &&
+        request.resource.data.postCount == resource.data.postCount + 1;
+      allow delete: if isAdmin();
+    }
+
     // Listings — status lifecycle:
     //   متاح  --claim-->  محجوز  --owner confirms-->  تم التبرع به
     //   (owner may also go متاح <-> تم التبرع به directly, as before;
@@ -138,6 +163,7 @@ service cloud.firestore {
       allow create: if canWrite() &&
         request.resource.data.ownerId == request.auth.uid &&
         validListing(request.resource.data) &&
+        postCountOk() &&
         request.resource.data.status == 'متاح' &&
         request.resource.data.createdAt == request.time &&
         request.resource.data.updatedAt == request.time &&
@@ -248,6 +274,7 @@ service cloud.firestore {
       allow create: if canWrite() &&
         request.resource.data.uid == request.auth.uid &&
         validRequest(request.resource.data) &&
+        postCountOk() &&
         request.resource.data.status == 'open' &&
         request.resource.data.createdAt == request.time &&
         request.resource.data.updatedAt == request.time &&
