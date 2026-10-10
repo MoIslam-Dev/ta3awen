@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:ta3awen/data/algeria_data.dart';
 import 'package:ta3awen/utils/constants.dart';
 import 'package:ta3awen/models/listing.dart';
+import 'package:ta3awen/models/report.dart';
 import 'package:ta3awen/models/request_post.dart';
 
 void main() {
@@ -238,5 +239,56 @@ void main() {
   test('kBloodTypes holds the 8 designations', () {
     expect(kBloodTypes,
         ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']);
+  });
+
+  test('Report defaults to open and keeps the rules create allow-list', () {
+    const r = Report(
+      id: 'rep1',
+      listingId: 'L1',
+      listingTitle: 'Chair',
+      reporterId: 'u1',
+      reporterName: 'User u1',
+      reason: 'أخرى',
+    );
+    expect(r.isOpen, isTrue);
+    expect(r.isResolved, isFalse);
+    expect(r.isDismissed, isFalse);
+    expect(r.resolvedAt, isNull);
+    final map = r.toMap();
+    expect(
+        map.keys.toSet(),
+        {
+          'listingId',
+          'listingTitle',
+          'reporterId',
+          'reporterName',
+          'reason',
+          'description',
+          'createdAt',
+        },
+        reason: 'create stays inside firestore.rules hasOnly()');
+  });
+
+  test('Report status helpers map resolved/dismissed', () {
+    const resolved = Report(
+      id: 'r',
+      listingId: 'L',
+      listingTitle: 'T',
+      reporterId: 'u',
+      reporterName: 'N',
+      reason: 'أخرى',
+      status: reportStatusResolved,
+    );
+    expect(resolved.isResolved, isTrue);
+    const dismissed = Report(
+      id: 'r',
+      listingId: 'L',
+      listingTitle: 'T',
+      reporterId: 'u',
+      reporterName: 'N',
+      reason: 'أخرى',
+      status: reportStatusDismissed,
+    );
+    expect(dismissed.isDismissed, isTrue);
   });
 }

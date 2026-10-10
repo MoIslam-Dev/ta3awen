@@ -283,5 +283,94 @@
   "reqAddBlood": "Publier une demande de sang",
   "reqBloodTitle": "De quel groupe sanguin avez-vous besoin ?",
   "reqBloodDesc": "Indiquez l'hôpital et quand le sang est nécessaire (opération, maladie, blessure...)",
-  "catBlood": "Don de sang"
+  "catBlood": "Don de sang",
+
+  "tabDashboard": "Tableau de bord",
+  "statDisabledUsers": "Comptes désactivés",
+  "statListingsAvailable": "Disponibles",
+  "statListingsReserved": "Réservés",
+  "statListingsGiven": "Donnés",
+  "statReportsOpen": "Signalements ouverts",
+  "statRequestsOpen": "Demandes ouvertes",
+  "statRequestsMatched": "Appariées",
+  "statBloodRequests": "Demandes de sang",
+  "seedCleanupTitle": "Données de démo",
+  "seedCleanupBody": "Supprimer {count} annonce(s) de démo créée(s) pour les tests (seed-*)",
+  "@seedCleanupBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "seedCleanupNone": "Aucune annonce de démo trouvée",
+  "seedCleanupAction": "Supprimer les annonces de démo",
+  "seedCleanupDone": "{count} annonce(s) de démo supprimée(s)",
+  "@seedCleanupDone": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reportStatusOpen": "Ouvert",
+  "reportStatusResolved": "Traité",
+  "reportStatusDismissed": "Rejeté",
+  "reportFilterAll": "Tous",
+  "reportOpenListing": "Ouvrir l'annonce",
+  "reportListingMissing": "L'annonce n'existe plus",
+  "reportResolve": "Traiter",
+  "reportDismiss": "Rejeter",
+  "reportDeleteContent": "Supprimer le contenu",
+  "reportDeleteContentTitle": "Supprimer l'annonce signalée ?",
+  "reportDeleteContentBody": "\"{title}\" sera définitivement supprimée et le signalement marqué traité.",
+  "@reportDeleteContentBody": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "reportResolvedToast": "Signalement traité",
+  "reportDismissedToast": "Signalement rejeté",
+  "adminSearchListings": "Rechercher titre, propriétaire, wilaya...",
+  "adminSearchUsers": "Rechercher nom, e-mail, wilaya...",
+  "emptySearchResults": "Aucun résultat",
+  "userDetailPhone": "Téléphone",
+  "userDetailLocation": "Localisation",
+  "userDetailJoined": "Inscrit le",
+  "userDetailDisabledReason": "Motif de désactivation",
+  "userListingsCount": "{count} annonces",
+  "@userListingsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "userReportsFiled": "{count} signalement(s) envoyé(s)",
+  "@userReportsFiled": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "userReportsAgainst": "{count} signalement(s) sur leur contenu",
+  "@userReportsAgainst": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "disableUserTitle": "Désactiver le compte",
+  "disableReasonHint": "Motif (facultatif)",
+  "disableAction": "Désactiver",
+  "enableAction": "Activer",
+  "userEnabledToast": "Compte activé",
+  "userDisabledToast": "Compte désactivé",
+  "noRequests": "Aucune demande",
+  "reqKindGeneralLabel": "Général",
+  "errorGeneric": "Une erreur est survenue"
 }

@@ -653,4 +653,154 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get catBlood => 'Don de sang';
+
+  @override
+  String get tabDashboard => 'Tableau de bord';
+
+  @override
+  String get statDisabledUsers => 'Comptes désactivés';
+
+  @override
+  String get statListingsAvailable => 'Disponibles';
+
+  @override
+  String get statListingsReserved => 'Réservés';
+
+  @override
+  String get statListingsGiven => 'Donnés';
+
+  @override
+  String get statReportsOpen => 'Signalements ouverts';
+
+  @override
+  String get statRequestsOpen => 'Demandes ouvertes';
+
+  @override
+  String get statRequestsMatched => 'Appariées';
+
+  @override
+  String get statBloodRequests => 'Demandes de sang';
+
+  @override
+  String get seedCleanupTitle => 'Données de démo';
+
+  @override
+  String seedCleanupBody(int count) {
+    return 'Supprimer $count annonce(s) de démo créée(s) pour les tests (seed-*)';
+  }
+
+  @override
+  String get seedCleanupNone => 'Aucune annonce de démo trouvée';
+
+  @override
+  String get seedCleanupAction => 'Supprimer les annonces de démo';
+
+  @override
+  String seedCleanupDone(int count) {
+    return '$count annonce(s) de démo supprimée(s)';
+  }
+
+  @override
+  String get reportStatusOpen => 'Ouvert';
+
+  @override
+  String get reportStatusResolved => 'Traité';
+
+  @override
+  String get reportStatusDismissed => 'Rejeté';
+
+  @override
+  String get reportFilterAll => 'Tous';
+
+  @override
+  String get reportOpenListing => 'Ouvrir l\'annonce';
+
+  @override
+  String get reportListingMissing => 'L\'annonce n\'existe plus';
+
+  @override
+  String get reportResolve => 'Traiter';
+
+  @override
+  String get reportDismiss => 'Rejeter';
+
+  @override
+  String get reportDeleteContent => 'Supprimer le contenu';
+
+  @override
+  String get reportDeleteContentTitle => 'Supprimer l\'annonce signalée ?';
+
+  @override
+  String reportDeleteContentBody(String title) {
+    return '\"$title\" sera définitivement supprimée et le signalement marqué traité.';
+  }
+
+  @override
+  String get reportResolvedToast => 'Signalement traité';
+
+  @override
+  String get reportDismissedToast => 'Signalement rejeté';
+
+  @override
+  String get adminSearchListings => 'Rechercher titre, propriétaire, wilaya...';
+
+  @override
+  String get adminSearchUsers => 'Rechercher nom, e-mail, wilaya...';
+
+  @override
+  String get emptySearchResults => 'Aucun résultat';
+
+  @override
+  String get userDetailPhone => 'Téléphone';
+
+  @override
+  String get userDetailLocation => 'Localisation';
+
+  @override
+  String get userDetailJoined => 'Inscrit le';
+
+  @override
+  String get userDetailDisabledReason => 'Motif de désactivation';
+
+  @override
+  String userListingsCount(int count) {
+    return '$count annonces';
+  }
+
+  @override
+  String userReportsFiled(int count) {
+    return '$count signalement(s) envoyé(s)';
+  }
+
+  @override
+  String userReportsAgainst(int count) {
+    return '$count signalement(s) sur leur contenu';
+  }
+
+  @override
+  String get disableUserTitle => 'Désactiver le compte';
+
+  @override
+  String get disableReasonHint => 'Motif (facultatif)';
+
+  @override
+  String get disableAction => 'Désactiver';
+
+  @override
+  String get enableAction => 'Activer';
+
+  @override
+  String get userEnabledToast => 'Compte activé';
+
+  @override
+  String get userDisabledToast => 'Compte désactivé';
+
+  @override
+  String get noRequests => 'Aucune demande';
+
+  @override
+  String get reqKindGeneralLabel => 'Général';
+
+  @override
+  String get errorGeneric => 'Une erreur est survenue';
 }

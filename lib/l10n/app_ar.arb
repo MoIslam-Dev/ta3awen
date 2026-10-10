@@ -283,5 +283,94 @@
   "reqAddBlood": "انشر طلب تبرع بالدم",
   "reqBloodTitle": "ما فصيلة الدم التي تحتاجها؟",
   "reqBloodDesc": "اذكر المستشفى/المكان ومتى تحتاج الدم (قبل عملية، مرض، إصابة...)",
-  "catBlood": "التبرع بالدم"
+  "catBlood": "التبرع بالدم",
+
+  "tabDashboard": "لوحة التحكم",
+  "statDisabledUsers": "حسابات معطلة",
+  "statListingsAvailable": "متاح",
+  "statListingsReserved": "محجوز",
+  "statListingsGiven": "تم التبرع به",
+  "statReportsOpen": "بلاغات مفتوحة",
+  "statRequestsOpen": "طلبات مفتوحة",
+  "statRequestsMatched": "تمت المطابقة",
+  "statBloodRequests": "طلبات دم",
+  "seedCleanupTitle": "بيانات تجريبية",
+  "seedCleanupBody": "حذف {count} إعلان تجريبي أُنشئ للاختبار (seed-*)",
+  "@seedCleanupBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "seedCleanupNone": "لا توجد إعلانات تجريبية",
+  "seedCleanupAction": "حذف الإعلانات التجريبية",
+  "seedCleanupDone": "تم حذف {count} إعلان تجريبي",
+  "@seedCleanupDone": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reportStatusOpen": "مفتوح",
+  "reportStatusResolved": "تمت المعالجة",
+  "reportStatusDismissed": "مرفوض",
+  "reportFilterAll": "الكل",
+  "reportOpenListing": "فتح الإعلان",
+  "reportListingMissing": "الإعلان لم يعد موجودا",
+  "reportResolve": "معالجة",
+  "reportDismiss": "رفض",
+  "reportDeleteContent": "حذف المحتوى",
+  "reportDeleteContentTitle": "حذف الإعلان المُبلَّغ عنه؟",
+  "reportDeleteContentBody": "سيتم حذف \"{title}\" نهائيا وتعليم البلاغ كمعالَج.",
+  "@reportDeleteContentBody": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "reportResolvedToast": "تمت معالجة البلاغ",
+  "reportDismissedToast": "تم رفض البلاغ",
+  "adminSearchListings": "بحث بالعنوان أو المالك أو الولاية...",
+  "adminSearchUsers": "بحث بالاسم أو البريد أو الولاية...",
+  "emptySearchResults": "لا نتائج",
+  "userDetailPhone": "الهاتف",
+  "userDetailLocation": "الموقع",
+  "userDetailJoined": "تاريخ الانضمام",
+  "userDetailDisabledReason": "سبب التعطيل",
+  "userListingsCount": "{count} إعلان",
+  "@userListingsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "userReportsFiled": "{count} بلاغ مُرسل",
+  "@userReportsFiled": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "userReportsAgainst": "{count} بلاغ على محتواه",
+  "@userReportsAgainst": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "disableUserTitle": "تعطيل الحساب",
+  "disableReasonHint": "السبب (اختياري)",
+  "disableAction": "تعطيل",
+  "enableAction": "تفعيل",
+  "userEnabledToast": "تم تفعيل الحساب",
+  "userDisabledToast": "تم تعطيل الحساب",
+  "noRequests": "لا طلبات",
+  "reqKindGeneralLabel": "عام",
+  "errorGeneric": "حدث خطأ ما"
 }

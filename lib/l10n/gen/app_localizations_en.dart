@@ -653,4 +653,154 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get catBlood => 'Blood donation';
+
+  @override
+  String get tabDashboard => 'Dashboard';
+
+  @override
+  String get statDisabledUsers => 'Disabled users';
+
+  @override
+  String get statListingsAvailable => 'Available';
+
+  @override
+  String get statListingsReserved => 'Reserved';
+
+  @override
+  String get statListingsGiven => 'Given';
+
+  @override
+  String get statReportsOpen => 'Open reports';
+
+  @override
+  String get statRequestsOpen => 'Open requests';
+
+  @override
+  String get statRequestsMatched => 'Matched';
+
+  @override
+  String get statBloodRequests => 'Blood requests';
+
+  @override
+  String get seedCleanupTitle => 'Demo data';
+
+  @override
+  String seedCleanupBody(int count) {
+    return 'Remove $count demo listing(s) created for testing (seed-*)';
+  }
+
+  @override
+  String get seedCleanupNone => 'No demo listings found';
+
+  @override
+  String get seedCleanupAction => 'Remove demo listings';
+
+  @override
+  String seedCleanupDone(int count) {
+    return '$count demo listing(s) removed';
+  }
+
+  @override
+  String get reportStatusOpen => 'Open';
+
+  @override
+  String get reportStatusResolved => 'Resolved';
+
+  @override
+  String get reportStatusDismissed => 'Dismissed';
+
+  @override
+  String get reportFilterAll => 'All';
+
+  @override
+  String get reportOpenListing => 'Open listing';
+
+  @override
+  String get reportListingMissing => 'The listing no longer exists';
+
+  @override
+  String get reportResolve => 'Resolve';
+
+  @override
+  String get reportDismiss => 'Dismiss';
+
+  @override
+  String get reportDeleteContent => 'Delete content';
+
+  @override
+  String get reportDeleteContentTitle => 'Delete reported listing?';
+
+  @override
+  String reportDeleteContentBody(String title) {
+    return '\"$title\" will be permanently deleted and the report marked resolved.';
+  }
+
+  @override
+  String get reportResolvedToast => 'Report resolved';
+
+  @override
+  String get reportDismissedToast => 'Report dismissed';
+
+  @override
+  String get adminSearchListings => 'Search title, owner, wilaya...';
+
+  @override
+  String get adminSearchUsers => 'Search name, email, wilaya...';
+
+  @override
+  String get emptySearchResults => 'No results';
+
+  @override
+  String get userDetailPhone => 'Phone';
+
+  @override
+  String get userDetailLocation => 'Location';
+
+  @override
+  String get userDetailJoined => 'Joined';
+
+  @override
+  String get userDetailDisabledReason => 'Disable reason';
+
+  @override
+  String userListingsCount(int count) {
+    return '$count listings';
+  }
+
+  @override
+  String userReportsFiled(int count) {
+    return '$count reports filed';
+  }
+
+  @override
+  String userReportsAgainst(int count) {
+    return '$count reports on their content';
+  }
+
+  @override
+  String get disableUserTitle => 'Disable account';
+
+  @override
+  String get disableReasonHint => 'Reason (optional)';
+
+  @override
+  String get disableAction => 'Disable';
+
+  @override
+  String get enableAction => 'Enable';
+
+  @override
+  String get userEnabledToast => 'Account enabled';
+
+  @override
+  String get userDisabledToast => 'Account disabled';
+
+  @override
+  String get noRequests => 'No requests';
+
+  @override
+  String get reqKindGeneralLabel => 'General';
+
+  @override
+  String get errorGeneric => 'Something went wrong';
 }

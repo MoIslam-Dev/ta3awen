@@ -283,5 +283,94 @@
   "reqAddBlood": "Post a blood request",
   "reqBloodTitle": "What blood type do you need?",
   "reqBloodDesc": "Mention the hospital and when the blood is needed (surgery, illness, injury...)",
-  "catBlood": "Blood donation"
+  "catBlood": "Blood donation",
+
+  "tabDashboard": "Dashboard",
+  "statDisabledUsers": "Disabled users",
+  "statListingsAvailable": "Available",
+  "statListingsReserved": "Reserved",
+  "statListingsGiven": "Given",
+  "statReportsOpen": "Open reports",
+  "statRequestsOpen": "Open requests",
+  "statRequestsMatched": "Matched",
+  "statBloodRequests": "Blood requests",
+  "seedCleanupTitle": "Demo data",
+  "seedCleanupBody": "Remove {count} demo listing(s) created for testing (seed-*)",
+  "@seedCleanupBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "seedCleanupNone": "No demo listings found",
+  "seedCleanupAction": "Remove demo listings",
+  "seedCleanupDone": "{count} demo listing(s) removed",
+  "@seedCleanupDone": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reportStatusOpen": "Open",
+  "reportStatusResolved": "Resolved",
+  "reportStatusDismissed": "Dismissed",
+  "reportFilterAll": "All",
+  "reportOpenListing": "Open listing",
+  "reportListingMissing": "The listing no longer exists",
+  "reportResolve": "Resolve",
+  "reportDismiss": "Dismiss",
+  "reportDeleteContent": "Delete content",
+  "reportDeleteContentTitle": "Delete reported listing?",
+  "reportDeleteContentBody": "\"{title}\" will be permanently deleted and the report marked resolved.",
+  "@reportDeleteContentBody": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "reportResolvedToast": "Report resolved",
+  "reportDismissedToast": "Report dismissed",
+  "adminSearchListings": "Search title, owner, wilaya...",
+  "adminSearchUsers": "Search name, email, wilaya...",
+  "emptySearchResults": "No results",
+  "userDetailPhone": "Phone",
+  "userDetailLocation": "Location",
+  "userDetailJoined": "Joined",
+  "userDetailDisabledReason": "Disable reason",
+  "userListingsCount": "{count} listings",
+  "@userListingsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "userReportsFiled": "{count} reports filed",
+  "@userReportsFiled": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "userReportsAgainst": "{count} reports on their content",
+  "@userReportsAgainst": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "disableUserTitle": "Disable account",
+  "disableReasonHint": "Reason (optional)",
+  "disableAction": "Disable",
+  "enableAction": "Enable",
+  "userEnabledToast": "Account enabled",
+  "userDisabledToast": "Account disabled",
+  "noRequests": "No requests",
+  "reqKindGeneralLabel": "General",
+  "errorGeneric": "Something went wrong"
 }

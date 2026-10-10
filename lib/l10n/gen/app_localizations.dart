@@ -1356,6 +1356,282 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'التبرع بالدم'**
   String get catBlood;
+
+  /// No description provided for @tabDashboard.
+  ///
+  /// In ar, this message translates to:
+  /// **'لوحة التحكم'**
+  String get tabDashboard;
+
+  /// No description provided for @statDisabledUsers.
+  ///
+  /// In ar, this message translates to:
+  /// **'حسابات معطلة'**
+  String get statDisabledUsers;
+
+  /// No description provided for @statListingsAvailable.
+  ///
+  /// In ar, this message translates to:
+  /// **'متاح'**
+  String get statListingsAvailable;
+
+  /// No description provided for @statListingsReserved.
+  ///
+  /// In ar, this message translates to:
+  /// **'محجوز'**
+  String get statListingsReserved;
+
+  /// No description provided for @statListingsGiven.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم التبرع به'**
+  String get statListingsGiven;
+
+  /// No description provided for @statReportsOpen.
+  ///
+  /// In ar, this message translates to:
+  /// **'بلاغات مفتوحة'**
+  String get statReportsOpen;
+
+  /// No description provided for @statRequestsOpen.
+  ///
+  /// In ar, this message translates to:
+  /// **'طلبات مفتوحة'**
+  String get statRequestsOpen;
+
+  /// No description provided for @statRequestsMatched.
+  ///
+  /// In ar, this message translates to:
+  /// **'تمت المطابقة'**
+  String get statRequestsMatched;
+
+  /// No description provided for @statBloodRequests.
+  ///
+  /// In ar, this message translates to:
+  /// **'طلبات دم'**
+  String get statBloodRequests;
+
+  /// No description provided for @seedCleanupTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'بيانات تجريبية'**
+  String get seedCleanupTitle;
+
+  /// No description provided for @seedCleanupBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'حذف {count} إعلان تجريبي أُنشئ للاختبار (seed-*)'**
+  String seedCleanupBody(int count);
+
+  /// No description provided for @seedCleanupNone.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد إعلانات تجريبية'**
+  String get seedCleanupNone;
+
+  /// No description provided for @seedCleanupAction.
+  ///
+  /// In ar, this message translates to:
+  /// **'حذف الإعلانات التجريبية'**
+  String get seedCleanupAction;
+
+  /// No description provided for @seedCleanupDone.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم حذف {count} إعلان تجريبي'**
+  String seedCleanupDone(int count);
+
+  /// No description provided for @reportStatusOpen.
+  ///
+  /// In ar, this message translates to:
+  /// **'مفتوح'**
+  String get reportStatusOpen;
+
+  /// No description provided for @reportStatusResolved.
+  ///
+  /// In ar, this message translates to:
+  /// **'تمت المعالجة'**
+  String get reportStatusResolved;
+
+  /// No description provided for @reportStatusDismissed.
+  ///
+  /// In ar, this message translates to:
+  /// **'مرفوض'**
+  String get reportStatusDismissed;
+
+  /// No description provided for @reportFilterAll.
+  ///
+  /// In ar, this message translates to:
+  /// **'الكل'**
+  String get reportFilterAll;
+
+  /// No description provided for @reportOpenListing.
+  ///
+  /// In ar, this message translates to:
+  /// **'فتح الإعلان'**
+  String get reportOpenListing;
+
+  /// No description provided for @reportListingMissing.
+  ///
+  /// In ar, this message translates to:
+  /// **'الإعلان لم يعد موجودا'**
+  String get reportListingMissing;
+
+  /// No description provided for @reportResolve.
+  ///
+  /// In ar, this message translates to:
+  /// **'معالجة'**
+  String get reportResolve;
+
+  /// No description provided for @reportDismiss.
+  ///
+  /// In ar, this message translates to:
+  /// **'رفض'**
+  String get reportDismiss;
+
+  /// No description provided for @reportDeleteContent.
+  ///
+  /// In ar, this message translates to:
+  /// **'حذف المحتوى'**
+  String get reportDeleteContent;
+
+  /// No description provided for @reportDeleteContentTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'حذف الإعلان المُبلَّغ عنه؟'**
+  String get reportDeleteContentTitle;
+
+  /// No description provided for @reportDeleteContentBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'سيتم حذف \"{title}\" نهائيا وتعليم البلاغ كمعالَج.'**
+  String reportDeleteContentBody(String title);
+
+  /// No description provided for @reportResolvedToast.
+  ///
+  /// In ar, this message translates to:
+  /// **'تمت معالجة البلاغ'**
+  String get reportResolvedToast;
+
+  /// No description provided for @reportDismissedToast.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم رفض البلاغ'**
+  String get reportDismissedToast;
+
+  /// No description provided for @adminSearchListings.
+  ///
+  /// In ar, this message translates to:
+  /// **'بحث بالعنوان أو المالك أو الولاية...'**
+  String get adminSearchListings;
+
+  /// No description provided for @adminSearchUsers.
+  ///
+  /// In ar, this message translates to:
+  /// **'بحث بالاسم أو البريد أو الولاية...'**
+  String get adminSearchUsers;
+
+  /// No description provided for @emptySearchResults.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا نتائج'**
+  String get emptySearchResults;
+
+  /// No description provided for @userDetailPhone.
+  ///
+  /// In ar, this message translates to:
+  /// **'الهاتف'**
+  String get userDetailPhone;
+
+  /// No description provided for @userDetailLocation.
+  ///
+  /// In ar, this message translates to:
+  /// **'الموقع'**
+  String get userDetailLocation;
+
+  /// No description provided for @userDetailJoined.
+  ///
+  /// In ar, this message translates to:
+  /// **'تاريخ الانضمام'**
+  String get userDetailJoined;
+
+  /// No description provided for @userDetailDisabledReason.
+  ///
+  /// In ar, this message translates to:
+  /// **'سبب التعطيل'**
+  String get userDetailDisabledReason;
+
+  /// No description provided for @userListingsCount.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count} إعلان'**
+  String userListingsCount(int count);
+
+  /// No description provided for @userReportsFiled.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count} بلاغ مُرسل'**
+  String userReportsFiled(int count);
+
+  /// No description provided for @userReportsAgainst.
+  ///
+  /// In ar, this message translates to:
+  /// **'{count} بلاغ على محتواه'**
+  String userReportsAgainst(int count);
+
+  /// No description provided for @disableUserTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعطيل الحساب'**
+  String get disableUserTitle;
+
+  /// No description provided for @disableReasonHint.
+  ///
+  /// In ar, this message translates to:
+  /// **'السبب (اختياري)'**
+  String get disableReasonHint;
+
+  /// No description provided for @disableAction.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعطيل'**
+  String get disableAction;
+
+  /// No description provided for @enableAction.
+  ///
+  /// In ar, this message translates to:
+  /// **'تفعيل'**
+  String get enableAction;
+
+  /// No description provided for @userEnabledToast.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم تفعيل الحساب'**
+  String get userEnabledToast;
+
+  /// No description provided for @userDisabledToast.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم تعطيل الحساب'**
+  String get userDisabledToast;
+
+  /// No description provided for @noRequests.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا طلبات'**
+  String get noRequests;
+
+  /// No description provided for @reqKindGeneralLabel.
+  ///
+  /// In ar, this message translates to:
+  /// **'عام'**
+  String get reqKindGeneralLabel;
+
+  /// No description provided for @errorGeneric.
+  ///
+  /// In ar, this message translates to:
+  /// **'حدث خطأ ما'**
+  String get errorGeneric;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

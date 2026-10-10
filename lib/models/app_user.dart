@@ -8,6 +8,7 @@ class AppUser {
   final String commune;
   final String? contactPhone;
   final bool disabled;
+  final String? disabledReason;
   final DateTime? createdAt;
 
   const AppUser({
@@ -18,6 +19,7 @@ class AppUser {
     required this.commune,
     this.contactPhone,
     this.disabled = false,
+    this.disabledReason,
     this.createdAt,
   });
 
@@ -31,6 +33,7 @@ class AppUser {
       commune: (d['commune'] ?? '') as String,
       contactPhone: d['contactPhone'] as String?,
       disabled: (d['disabled'] ?? false) as bool,
+      disabledReason: d['disabledReason'] as String?,
       createdAt: (d['createdAt'] as Timestamp?)?.toDate(),
     );
   }

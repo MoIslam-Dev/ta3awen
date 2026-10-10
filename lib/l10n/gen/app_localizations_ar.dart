@@ -653,4 +653,154 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get catBlood => 'التبرع بالدم';
+
+  @override
+  String get tabDashboard => 'لوحة التحكم';
+
+  @override
+  String get statDisabledUsers => 'حسابات معطلة';
+
+  @override
+  String get statListingsAvailable => 'متاح';
+
+  @override
+  String get statListingsReserved => 'محجوز';
+
+  @override
+  String get statListingsGiven => 'تم التبرع به';
+
+  @override
+  String get statReportsOpen => 'بلاغات مفتوحة';
+
+  @override
+  String get statRequestsOpen => 'طلبات مفتوحة';
+
+  @override
+  String get statRequestsMatched => 'تمت المطابقة';
+
+  @override
+  String get statBloodRequests => 'طلبات دم';
+
+  @override
+  String get seedCleanupTitle => 'بيانات تجريبية';
+
+  @override
+  String seedCleanupBody(int count) {
+    return 'حذف $count إعلان تجريبي أُنشئ للاختبار (seed-*)';
+  }
+
+  @override
+  String get seedCleanupNone => 'لا توجد إعلانات تجريبية';
+
+  @override
+  String get seedCleanupAction => 'حذف الإعلانات التجريبية';
+
+  @override
+  String seedCleanupDone(int count) {
+    return 'تم حذف $count إعلان تجريبي';
+  }
+
+  @override
+  String get reportStatusOpen => 'مفتوح';
+
+  @override
+  String get reportStatusResolved => 'تمت المعالجة';
+
+  @override
+  String get reportStatusDismissed => 'مرفوض';
+
+  @override
+  String get reportFilterAll => 'الكل';
+
+  @override
+  String get reportOpenListing => 'فتح الإعلان';
+
+  @override
+  String get reportListingMissing => 'الإعلان لم يعد موجودا';
+
+  @override
+  String get reportResolve => 'معالجة';
+
+  @override
+  String get reportDismiss => 'رفض';
+
+  @override
+  String get reportDeleteContent => 'حذف المحتوى';
+
+  @override
+  String get reportDeleteContentTitle => 'حذف الإعلان المُبلَّغ عنه؟';
+
+  @override
+  String reportDeleteContentBody(String title) {
+    return 'سيتم حذف \"$title\" نهائيا وتعليم البلاغ كمعالَج.';
+  }
+
+  @override
+  String get reportResolvedToast => 'تمت معالجة البلاغ';
+
+  @override
+  String get reportDismissedToast => 'تم رفض البلاغ';
+
+  @override
+  String get adminSearchListings => 'بحث بالعنوان أو المالك أو الولاية...';
+
+  @override
+  String get adminSearchUsers => 'بحث بالاسم أو البريد أو الولاية...';
+
+  @override
+  String get emptySearchResults => 'لا نتائج';
+
+  @override
+  String get userDetailPhone => 'الهاتف';
+
+  @override
+  String get userDetailLocation => 'الموقع';
+
+  @override
+  String get userDetailJoined => 'تاريخ الانضمام';
+
+  @override
+  String get userDetailDisabledReason => 'سبب التعطيل';
+
+  @override
+  String userListingsCount(int count) {
+    return '$count إعلان';
+  }
+
+  @override
+  String userReportsFiled(int count) {
+    return '$count بلاغ مُرسل';
+  }
+
+  @override
+  String userReportsAgainst(int count) {
+    return '$count بلاغ على محتواه';
+  }
+
+  @override
+  String get disableUserTitle => 'تعطيل الحساب';
+
+  @override
+  String get disableReasonHint => 'السبب (اختياري)';
+
+  @override
+  String get disableAction => 'تعطيل';
+
+  @override
+  String get enableAction => 'تفعيل';
+
+  @override
+  String get userEnabledToast => 'تم تفعيل الحساب';
+
+  @override
+  String get userDisabledToast => 'تم تعطيل الحساب';
+
+  @override
+  String get noRequests => 'لا طلبات';
+
+  @override
+  String get reqKindGeneralLabel => 'عام';
+
+  @override
+  String get errorGeneric => 'حدث خطأ ما';
 }
