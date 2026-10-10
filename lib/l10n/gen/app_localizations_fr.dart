@@ -803,4 +803,34 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get errorGeneric => 'Une erreur est survenue';
+
+  @override
+  String get onboardingStep1Title => 'Publier un besoin ou une offre';
+
+  @override
+  String get onboardingStep1Body => 'Demandez ce dont vous avez besoin, ou proposez ce dont vous n\'avez plus besoin aux gens autour de vous.';
+
+  @override
+  String get onboardingStep2Title => 'Appariement, puis appel';
+
+  @override
+  String get onboardingStep2Body => 'Quand quelqu\'un répond à votre annonce, vos numéros s\'affichent mutuellement. Pas de chat intégré — un simple appel.';
+
+  @override
+  String get onboardingStep3Title => 'Tableau de don de sang';
+
+  @override
+  String get onboardingStep3Body => 'Un espace dédié aux demandes de don de sang : choisissez le groupe sanguin et contactez les donneurs plus vite.';
+
+  @override
+  String get onboardingCta => 'Compris';
+
+  @override
+  String get profileHowItWorks => 'Comment ça marche';
+
+  @override
+  String get editProfileTitle => 'Modifier le profil';
+
+  @override
+  String get profileUpdated => 'Profil mis à jour';
 }

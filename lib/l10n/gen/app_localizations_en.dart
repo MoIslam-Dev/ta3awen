@@ -803,4 +803,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorGeneric => 'Something went wrong';
+
+  @override
+  String get onboardingStep1Title => 'Post a need or an offer';
+
+  @override
+  String get onboardingStep1Body => 'Ask for something you need, or offer what you no longer need to people around you.';
+
+  @override
+  String get onboardingStep2Title => 'Match, then call';
+
+  @override
+  String get onboardingStep2Body => 'When someone answers your post you both see each other\'s phone number. No in-app chat — just a quick call.';
+
+  @override
+  String get onboardingStep3Title => 'Blood donation board';
+
+  @override
+  String get onboardingStep3Body => 'A dedicated space for blood donation requests: choose the blood type and reach donors faster.';
+
+  @override
+  String get onboardingCta => 'Got it';
+
+  @override
+  String get profileHowItWorks => 'How it works';
+
+  @override
+  String get editProfileTitle => 'Edit profile';
+
+  @override
+  String get profileUpdated => 'Profile updated';
 }

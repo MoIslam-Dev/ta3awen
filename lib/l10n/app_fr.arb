@@ -372,5 +372,16 @@
   "userDisabledToast": "Compte désactivé",
   "noRequests": "Aucune demande",
   "reqKindGeneralLabel": "Général",
-  "errorGeneric": "Une erreur est survenue"
+  "errorGeneric": "Une erreur est survenue",
+
+  "onboardingStep1Title": "Publier un besoin ou une offre",
+  "onboardingStep1Body": "Demandez ce dont vous avez besoin, ou proposez ce dont vous n'avez plus besoin aux gens autour de vous.",
+  "onboardingStep2Title": "Appariement, puis appel",
+  "onboardingStep2Body": "Quand quelqu'un répond à votre annonce, vos numéros s'affichent mutuellement. Pas de chat intégré — un simple appel.",
+  "onboardingStep3Title": "Tableau de don de sang",
+  "onboardingStep3Body": "Un espace dédié aux demandes de don de sang : choisissez le groupe sanguin et contactez les donneurs plus vite.",
+  "onboardingCta": "Compris",
+  "profileHowItWorks": "Comment ça marche",
+  "editProfileTitle": "Modifier le profil",
+  "profileUpdated": "Profil mis à jour"
 }

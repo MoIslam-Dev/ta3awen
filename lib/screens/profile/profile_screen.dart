@@ -8,6 +8,8 @@ import '../../state/app_settings.dart';
 import '../../utils/errors.dart';
 import '../../widgets/state_views.dart';
 import '../admin/admin_screen.dart';
+import '../onboarding/onboarding_screen.dart';
+import 'edit_profile_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final VoidCallback onLogoutRequested;
@@ -70,6 +72,13 @@ class _ProfileScreenState extends State<ProfileScreen>
         });
       }
     }
+  }
+
+  Future<void> _editProfile(AppUser user) async {
+    final saved = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(builder: (_) => EditProfileScreen(user: user)),
+    );
+    if (saved == true && mounted) _load();
   }
 
   Future<void> _pickLanguage() async {
@@ -231,9 +240,25 @@ class _ProfileScreenState extends State<ProfileScreen>
                     ),
                   ),
                   const SizedBox(height: 14),
-                  Text(
-                    user?.fullName ?? '',
-                    style: theme.textTheme.titleLarge,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          user?.fullName ?? '',
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.titleLarge,
+                        ),
+                      ),
+                      if (user != null) ...[
+                        const SizedBox(width: 4),
+                        IconButton(
+                          tooltip: l.editProfileTitle,
+                          icon: const Icon(Icons.edit_outlined, size: 20),
+                          onPressed: () => _editProfile(user),
+                        ),
+                      ],
+                    ],
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -293,6 +318,21 @@ class _ProfileScreenState extends State<ProfileScreen>
                   subtitle: Text(_themeName()),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: _pickTheme,
+                ),
+                const Divider(indent: 16, endIndent: 16),
+                ListTile(
+                  leading: Icon(
+                    Icons.help_outline,
+                    color: theme.colorScheme.primary,
+                  ),
+                  title: Text(l.profileHowItWorks),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                          builder: (_) => const OnboardingScreen()),
+                    );
+                  },
                 ),
               ],
             ),

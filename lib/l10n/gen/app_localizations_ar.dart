@@ -803,4 +803,34 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get errorGeneric => 'حدث خطأ ما';
+
+  @override
+  String get onboardingStep1Title => 'انشر طلب أو عرضا';
+
+  @override
+  String get onboardingStep1Body => 'اطلب ما تحتاجه، أو قدّم ما لم تعد تحتاجه لمن حولك.';
+
+  @override
+  String get onboardingStep2Title => 'مطابقة ثم اتصال';
+
+  @override
+  String get onboardingStep2Body => 'عندما يجيب أحدهم على منشورك تظهر أرقام كلا الطرفين. لا شات داخل التطبيق — اتصال سريع فقط.';
+
+  @override
+  String get onboardingStep3Title => 'لوحة التبرع بالدم';
+
+  @override
+  String get onboardingStep3Body => 'مساحة مخصصة لطلبات التبرع بالدم: اختر فصيلة الدم وصِل إلى المتبرعين أسرع.';
+
+  @override
+  String get onboardingCta => 'فهمت';
+
+  @override
+  String get profileHowItWorks => 'كيف يعمل التطبيق';
+
+  @override
+  String get editProfileTitle => 'تعديل الملف الشخصي';
+
+  @override
+  String get profileUpdated => 'تم تحديث الملف الشخصي';
 }

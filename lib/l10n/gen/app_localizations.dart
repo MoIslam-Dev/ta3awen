@@ -1632,6 +1632,66 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'حدث خطأ ما'**
   String get errorGeneric;
+
+  /// No description provided for @onboardingStep1Title.
+  ///
+  /// In ar, this message translates to:
+  /// **'انشر طلب أو عرضا'**
+  String get onboardingStep1Title;
+
+  /// No description provided for @onboardingStep1Body.
+  ///
+  /// In ar, this message translates to:
+  /// **'اطلب ما تحتاجه، أو قدّم ما لم تعد تحتاجه لمن حولك.'**
+  String get onboardingStep1Body;
+
+  /// No description provided for @onboardingStep2Title.
+  ///
+  /// In ar, this message translates to:
+  /// **'مطابقة ثم اتصال'**
+  String get onboardingStep2Title;
+
+  /// No description provided for @onboardingStep2Body.
+  ///
+  /// In ar, this message translates to:
+  /// **'عندما يجيب أحدهم على منشورك تظهر أرقام كلا الطرفين. لا شات داخل التطبيق — اتصال سريع فقط.'**
+  String get onboardingStep2Body;
+
+  /// No description provided for @onboardingStep3Title.
+  ///
+  /// In ar, this message translates to:
+  /// **'لوحة التبرع بالدم'**
+  String get onboardingStep3Title;
+
+  /// No description provided for @onboardingStep3Body.
+  ///
+  /// In ar, this message translates to:
+  /// **'مساحة مخصصة لطلبات التبرع بالدم: اختر فصيلة الدم وصِل إلى المتبرعين أسرع.'**
+  String get onboardingStep3Body;
+
+  /// No description provided for @onboardingCta.
+  ///
+  /// In ar, this message translates to:
+  /// **'فهمت'**
+  String get onboardingCta;
+
+  /// No description provided for @profileHowItWorks.
+  ///
+  /// In ar, this message translates to:
+  /// **'كيف يعمل التطبيق'**
+  String get profileHowItWorks;
+
+  /// No description provided for @editProfileTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعديل الملف الشخصي'**
+  String get editProfileTitle;
+
+  /// No description provided for @profileUpdated.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم تحديث الملف الشخصي'**
+  String get profileUpdated;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

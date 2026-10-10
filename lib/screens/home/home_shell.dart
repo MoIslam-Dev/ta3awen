@@ -5,6 +5,7 @@ import '../auth_gate.dart';
 import 'feed_screen.dart';
 import '../listing/listing_form_screen.dart';
 import '../my_listings/my_listings_screen.dart';
+import '../onboarding/onboarding_screen.dart';
 import '../profile/profile_screen.dart';
 import '../requests/request_form_screen.dart';
 import '../requests/requests_screen.dart';
@@ -49,6 +50,15 @@ class _HomeShellState extends State<HomeShell> {
   void initState() {
     super.initState();
     _ensurePage(0);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _maybeShowOnboarding());
+  }
+
+  Future<void> _maybeShowOnboarding() async {
+    if (!await OnboardingScreen.shouldShow()) return;
+    if (!mounted) return;
+    await Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const OnboardingScreen()),
+    );
   }
 
   String _title() {

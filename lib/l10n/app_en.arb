@@ -372,5 +372,16 @@
   "userDisabledToast": "Account disabled",
   "noRequests": "No requests",
   "reqKindGeneralLabel": "General",
-  "errorGeneric": "Something went wrong"
+  "errorGeneric": "Something went wrong",
+
+  "onboardingStep1Title": "Post a need or an offer",
+  "onboardingStep1Body": "Ask for something you need, or offer what you no longer need to people around you.",
+  "onboardingStep2Title": "Match, then call",
+  "onboardingStep2Body": "When someone answers your post you both see each other's phone number. No in-app chat — just a quick call.",
+  "onboardingStep3Title": "Blood donation board",
+  "onboardingStep3Body": "A dedicated space for blood donation requests: choose the blood type and reach donors faster.",
+  "onboardingCta": "Got it",
+  "profileHowItWorks": "How it works",
+  "editProfileTitle": "Edit profile",
+  "profileUpdated": "Profile updated"
 }

@@ -372,5 +372,16 @@
   "userDisabledToast": "تم تعطيل الحساب",
   "noRequests": "لا طلبات",
   "reqKindGeneralLabel": "عام",
-  "errorGeneric": "حدث خطأ ما"
+  "errorGeneric": "حدث خطأ ما",
+
+  "onboardingStep1Title": "انشر طلب أو عرضا",
+  "onboardingStep1Body": "اطلب ما تحتاجه، أو قدّم ما لم تعد تحتاجه لمن حولك.",
+  "onboardingStep2Title": "مطابقة ثم اتصال",
+  "onboardingStep2Body": "عندما يجيب أحدهم على منشورك تظهر أرقام كلا الطرفين. لا شات داخل التطبيق — اتصال سريع فقط.",
+  "onboardingStep3Title": "لوحة التبرع بالدم",
+  "onboardingStep3Body": "مساحة مخصصة لطلبات التبرع بالدم: اختر فصيلة الدم وصِل إلى المتبرعين أسرع.",
+  "onboardingCta": "فهمت",
+  "profileHowItWorks": "كيف يعمل التطبيق",
+  "editProfileTitle": "تعديل الملف الشخصي",
+  "profileUpdated": "تم تحديث الملف الشخصي"
 }

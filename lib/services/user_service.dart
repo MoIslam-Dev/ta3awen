@@ -28,6 +28,21 @@ class UserService {
     return AppUser.fromDoc(doc);
   }
 
+  Future<void> updateProfile({
+    required String uid,
+    required String fullName,
+    required String wilaya,
+    required String commune,
+    String? contactPhone,
+  }) async {
+    await _col.doc(uid).update({
+      'fullName': fullName,
+      'wilaya': wilaya,
+      'commune': commune,
+      'contactPhone': contactPhone,
+    });
+  }
+
   Future<List<AppUser>> getAll() async {
     final snap = await _col.get();
     return snap.docs.map(AppUser.fromDoc).toList();
