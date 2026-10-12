@@ -502,7 +502,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get reqTypeNeed => 'أحتاج';
 
   @override
-  String get reqTypeOffer => 'أقدّر';
+  String get reqTypeOffer => 'أقدّم';
 
   @override
   String get reqTypeLabel => 'نوع الطلب';
@@ -544,7 +544,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get reqSearchHint => 'ابحث في الطلبات...';
 
   @override
-  String get reqSegmentBoard => 'اللوحة';
+  String get reqSegmentBoard => 'الطلبات المفتوحة';
 
   @override
   String get reqSegmentMine => 'طلباتي';
@@ -573,10 +573,25 @@ class AppLocalizationsAr extends AppLocalizations {
   String get reqAuthor => 'صاحب الطلب';
 
   @override
-  String get reqMatchHelp => 'أنا معني بهذا الطلب';
+  String get reqMatchHelpNeed => 'أستطيع المساعدة';
 
   @override
-  String get reqMatchSuccess => 'تمت المطابقة، تواصل مع صاحب الطلب لترتيب التفاصيل';
+  String get reqMatchHelpOffer => 'أريد هذا';
+
+  @override
+  String get reqMatchHelpBlood => 'أستطيع التبرع';
+
+  @override
+  String get reqMatchSuccessNeed => 'تمت المطابقة! تواصل مع صاحب الطلب لترتيب التفاصيل';
+
+  @override
+  String get reqMatchSuccessOffer => 'تمت المطابقة! تواصل مع صاحب المنشور لترتيب الاستلام';
+
+  @override
+  String get reqMatchSuccessBlood => 'تمت المطابقة! تواصل مع صاحب الطلب لترتيب التبرع';
+
+  @override
+  String get reqMatchedVisibility => 'لن يظهر هذا المنشور في اللوحة العامة للطلبات المفتوحة حتى ينتهي التطابق';
 
   @override
   String get reqMatchTaken => 'سبقك مستخدم آخر وأجاب على هذا الطلب';
@@ -800,6 +815,12 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get reqKindGeneralLabel => 'عام';
+
+  @override
+  String get reqKindOptionGeneral => 'طلب عام';
+
+  @override
+  String get reqKindOptionBlood => 'طلب تبرع بالدم';
 
   @override
   String get errorGeneric => 'حدث خطأ ما';

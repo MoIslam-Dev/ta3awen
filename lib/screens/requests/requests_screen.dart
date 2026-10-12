@@ -8,6 +8,8 @@ import '../../models/request_post.dart';
 import '../../services/request_service.dart';
 import '../../utils/constants.dart';
 import '../../utils/errors.dart';
+import '../../utils/request_filters.dart';
+import '../../widgets/location_filter_chips.dart';
 import '../../widgets/request_card.dart';
 import '../../widgets/state_views.dart';
 import '../requests/request_details_screen.dart';
@@ -36,6 +38,10 @@ class _RequestsScreenState extends State<RequestsScreen>
 
   /// Optional blood-type narrowing on the blood board (client-side).
   String? _bloodTypeFilter;
+
+  /// Location narrowing on the general board (client-side).
+  String? _wilaya;
+  String? _commune;
 
   String _query = '';
   String _rawQuery = '';
@@ -139,24 +145,69 @@ class _RequestsScreenState extends State<RequestsScreen>
     });
   }
 
-  List<RequestPost> get _visible {
-    var source = _segment == 0 ? _board : _mine;
-    // The need/offer chips mean "general" posts only; blood posts are
-    // type need but live behind the dedicated Blood chip.
-    if (_segment == 0 && !_bloodBoard && _typeFilter != null) {
-      source = source.where((r) => !r.isBlood).toList();
-    }
-    if (_segment == 0 && _bloodBoard && _bloodTypeFilter != null) {
-      source = source.where((r) => r.bloodType == _bloodTypeFilter).toList();
-    }
-    if (_query.isEmpty) return source;
-    final q = _query.toLowerCase();
-    return source.where((r) {
-      final hay =
-          '${r.title} ${r.description} ${r.category} ${r.wilaya} ${r.commune}'
-              .toLowerCase();
-      return hay.contains(q);
-    }).toList();
+  bool get _hasBoardFilters =>
+      _query.isNotEmpty ||
+      _typeFilter != null ||
+      _bloodTypeFilter != null ||
+      _wilaya != null ||
+      _commune != null;
+
+  /// Clears every board narrowing (search, type, blood type, location) and
+  /// restores the server stream when a server-side type filter was active.
+  void _clearBoardFilters() {
+    _debounce?.cancel();
+    final needsResub = _typeFilter != null;
+    _searchCtrl.clear();
+    setState(() {
+      _rawQuery = '';
+      _query = '';
+      _typeFilter = null;
+      _bloodTypeFilter = null;
+      _wilaya = null;
+      _commune = null;
+    });
+    // _segment == 1 (my requests) never sets a type filter, so this is a
+    // board-only concern.
+    if (needsResub) _subscribe();
+  }
+
+  /// The visible posts, after all board-side rules are applied.
+  ///
+  /// The general board never mixes blood posts, the blood board shows blood
+  /// posts only, and "My requests" shows every post owned by the user (only
+  /// narrowed by the search box).
+  List<RequestPost> get _items {
+    final onBoard = _segment == 0;
+    return filterRequests(
+      onBoard ? _board : _mine,
+      bloodSeparation: onBoard,
+      bloodBoard: onBoard && _bloodBoard,
+      typeFilter: onBoard && !_bloodBoard ? _typeFilter : null,
+      bloodTypeFilter: _bloodBoard ? _bloodTypeFilter : null,
+      wilaya: onBoard && !_bloodBoard ? _wilaya : null,
+      commune: onBoard && !_bloodBoard ? _commune : null,
+      query: _query,
+    );
+  }
+
+  void _selectType(String? type) {
+    if (!_bloodBoard && _typeFilter == type) return;
+    setState(() {
+      _bloodBoard = false;
+      _bloodTypeFilter = null;
+      _typeFilter = type;
+    });
+    _subscribe();
+  }
+
+  void _selectBloodBoard() {
+    if (_bloodBoard) return;
+    setState(() {
+      _bloodBoard = true;
+      _typeFilter = null;
+      _bloodTypeFilter = null;
+    });
+    _subscribe();
   }
 
   void _openCreate() {
@@ -177,6 +228,32 @@ class _RequestsScreenState extends State<RequestsScreen>
     );
   }
 
+  Widget _boardChip({
+    required String label,
+    required bool selected,
+    required VoidCallback onTap,
+  }) {
+    return Padding(
+      padding: const EdgeInsetsDirectional.only(end: 8),
+      child: ChoiceChip(
+        label: Text(label),
+        selected: selected,
+        onSelected: (_) => onTap(),
+      ),
+    );
+  }
+
+  Widget _chipRow({required List<Widget> children}) {
+    return SizedBox(
+      height: 60,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        children: children,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -185,7 +262,8 @@ class _RequestsScreenState extends State<RequestsScreen>
     if (_error != null) {
       return ErrorView(message: _error!, onRetry: _load);
     }
-    final items = _visible;
+    final items = _items;
+    final onBoard = _segment == 0;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -227,76 +305,67 @@ class _RequestsScreenState extends State<RequestsScreen>
             onChanged: _onSearchChanged,
           ),
         ),
-        SizedBox(
-          height: 60,
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        if (onBoard) ...[
+          // Board scope chips: general / need / offer / blood, plus a
+          // clear-filter action whenever anything narrows the board.
+          _chipRow(
             children: [
-              // General type chips (All / need / offer) — mutually
-              // exclusive with the Blood board.
-              Padding(
-                padding: const EdgeInsetsDirectional.only(end: 8),
-                child: ChoiceChip(
-                  label: Text(l.reqTypeAll),
-                  selected: !_bloodBoard && _typeFilter == null,
-                  onSelected: (_) {
-                    if (!_bloodBoard && _typeFilter == null) return;
-                    setState(() {
-                      _bloodBoard = false;
-                      _bloodTypeFilter = null;
-                      _typeFilter = null;
-                    });
-                    _subscribe();
-                  },
-                ),
+              _boardChip(
+                label: l.reqKindGeneralLabel,
+                selected: !_bloodBoard && _typeFilter == null,
+                onTap: () => _selectType(null),
               ),
-              for (final entry in [
-                (requestTypeNeed, l.reqTypeNeed),
-                (requestTypeOffer, l.reqTypeOffer),
-              ])
-                Padding(
-                  padding: const EdgeInsetsDirectional.only(end: 8),
-                  child: ChoiceChip(
-                    label: Text(entry.$2),
-                    selected: !_bloodBoard && _typeFilter == entry.$1,
-                    onSelected: (_) {
-                      if (!_bloodBoard && _typeFilter == entry.$1) return;
-                      setState(() {
-                        _bloodBoard = false;
-                        _bloodTypeFilter = null;
-                        _typeFilter = entry.$1;
-                      });
-                      _subscribe();
-                    },
-                  ),
-                ),
+              _boardChip(
+                label: l.reqTypeNeed,
+                selected: !_bloodBoard && _typeFilter == requestTypeNeed,
+                onTap: () => _selectType(requestTypeNeed),
+              ),
+              _boardChip(
+                label: l.reqTypeOffer,
+                selected: !_bloodBoard && _typeFilter == requestTypeOffer,
+                onTap: () => _selectType(requestTypeOffer),
+              ),
               Padding(
                 padding: const EdgeInsetsDirectional.only(end: 8),
                 child: ChoiceChip(
                   avatar: const Icon(Icons.bloodtype_outlined, size: 18),
                   label: Text(l.reqKindBlood),
                   selected: _bloodBoard,
-                  onSelected: (_) {
-                    if (_bloodBoard) return;
-                    setState(() {
-                      _bloodBoard = true;
-                      _typeFilter = null;
-                      _bloodTypeFilter = null;
-                    });
-                    _subscribe();
-                  },
+                  onSelected: (_) => _selectBloodBoard(),
                 ),
               ),
+              if (_hasBoardFilters)
+                Padding(
+                  padding: const EdgeInsetsDirectional.only(end: 8),
+                  child: ActionChip(
+                    avatar: const Icon(Icons.filter_alt_off_outlined, size: 18),
+                    label: Text(l.clearFilters),
+                    onPressed: _clearBoardFilters,
+                  ),
+                ),
             ],
           ),
-        ),
-        if (_bloodBoard)
-          SizedBox(
-            height: 60,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+          // Location narrowing on the general board.
+          if (!_bloodBoard)
+            _chipRow(
+              children: [
+                Padding(
+                  padding: const EdgeInsetsDirectional.only(end: 8),
+                  child: LocationFilterChips(
+                    wilaya: _wilaya,
+                    commune: _commune,
+                    onWilayaChanged: (w) => setState(() {
+                      _wilaya = w;
+                      _commune = null;
+                    }),
+                    onCommuneChanged: (c) => setState(() => _commune = c),
+                  ),
+                ),
+              ],
+            ),
+          // Blood board: quick create + blood-type narrowing.
+          if (_bloodBoard)
+            _chipRow(
               children: [
                 Padding(
                   padding: const EdgeInsetsDirectional.only(end: 8),
@@ -306,28 +375,20 @@ class _RequestsScreenState extends State<RequestsScreen>
                     onPressed: _openCreateBlood,
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsetsDirectional.only(end: 8),
-                  child: ChoiceChip(
-                    label: Text(l.reqTypeAll),
-                    selected: _bloodTypeFilter == null,
-                    onSelected: (_) =>
-                        setState(() => _bloodTypeFilter = null),
-                  ),
+                _boardChip(
+                  label: l.reqTypeAll,
+                  selected: _bloodTypeFilter == null,
+                  onTap: () => setState(() => _bloodTypeFilter = null),
                 ),
                 for (final t in kBloodTypes)
-                  Padding(
-                    padding: const EdgeInsetsDirectional.only(end: 8),
-                    child: ChoiceChip(
-                      label: Text(t),
-                      selected: _bloodTypeFilter == t,
-                      onSelected: (_) =>
-                          setState(() => _bloodTypeFilter = t),
-                    ),
+                  _boardChip(
+                    label: t,
+                    selected: _bloodTypeFilter == t,
+                    onTap: () => setState(() => _bloodTypeFilter = t),
                   ),
               ],
             ),
-          ),
+        ],
         Expanded(child: _buildBody(items, l)),
       ],
     );
@@ -335,40 +396,47 @@ class _RequestsScreenState extends State<RequestsScreen>
 
   Widget _buildBody(List<RequestPost> items, AppLocalizations l) {
     if (items.isEmpty) {
-      final filtered = _query.isNotEmpty ||
-          _typeFilter != null ||
-          _bloodTypeFilter != null;
+      final boarded = _segment == 0;
+      final filtered = boarded && _hasBoardFilters;
+      final IconData icon;
       final String empty;
+      Widget? action;
       if (_segment == 1) {
+        icon = Icons.person_pin_outlined;
         empty = l.reqEmptyMine;
+        action = FilledButton.tonalIcon(
+          onPressed: _openCreate,
+          icon: const Icon(Icons.add),
+          label: Text(l.reqAddFirst),
+        );
       } else if (_bloodBoard && !filtered) {
+        icon = Icons.bloodtype_outlined;
         empty = l.reqBloodEmpty;
+        action = FilledButton.tonalIcon(
+          onPressed: _openCreateBlood,
+          icon: const Icon(Icons.bloodtype_outlined),
+          label: Text(l.reqAddBlood),
+        );
+      } else if (!_bloodBoard && !filtered) {
+        icon = Icons.forum_outlined;
+        empty = l.reqEmptyBoard;
+        action = FilledButton.tonalIcon(
+          onPressed: _openCreate,
+          icon: const Icon(Icons.add),
+          label: Text(l.reqAddFirst),
+        );
       } else {
+        icon = Icons.search_off;
         empty = l.noResults;
+        action = OutlinedButton.icon(
+          onPressed: _clearBoardFilters,
+          icon: const Icon(Icons.filter_alt_off_outlined),
+          label: Text(l.clearFilters),
+        );
       }
       return RefreshIndicator(
         onRefresh: _load,
-        child: EmptyView(
-          icon: _bloodBoard
-              ? Icons.bloodtype_outlined
-              : _segment == 0
-                  ? Icons.forum_outlined
-                  : Icons.person_pin_outlined,
-          message: empty,
-          action: _segment == 1
-              ? FilledButton.tonalIcon(
-                  onPressed: _openCreate,
-                  icon: const Icon(Icons.add),
-                  label: Text(l.reqAddFirst),
-                )
-              : (_bloodBoard && !filtered
-                  ? FilledButton.tonalIcon(
-                      onPressed: _openCreateBlood,
-                      icon: const Icon(Icons.bloodtype_outlined),
-                      label: Text(l.reqAddBlood),
-                    )
-                  : null),
-        ),
+        child: EmptyView(icon: icon, message: empty, action: action),
       );
     }
     return RefreshIndicator(

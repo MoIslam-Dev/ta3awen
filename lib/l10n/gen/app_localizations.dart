@@ -1066,7 +1066,7 @@ abstract class AppLocalizations {
   /// No description provided for @reqTypeOffer.
   ///
   /// In ar, this message translates to:
-  /// **'أقدّر'**
+  /// **'أقدّم'**
   String get reqTypeOffer;
 
   /// No description provided for @reqTypeLabel.
@@ -1150,7 +1150,7 @@ abstract class AppLocalizations {
   /// No description provided for @reqSegmentBoard.
   ///
   /// In ar, this message translates to:
-  /// **'اللوحة'**
+  /// **'الطلبات المفتوحة'**
   String get reqSegmentBoard;
 
   /// No description provided for @reqSegmentMine.
@@ -1201,17 +1201,47 @@ abstract class AppLocalizations {
   /// **'صاحب الطلب'**
   String get reqAuthor;
 
-  /// No description provided for @reqMatchHelp.
+  /// No description provided for @reqMatchHelpNeed.
   ///
   /// In ar, this message translates to:
-  /// **'أنا معني بهذا الطلب'**
-  String get reqMatchHelp;
+  /// **'أستطيع المساعدة'**
+  String get reqMatchHelpNeed;
 
-  /// No description provided for @reqMatchSuccess.
+  /// No description provided for @reqMatchHelpOffer.
   ///
   /// In ar, this message translates to:
-  /// **'تمت المطابقة، تواصل مع صاحب الطلب لترتيب التفاصيل'**
-  String get reqMatchSuccess;
+  /// **'أريد هذا'**
+  String get reqMatchHelpOffer;
+
+  /// No description provided for @reqMatchHelpBlood.
+  ///
+  /// In ar, this message translates to:
+  /// **'أستطيع التبرع'**
+  String get reqMatchHelpBlood;
+
+  /// No description provided for @reqMatchSuccessNeed.
+  ///
+  /// In ar, this message translates to:
+  /// **'تمت المطابقة! تواصل مع صاحب الطلب لترتيب التفاصيل'**
+  String get reqMatchSuccessNeed;
+
+  /// No description provided for @reqMatchSuccessOffer.
+  ///
+  /// In ar, this message translates to:
+  /// **'تمت المطابقة! تواصل مع صاحب المنشور لترتيب الاستلام'**
+  String get reqMatchSuccessOffer;
+
+  /// No description provided for @reqMatchSuccessBlood.
+  ///
+  /// In ar, this message translates to:
+  /// **'تمت المطابقة! تواصل مع صاحب الطلب لترتيب التبرع'**
+  String get reqMatchSuccessBlood;
+
+  /// No description provided for @reqMatchedVisibility.
+  ///
+  /// In ar, this message translates to:
+  /// **'لن يظهر هذا المنشور في اللوحة العامة للطلبات المفتوحة حتى ينتهي التطابق'**
+  String get reqMatchedVisibility;
 
   /// No description provided for @reqMatchTaken.
   ///
@@ -1626,6 +1656,18 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'عام'**
   String get reqKindGeneralLabel;
+
+  /// No description provided for @reqKindOptionGeneral.
+  ///
+  /// In ar, this message translates to:
+  /// **'طلب عام'**
+  String get reqKindOptionGeneral;
+
+  /// No description provided for @reqKindOptionBlood.
+  ///
+  /// In ar, this message translates to:
+  /// **'طلب تبرع بالدم'**
+  String get reqKindOptionBlood;
 
   /// No description provided for @errorGeneric.
   ///

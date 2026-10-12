@@ -544,7 +544,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reqSearchHint => 'Search requests...';
 
   @override
-  String get reqSegmentBoard => 'Board';
+  String get reqSegmentBoard => 'Open requests';
 
   @override
   String get reqSegmentMine => 'My requests';
@@ -573,10 +573,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reqAuthor => 'Request author';
 
   @override
-  String get reqMatchHelp => 'I\'m interested';
+  String get reqMatchHelpNeed => 'I can help';
 
   @override
-  String get reqMatchSuccess => 'Matched! Contact the author to arrange the details';
+  String get reqMatchHelpOffer => 'I want this';
+
+  @override
+  String get reqMatchHelpBlood => 'I can donate';
+
+  @override
+  String get reqMatchSuccessNeed => 'Matched! Contact the author to arrange the details';
+
+  @override
+  String get reqMatchSuccessOffer => 'Matched! Contact the author to arrange handover';
+
+  @override
+  String get reqMatchSuccessBlood => 'Matched! Contact the author to arrange the donation';
+
+  @override
+  String get reqMatchedVisibility => 'This post won\'t appear on the public open-requests board while the match is active';
 
   @override
   String get reqMatchTaken => 'Someone else already answered this request';
@@ -800,6 +815,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reqKindGeneralLabel => 'General';
+
+  @override
+  String get reqKindOptionGeneral => 'General request';
+
+  @override
+  String get reqKindOptionBlood => 'Blood donation request';
 
   @override
   String get errorGeneric => 'Something went wrong';

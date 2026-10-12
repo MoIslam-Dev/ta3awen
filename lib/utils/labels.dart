@@ -104,3 +104,37 @@ String requestStatusLabel(BuildContext context, String status) {
       return status;
   }
 }
+
+/// What the author is asking for, which drives the wording of the "I can…"
+/// action on the board: a need expects help, an offer expects someone who
+/// wants the item, a blood post expects a donor.
+enum RequestMatchIntent { need, offer, blood }
+
+RequestMatchIntent requestMatchIntent(RequestPost post) {
+  if (post.isBlood) return RequestMatchIntent.blood;
+  return post.type == requestTypeNeed
+      ? RequestMatchIntent.need
+      : RequestMatchIntent.offer;
+}
+
+String requestMatchHelpLabel(BuildContext context, RequestPost post) {
+  switch (requestMatchIntent(post)) {
+    case RequestMatchIntent.need:
+      return context.l10n.reqMatchHelpNeed;
+    case RequestMatchIntent.offer:
+      return context.l10n.reqMatchHelpOffer;
+    case RequestMatchIntent.blood:
+      return context.l10n.reqMatchHelpBlood;
+  }
+}
+
+String requestMatchSuccessLabel(BuildContext context, RequestPost post) {
+  switch (requestMatchIntent(post)) {
+    case RequestMatchIntent.need:
+      return context.l10n.reqMatchSuccessNeed;
+    case RequestMatchIntent.offer:
+      return context.l10n.reqMatchSuccessOffer;
+    case RequestMatchIntent.blood:
+      return context.l10n.reqMatchSuccessBlood;
+  }
+}

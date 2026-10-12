@@ -7,6 +7,7 @@ import '../../services/user_service.dart';
 import '../../utils/constants.dart';
 import '../../utils/errors.dart';
 import '../../utils/labels.dart';
+import '../../utils/request_kind.dart';
 import '../../widgets/wilaya_commune_fields.dart';
 
 class RequestFormScreen extends StatefulWidget {
@@ -190,6 +191,38 @@ class _RequestFormScreenState extends State<RequestFormScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              if (!_isEdit) ...[
+                SegmentedButton<String>(
+                  showSelectedIcon: false,
+                  segments: [
+                    ButtonSegment(
+                      value: requestKindGeneral,
+                      label: Text(l.reqKindOptionGeneral),
+                      icon: const Icon(Icons.forum_outlined, size: 18),
+                    ),
+                    ButtonSegment(
+                      value: requestKindBlood,
+                      label: Text(l.reqKindOptionBlood),
+                      icon: const Icon(Icons.bloodtype_outlined, size: 18),
+                    ),
+                  ],
+                  selected: {_kind},
+                  onSelectionChanged: (s) {
+                    final updated = applyRequestKindSwitch(
+                      s.first,
+                      previousType: _type,
+                      previousCategory: _category,
+                    );
+                    setState(() {
+                      _kind = updated.kind;
+                      _type = updated.type;
+                      _category = updated.category;
+                      _bloodType = updated.bloodType;
+                    });
+                  },
+                ),
+                const SizedBox(height: 16),
+              ],
               if (!_isEdit && !_isBlood) ...[
                 SegmentedButton<String>(
                   showSelectedIcon: false,

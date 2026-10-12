@@ -113,8 +113,9 @@ class _RequestDetailsScreenState extends State<RequestDetailsScreen> {
   }
 
   Future<void> _match() async {
+    final r = _request;
     final uid = _uid;
-    if (uid == null) return;
+    if (r == null || uid == null) return;
     final user = await _userService.getById(uid);
     await _act(
       () => _requestService.match(
@@ -122,7 +123,7 @@ class _RequestDetailsScreenState extends State<RequestDetailsScreen> {
         uid: uid,
         name: user?.fullName ?? 'مستخدم',
       ),
-      success: (c) => c.l10n.reqMatchSuccess,
+      success: (c) => requestMatchSuccessLabel(c, r),
       probeTaken: true,
     );
   }
@@ -216,13 +217,13 @@ class _RequestDetailsScreenState extends State<RequestDetailsScreen> {
         child: FilledButton.icon(
           onPressed: _acting ? null : _match,
           icon: const Icon(Icons.handshake_outlined),
-          label: Text(l.reqMatchHelp),
+          label: Text(requestMatchHelpLabel(context, r)),
         ),
       );
     }
     if (r.isMatched) {
       final name = r.matchedName ?? '—';
-      return Card(
+      final matchedCard = Card(
         color: theme.colorScheme.secondaryContainer,
         child: Padding(
           padding: const EdgeInsets.all(14),
@@ -272,6 +273,38 @@ class _RequestDetailsScreenState extends State<RequestDetailsScreen> {
             ],
           ),
         ),
+      );
+      // While a match is active the post no longer shows on the public
+      // board; the author should not expect it back there until the match
+      // ends (finalize/release), and must know it is not deleted.
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          matchedCard,
+          if (_isAuthor) ...[
+            const SizedBox(height: 12),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.visibility_off_outlined,
+                  size: 18,
+                  color: theme.colorScheme.outline,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    l.reqMatchedVisibility,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.outline,
+                      height: 1.4,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
       );
     }
     return const SizedBox.shrink();

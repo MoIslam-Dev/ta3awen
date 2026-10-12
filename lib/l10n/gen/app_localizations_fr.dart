@@ -544,7 +544,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get reqSearchHint => 'Rechercher des demandes...';
 
   @override
-  String get reqSegmentBoard => 'Tableau';
+  String get reqSegmentBoard => 'Demandes ouvertes';
 
   @override
   String get reqSegmentMine => 'Mes demandes';
@@ -573,10 +573,25 @@ class AppLocalizationsFr extends AppLocalizations {
   String get reqAuthor => 'Auteur de la demande';
 
   @override
-  String get reqMatchHelp => 'Je suis intéressé';
+  String get reqMatchHelpNeed => 'Je peux aider';
 
   @override
-  String get reqMatchSuccess => 'Apparié ! Contactez l\'auteur pour convenir des détails';
+  String get reqMatchHelpOffer => 'Je le veux';
+
+  @override
+  String get reqMatchHelpBlood => 'Je peux donner';
+
+  @override
+  String get reqMatchSuccessNeed => 'Apparié ! Contactez l\'auteur pour convenir des détails';
+
+  @override
+  String get reqMatchSuccessOffer => 'Apparié ! Contactez l\'auteur pour convenir de la remise';
+
+  @override
+  String get reqMatchSuccessBlood => 'Apparié ! Contactez l\'auteur pour convenir du don';
+
+  @override
+  String get reqMatchedVisibility => 'Ce post n\'apparaîtra plus sur le tableau public des demandes ouvertes tant que l\'appariement est actif';
 
   @override
   String get reqMatchTaken => 'Quelqu\'un a déjà répondu à cette demande';
@@ -800,6 +815,12 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get reqKindGeneralLabel => 'Général';
+
+  @override
+  String get reqKindOptionGeneral => 'Demande générale';
+
+  @override
+  String get reqKindOptionBlood => 'Demande de don de sang';
 
   @override
   String get errorGeneric => 'Une erreur est survenue';
