@@ -2,16 +2,18 @@
 
 **الحاجة اللي ما تحتاجهاش، ممكن يحتاجها واحد آخر.**
 
-Ta3awen (تعاون) is a free Algerian mutual-aid Android application: people offer
-things they no longer need (clothes, furniture, books, electronics, food,
-accessibility equipment …) so another person can benefit from them. It is **not a
-marketplace — there is no price field anywhere**. This is an ongoing charitable
-project **in memory of the author's late mother — رحمها الله**.
+Ta3awen (تعاون) is a free **Algerian social solidarity** Android application:
+people offer things they no longer need (clothes, furniture, books, electronics,
+food, accessibility equipment …) so another person can benefit from them. It is
+**not a marketplace — there is no price field anywhere**. This is an ongoing
+charitable project **in memory of the author's late mother — رحمها الله**.
 
-The document below describes the app as it exists in this repository. Every
-feature claim is grounded in the Flutter source, the Firestore rules, or the
-automated tests; anything that still needs a real Firebase project / a physical
-device is called out explicitly.
+This README describes the project as it exists in this repository. Every claim is
+grounded in the Flutter source, the Firestore security rules, or the automated
+tests; whenever something is only implemented but not covered by an automated
+test, or still depends on a live Firebase project and a physical device, that is
+stated explicitly. **The app is a working prototype/MVP, not a production-ready
+product** — see §16 for the status and §14 for the known limitations.
 
 ---
 
@@ -29,9 +31,14 @@ device is called out explicitly.
   Functions, no paid services). This constraint shapes several decisions
   documented below (base64 images, no closed-app push notifications).
 
-## 2. Current features (verified)
+## 2. Feature status — implemented vs. tested
 
-Implemented and exercised by the app's own code paths:
+Every feature below is **implemented in the Flutter source and wired into the UI**.
+Not all of them are covered by automated tests: the three committed test files
+exercise pure logic and one widget render, but **not** the Firebase-backed flows
+(authentication, create/edit/reserve, admin actions). "Implemented" therefore
+means the code path exists; it is not a claim that every flow has been verified
+end-to-end. See §16 for the test breakdown and the overall status.
 
 - **Accounts:** email/password registration, login, logout, password reset.
 - **Feed:** available listings with thumbnail, title, category, condition,
@@ -99,7 +106,19 @@ Implemented and exercised by the app's own code paths:
 - **Cancel/release:** owner or claimant returns it to `متاح`.
 
 **Requests / board** (`RequestService`, `RequestFormScreen`,
-`RequestDetailsScreen`): a lightweight mutual-aid board separate from listings.
+`RequestDetailsScreen`). The Firestore collection is named `requests`, but each
+document is a **community-board post** — a short "assistance request" that is
+either a **need** (`type=need`, "I need …") or an **offer** (`type=offer`,
+"I can give …"). This board is intentionally **separate from the `listings`
+collection**:
+
+- `listings` = items offered for donation, with images and a reserve/confirm
+  flow.
+- `requests` = lightweight board posts for needs and offers, **no images**, with a
+  match workflow.
+
+Matching connects the two sides of the board (a need answered by another user); it
+does **not** turn a board post into a listing.
 
 - A post is `type=need` or `type=offer`, with title, description, category,
   wilaya, commune and a contact phone. The board holds **no images**.
@@ -284,6 +303,13 @@ Helpers: `signedIn()`, `isAdmin()`, `postCountOk()`, `requesterDisabled()`,
 `canWrite()` (= signed in and not disabled), `validListing()`, `ownerListing()`,
 `validRequest()`, `kBloodTypes()`, `requestKindEditAllowed()`.
 
+**Rules vs. automated tests.** The model below is what `firestore.rules` enforces
+in production. The repository's committed tests (`test/`) do **not** exercise the
+rules — they cover client-side logic only. The rules were checked during
+development with an emulator-based rules suite kept **outside** this repository, so
+the behaviours described here should be read as **implemented but not
+automatically re-verified inside this repo**.
+
 | Collection | Read | Write |
 |---|---|---|
 | `users/{uid}` | owner or admin | create self (hasOnly allow-list, `disabled == false`); update self limited to name/wilaya/commune/phone (`disabled` immutable); admin may update/delete |
@@ -382,20 +408,49 @@ debug signing config.
 
 ## 16. Development status
 
+**Status: working MVP/prototype — not production-ready.** The core user journeys
+are implemented, static analysis is clean and the logic tests pass, but the
+Firebase-backed flows have not been automatically verified and several
+launch-blockers remain (see §14).
+
+Evidence from this checkout:
+
 - `flutter analyze` → **No issues found!**
-- `flutter test` → **31 tests, all passing** (Algeria data, categories/conditions,
-  status & type constants, listing/request/report shape & `toMap` allow-lists,
-  reservation & match flags, search normalisation/tokenisation/keyword caps,
-  `ListingCard` render with and without an image).
-- Git: `main` at `1ba85a0`; tag `v0.1.0-mvp`. Recent history covers the design
-  overhaul, live feed + server-side search, reservations, requests board, blood
-  donations, the admin overhaul, onboarding/profile editing, and the anti-spam cap.
-- **Implemented & automated-tested:** all core features in §2–§9.
-- **Manually verified earlier, not re-run here:** release APK build + signature
-  verification, and a rules test suite run against the Firestore emulator.
-- **Remaining / next:** open the manual Firebase steps in §11 on a fresh project,
-  add pagination to the requests board, decide on a notification strategy, and add
-  account deletion + a privacy policy before any public launch.
+- `flutter test` → **31 tests, all passing**, across three files:
+  - `test/ta3awen_test.dart` — Algeria data, categories/conditions, status & type
+    constants, model shape and `toMap` allow-lists, reservation/match flags.
+  - `test/search_keywords_test.dart` — normalisation, tokenisation and keyword
+    caps.
+  - `test/listing_card_layout_test.dart` — `ListingCard` renders with and without
+    an image.
+- **Automated outside this repo:** the Firestore security rules were checked with
+  an emulator-based rules suite kept outside the repository; it is not run by
+  `flutter test`.
+- **Manually verified in an earlier session, not re-run here:** the release APK
+  build and its signature.
+- **Not automated — requires a device and a live Firebase project:** registration,
+  login, listing/request create-edit-reserve, and admin actions.
+- Git: branch `main`; tag `v0.1.0-mvp`. Recent history covers the design overhaul,
+  live feed + server-side search, reservations, the requests board, blood
+  donations, the admin overhaul, onboarding/profile editing and the anti-spam cap.
+
+### Prioritized remaining work
+
+1. **Enable Email/Password auth and create the first admin** on the target
+   Firebase project (§11) — without this, registration does not work.
+2. **Add pagination to the requests board** (§9, §14) — it currently loads the
+   whole board.
+3. **Add account deletion and a privacy policy** — required before any public or
+   store release.
+4. **Decide and implement a notification strategy** (no closed-app push on the
+   free tier today).
+5. **Enforce the anti-spam cap server-side** to close the batched-create caveat
+   (§14), e.g. via Cloud Functions once billing is acceptable.
+6. **Move the rules test suite into the repo** so the security protections are
+   re-verified automatically.
+7. **Consider migrating images to Cloud Storage** if/when Blaze is acceptable
+   (§6).
+8. **iOS support** — the project is Android-only today.
 
 ### Distribution
 
@@ -404,5 +459,5 @@ debug signing config.
 
 ---
 
-Private MVP. Free Firebase tier only. Do not commit `android/key.properties`,
-`android/key/`, or any service-account JSON.
+Free Firebase tier only. Do not commit `android/key.properties`, `android/key/`,
+or any service-account JSON.
