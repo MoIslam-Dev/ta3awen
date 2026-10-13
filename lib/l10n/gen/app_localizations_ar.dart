@@ -120,6 +120,48 @@ class AppLocalizationsAr extends AppLocalizations {
   String get accountCreated => 'تم إنشاء الحساب بنجاح، مرحباً بك!';
 
   @override
+  String get welcomeBack => 'مرحباً بعودتك';
+
+  @override
+  String get loginHelp => 'سجّل دخولك لتصلك الطلبات والتبرعات القريبة منك';
+
+  @override
+  String get registerHelp => 'أنشئ حسابك في دقيقة واحدة وابدأ المساعدة';
+
+  @override
+  String get signInWithGoogle => 'المتابعة بواسطة Google';
+
+  @override
+  String get orLabel => 'أو';
+
+  @override
+  String get passwordConfirm => 'تأكيد كلمة المرور';
+
+  @override
+  String get passwordMismatch => 'كلمتا المرور غير متطابقتين';
+
+  @override
+  String get passwordHelper => 'على الأقل 6 رموز';
+
+  @override
+  String get socialSetupTitle => 'أكمل ملفك الشخصي';
+
+  @override
+  String get socialSetupBody => 'نحتاج اسمك وولايتك لعرض المنشورات القريبة منك';
+
+  @override
+  String get socialSetupSave => 'حفظ والمتابعة';
+
+  @override
+  String get errAuthCanceled => 'تم إلغاء تسجيل الدخول';
+
+  @override
+  String get errProviderDisabled => 'هذا الخيار غير مفعّل حالياً، جرّب البريد الإلكتروني';
+
+  @override
+  String get errProviderConfig => 'تعذّر الاتصال بخدمة Google، تحقّق من الإعدادات وحاول مجدداً';
+
+  @override
   String get tabHome => 'الرئيسية';
 
   @override

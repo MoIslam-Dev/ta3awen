@@ -120,6 +120,48 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accountCreated => 'Account created successfully, welcome!';
 
   @override
+  String get welcomeBack => 'Welcome back';
+
+  @override
+  String get loginHelp => 'Sign in to see requests and donations near you';
+
+  @override
+  String get registerHelp => 'Create your account in a minute and start helping';
+
+  @override
+  String get signInWithGoogle => 'Continue with Google';
+
+  @override
+  String get orLabel => 'or';
+
+  @override
+  String get passwordConfirm => 'Confirm password';
+
+  @override
+  String get passwordMismatch => 'Passwords do not match';
+
+  @override
+  String get passwordHelper => 'At least 6 characters';
+
+  @override
+  String get socialSetupTitle => 'Complete your profile';
+
+  @override
+  String get socialSetupBody => 'We just need your name and wilaya to show posts near you';
+
+  @override
+  String get socialSetupSave => 'Save & continue';
+
+  @override
+  String get errAuthCanceled => 'Sign-in was cancelled';
+
+  @override
+  String get errProviderDisabled => 'This option is not enabled yet, try email instead';
+
+  @override
+  String get errProviderConfig => 'Could not connect to Google, check the setup and try again';
+
+  @override
   String get tabHome => 'Home';
 
   @override

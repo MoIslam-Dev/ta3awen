@@ -3,6 +3,8 @@ import '../../l10n/ext.dart';
 import '../../services/auth_service.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/errors.dart';
+import '../../utils/google_auth.dart';
+import '../../widgets/social_sign_in_button.dart';
 import '../auth_gate.dart';
 import 'register_screen.dart';
 
@@ -19,6 +21,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordCtrl = TextEditingController();
   final _auth = AuthService();
   bool _loading = false;
+  bool _googleLoading = false;
   bool _obscure = true;
 
   @override
@@ -53,6 +56,12 @@ class _LoginScreenState extends State<LoginScreen> {
     } finally {
       if (mounted) setState(() => _loading = false);
     }
+  }
+
+  Future<void> _google() async {
+    setState(() => _googleLoading = true);
+    await handleGoogleSignIn(context);
+    if (mounted) setState(() => _googleLoading = false);
   }
 
   Future<void> _resetPassword() async {
@@ -91,7 +100,7 @@ class _LoginScreenState extends State<LoginScreen> {
             children: [
               // Brand hero: continues the green splash into the app.
               Container(
-                padding: const EdgeInsets.fromLTRB(24, 40, 24, 36),
+                padding: const EdgeInsets.fromLTRB(24, 40, 24, 32),
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
@@ -129,7 +138,38 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      l.welcomeBack,
+                      style: theme.textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      l.loginHelp,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    SocialSignInButton(
+                      label: l.signInWithGoogle,
+                      loading: _googleLoading,
+                      onPressed: _loading ? null : _google,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 20),
+                      child: OrDivider(label: l.orLabel),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Form(
                   key: _formKey,
                   child: Column(
@@ -212,6 +252,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ],
                       ),
+                      const SizedBox(height: 16),
                     ],
                   ),
                 ),

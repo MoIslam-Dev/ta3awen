@@ -319,6 +319,90 @@ abstract class AppLocalizations {
   /// **'تم إنشاء الحساب بنجاح، مرحباً بك!'**
   String get accountCreated;
 
+  /// No description provided for @welcomeBack.
+  ///
+  /// In ar, this message translates to:
+  /// **'مرحباً بعودتك'**
+  String get welcomeBack;
+
+  /// No description provided for @loginHelp.
+  ///
+  /// In ar, this message translates to:
+  /// **'سجّل دخولك لتصلك الطلبات والتبرعات القريبة منك'**
+  String get loginHelp;
+
+  /// No description provided for @registerHelp.
+  ///
+  /// In ar, this message translates to:
+  /// **'أنشئ حسابك في دقيقة واحدة وابدأ المساعدة'**
+  String get registerHelp;
+
+  /// No description provided for @signInWithGoogle.
+  ///
+  /// In ar, this message translates to:
+  /// **'المتابعة بواسطة Google'**
+  String get signInWithGoogle;
+
+  /// No description provided for @orLabel.
+  ///
+  /// In ar, this message translates to:
+  /// **'أو'**
+  String get orLabel;
+
+  /// No description provided for @passwordConfirm.
+  ///
+  /// In ar, this message translates to:
+  /// **'تأكيد كلمة المرور'**
+  String get passwordConfirm;
+
+  /// No description provided for @passwordMismatch.
+  ///
+  /// In ar, this message translates to:
+  /// **'كلمتا المرور غير متطابقتين'**
+  String get passwordMismatch;
+
+  /// No description provided for @passwordHelper.
+  ///
+  /// In ar, this message translates to:
+  /// **'على الأقل 6 رموز'**
+  String get passwordHelper;
+
+  /// No description provided for @socialSetupTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'أكمل ملفك الشخصي'**
+  String get socialSetupTitle;
+
+  /// No description provided for @socialSetupBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'نحتاج اسمك وولايتك لعرض المنشورات القريبة منك'**
+  String get socialSetupBody;
+
+  /// No description provided for @socialSetupSave.
+  ///
+  /// In ar, this message translates to:
+  /// **'حفظ والمتابعة'**
+  String get socialSetupSave;
+
+  /// No description provided for @errAuthCanceled.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم إلغاء تسجيل الدخول'**
+  String get errAuthCanceled;
+
+  /// No description provided for @errProviderDisabled.
+  ///
+  /// In ar, this message translates to:
+  /// **'هذا الخيار غير مفعّل حالياً، جرّب البريد الإلكتروني'**
+  String get errProviderDisabled;
+
+  /// No description provided for @errProviderConfig.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعذّر الاتصال بخدمة Google، تحقّق من الإعدادات وحاول مجدداً'**
+  String get errProviderConfig;
+
   /// No description provided for @tabHome.
   ///
   /// In ar, this message translates to:

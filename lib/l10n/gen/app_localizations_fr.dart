@@ -120,6 +120,48 @@ class AppLocalizationsFr extends AppLocalizations {
   String get accountCreated => 'Compte créé avec succès, bienvenue !';
 
   @override
+  String get welcomeBack => 'Bon retour';
+
+  @override
+  String get loginHelp => 'Connectez-vous pour voir les demandes et dons près de chez vous';
+
+  @override
+  String get registerHelp => 'Créez votre compte en une minute et commencez à aider';
+
+  @override
+  String get signInWithGoogle => 'Continuer avec Google';
+
+  @override
+  String get orLabel => 'ou';
+
+  @override
+  String get passwordConfirm => 'Confirmer le mot de passe';
+
+  @override
+  String get passwordMismatch => 'Les mots de passe ne correspondent pas';
+
+  @override
+  String get passwordHelper => 'Au moins 6 caractères';
+
+  @override
+  String get socialSetupTitle => 'Complétez votre profil';
+
+  @override
+  String get socialSetupBody => 'Il nous faut votre nom et votre wilaya pour afficher les annonces près de chez vous';
+
+  @override
+  String get socialSetupSave => 'Enregistrer et continuer';
+
+  @override
+  String get errAuthCanceled => 'Connexion annulée';
+
+  @override
+  String get errProviderDisabled => 'Cette option n\'est pas encore activée, essayez l\'email';
+
+  @override
+  String get errProviderConfig => 'Impossible de se connecter à Google, vérifiez la configuration';
+
+  @override
   String get tabHome => 'Accueil';
 
   @override
