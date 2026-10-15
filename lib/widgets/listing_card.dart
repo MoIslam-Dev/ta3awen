@@ -16,6 +16,43 @@ class ListingCard extends StatelessWidget {
     this.trailing,
   });
 
+  /// Nature pill: free donation vs barter/exchange.
+  Widget _kindBadge(BuildContext context) {
+    final theme = Theme.of(context);
+    final exchange = listing.isExchange;
+    final bg = exchange
+        ? theme.colorScheme.tertiaryContainer
+        : theme.colorScheme.primaryContainer;
+    final fg = exchange
+        ? theme.colorScheme.onTertiaryContainer
+        : theme.colorScheme.onPrimaryContainer;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            exchange ? Icons.swap_horiz : Icons.redeem_outlined,
+            size: 12,
+            color: fg,
+          ),
+          const SizedBox(width: 3),
+          Text(
+            listingKindLabel(context, listing.kind),
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: fg,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -91,7 +128,9 @@ class ListingCard extends StatelessWidget {
                         const Spacer(),
                         Row(
                           children: [
-                            if (!listing.isAvailable)
+                            _kindBadge(context),
+                            if (!listing.isAvailable) ...[
+                              const SizedBox(width: 6),
                               Container(
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 8, vertical: 3),
@@ -111,6 +150,7 @@ class ListingCard extends StatelessWidget {
                                   ),
                                 ),
                               ),
+                            ],
                             const Spacer(),
                             Text(
                               formatDate(listing.createdAt),

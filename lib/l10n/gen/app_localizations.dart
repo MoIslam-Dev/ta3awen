@@ -445,6 +445,102 @@ abstract class AppLocalizations {
   /// **'خروج'**
   String get logout;
 
+  /// No description provided for @navGive.
+  ///
+  /// In ar, this message translates to:
+  /// **'أعطي'**
+  String get navGive;
+
+  /// No description provided for @navAsk.
+  ///
+  /// In ar, this message translates to:
+  /// **'أطلب'**
+  String get navAsk;
+
+  /// No description provided for @navBlood.
+  ///
+  /// In ar, this message translates to:
+  /// **'الدم'**
+  String get navBlood;
+
+  /// No description provided for @filterAll.
+  ///
+  /// In ar, this message translates to:
+  /// **'الكل'**
+  String get filterAll;
+
+  /// No description provided for @publishTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'نشر'**
+  String get publishTitle;
+
+  /// No description provided for @publishDonate.
+  ///
+  /// In ar, this message translates to:
+  /// **'أتبرّع بشيء'**
+  String get publishDonate;
+
+  /// No description provided for @publishExchange.
+  ///
+  /// In ar, this message translates to:
+  /// **'أتبادل شيئًا'**
+  String get publishExchange;
+
+  /// No description provided for @publishAsk.
+  ///
+  /// In ar, this message translates to:
+  /// **'أطلب شيئًا'**
+  String get publishAsk;
+
+  /// No description provided for @publishBlood.
+  ///
+  /// In ar, this message translates to:
+  /// **'أطلب دمًا (عاجل)'**
+  String get publishBlood;
+
+  /// No description provided for @giveDonate.
+  ///
+  /// In ar, this message translates to:
+  /// **'تبرّع'**
+  String get giveDonate;
+
+  /// No description provided for @giveExchange.
+  ///
+  /// In ar, this message translates to:
+  /// **'تبادل'**
+  String get giveExchange;
+
+  /// No description provided for @listingKindLabel.
+  ///
+  /// In ar, this message translates to:
+  /// **'النوع'**
+  String get listingKindLabel;
+
+  /// No description provided for @myListings.
+  ///
+  /// In ar, this message translates to:
+  /// **'منشوراتي'**
+  String get myListings;
+
+  /// No description provided for @myListingsSubtitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'إعلاناتي وحجوزاتي'**
+  String get myListingsSubtitle;
+
+  /// No description provided for @myRequests.
+  ///
+  /// In ar, this message translates to:
+  /// **'طلباتي'**
+  String get myRequests;
+
+  /// No description provided for @myRequestsSubtitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'المنشورات التي أضفتها إلى اللوحة'**
+  String get myRequestsSubtitle;
+
   /// No description provided for @searchHint.
   ///
   /// In ar, this message translates to:

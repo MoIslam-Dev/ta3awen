@@ -18,17 +18,15 @@ class RequestService {
     return items;
   }
 
-  /// Live board of open posts, newest first. Optionally narrowed to one
-  /// type (need/offer, general posts only) or to the blood board.
+  /// Live board of open posts, newest first. Optionally narrowed by
+  /// [kind] (general/blood) and/or [type] (need/offer). Equality-only
+  /// filters keep this on single-field indexes — no composite index.
   /// Matching / closed posts drop out automatically.
   Stream<List<RequestPost>> boardStream({String? type, String? kind}) {
     Query<Map<String, dynamic>> q =
         _col.where('status', isEqualTo: requestStatusOpen);
-    if (kind != null) {
-      q = q.where('kind', isEqualTo: kind);
-    } else if (type != null) {
-      q = q.where('type', isEqualTo: type);
-    }
+    if (kind != null) q = q.where('kind', isEqualTo: kind);
+    if (type != null) q = q.where('type', isEqualTo: type);
     return q.snapshots().map((snap) => _sorted(snap.docs));
   }
 

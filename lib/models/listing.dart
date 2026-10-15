@@ -13,6 +13,11 @@ class Listing {
   final String commune;
   final String condition;
   final String status;
+
+  /// 'تبرع' (free donation, default) or 'تبادل' (barter/exchange).
+  /// Exchange listings follow the exact same lifecycle; only this tag
+  /// (and the card badge) sets them apart — no chat, no negotiation.
+  final String kind;
   final String? contactPhone;
   final String? image0;
   final int imageCount;
@@ -34,6 +39,7 @@ class Listing {
     required this.commune,
     required this.condition,
     required this.status,
+    this.kind = listingKindDonation,
     this.contactPhone,
     this.image0,
     this.imageCount = 0,
@@ -46,6 +52,8 @@ class Listing {
   });
 
   bool get isAvailable => status == statusAvailable;
+
+  bool get isExchange => kind == listingKindExchange;
 
   /// Reserved by another user — hidden from the feed until the owner
   /// confirms delivery or the claim is cancelled.
@@ -64,6 +72,7 @@ class Listing {
       commune: (d['commune'] ?? '') as String,
       condition: (d['condition'] ?? '') as String,
       status: (d['status'] ?? statusAvailable) as String,
+      kind: (d['kind'] ?? listingKindDonation) as String,
       contactPhone: d['contactPhone'] as String?,
       image0: d['image0'] as String?,
       imageCount: ((d['imageCount'] ?? 0) as num).toInt(),
@@ -86,6 +95,7 @@ class Listing {
         'commune': commune,
         'condition': condition,
         'status': status,
+        'kind': kind,
         'contactPhone': contactPhone,
         'image0': image0,
         'imageCount': imageCount,
@@ -105,3 +115,7 @@ class Listing {
 const String statusAvailable = 'متاح';
 const String statusReserved = 'محجوز';
 const String statusGiven = 'تم التبرع به';
+
+/// Listing nature, stored as a stable value (never translated).
+const String listingKindDonation = 'تبرع';
+const String listingKindExchange = 'تبادل';

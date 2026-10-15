@@ -183,6 +183,54 @@ class AppLocalizationsAr extends AppLocalizations {
   String get logout => 'خروج';
 
   @override
+  String get navGive => 'أعطي';
+
+  @override
+  String get navAsk => 'أطلب';
+
+  @override
+  String get navBlood => 'الدم';
+
+  @override
+  String get filterAll => 'الكل';
+
+  @override
+  String get publishTitle => 'نشر';
+
+  @override
+  String get publishDonate => 'أتبرّع بشيء';
+
+  @override
+  String get publishExchange => 'أتبادل شيئًا';
+
+  @override
+  String get publishAsk => 'أطلب شيئًا';
+
+  @override
+  String get publishBlood => 'أطلب دمًا (عاجل)';
+
+  @override
+  String get giveDonate => 'تبرّع';
+
+  @override
+  String get giveExchange => 'تبادل';
+
+  @override
+  String get listingKindLabel => 'النوع';
+
+  @override
+  String get myListings => 'منشوراتي';
+
+  @override
+  String get myListingsSubtitle => 'إعلاناتي وحجوزاتي';
+
+  @override
+  String get myRequests => 'طلباتي';
+
+  @override
+  String get myRequestsSubtitle => 'المنشورات التي أضفتها إلى اللوحة';
+
+  @override
   String get searchHint => 'ابحث عن إعلان...';
 
   @override

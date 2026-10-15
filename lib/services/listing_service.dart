@@ -7,12 +7,22 @@ import '../utils/search_keywords.dart';
 /// `arrayContainsAny` clauses so the database — not the client window —
 /// decides which listings match.
 class FeedQuery {
-  const FeedQuery({this.search, this.category, this.wilaya, this.commune});
+  const FeedQuery({
+    this.search,
+    this.category,
+    this.wilaya,
+    this.commune,
+    this.kind,
+  });
 
   final String? search;
   final String? category;
   final String? wilaya;
   final String? commune;
+
+  /// Donation vs exchange. Applied client-side (like [search]) to avoid a
+  /// dedicated composite index; the feed window is already paged.
+  final String? kind;
 
   /// Query words sent to `arrayContainsAny` (max 30 values per Firestore).
   List<String> get searchWords {
@@ -60,11 +70,17 @@ class ListingService {
     return q.orderBy('createdAt', descending: true);
   }
 
-  List<Listing> _andFilter(List<Listing> items, List<String> words) {
-    if (words.isEmpty) return items;
-    return items
-        .where((l) => words.every(l.keywords.contains))
-        .toList();
+  List<Listing> _andFilter(
+    List<Listing> items,
+    List<String> words,
+    String? kind,
+  ) {
+    if (words.isEmpty && kind == null) return items;
+    return items.where((l) {
+      if (kind != null && l.kind != kind) return false;
+      if (words.isNotEmpty && !words.every(l.keywords.contains)) return false;
+      return true;
+    }).toList();
   }
 
   DateTime? _createdAtOf(DocumentSnapshot<Map<String, dynamic>> doc) =>
@@ -78,7 +94,7 @@ class ListingService {
     return _feedQuery(f).limit(limit).snapshots().map((snap) {
       final raw = snap.docs;
       return FeedPage(
-        items: _andFilter(raw.map(Listing.fromDoc).toList(), words),
+        items: _andFilter(raw.map(Listing.fromDoc).toList(), words, f.kind),
         rawIds: raw.map((d) => d.id).toSet(),
         boundary: raw.isNotEmpty ? _createdAtOf(raw.last) : null,
         cursor: raw.length >= limit ? raw.last : null,
@@ -99,7 +115,7 @@ class ListingService {
         await _feedQuery(f).startAfterDocument(cursor).limit(limit).get();
     final raw = snap.docs;
     return FeedPage(
-      items: _andFilter(raw.map(Listing.fromDoc).toList(), words),
+      items: _andFilter(raw.map(Listing.fromDoc).toList(), words, f.kind),
       rawIds: raw.map((d) => d.id).toSet(),
       boundary: raw.isNotEmpty ? _createdAtOf(raw.last) : null,
       cursor: raw.isNotEmpty ? raw.last : null,
@@ -194,6 +210,7 @@ class ListingService {
       'commune': draft.commune,
       'condition': draft.condition,
       'status': draft.status,
+      'kind': draft.kind,
       'contactPhone': draft.contactPhone,
       'keywords': buildKeywords(
         title: draft.title,

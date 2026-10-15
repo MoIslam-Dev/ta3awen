@@ -40,6 +40,7 @@ service cloud.firestore {
         data.contactPhone is string && data.contactPhone.size() >= 9 && data.contactPhone.size() <= 20 &&
         data.ownerName is string && data.ownerName.size() <= 100 &&
         data.status is string &&
+        data.get('kind', 'تبرع') in ['تبرع', 'تبادل'] &&
         data.imageCount is int && data.imageCount >= 0 && data.imageCount <= 5 &&
         data.keywords is list && data.keywords.size() <= 3000 &&
         (data.image0 == null || (data.image0 is string && data.image0.size() < 150000));

@@ -183,6 +183,54 @@ class AppLocalizationsEn extends AppLocalizations {
   String get logout => 'Sign out';
 
   @override
+  String get navGive => 'Give';
+
+  @override
+  String get navAsk => 'Ask';
+
+  @override
+  String get navBlood => 'Blood';
+
+  @override
+  String get filterAll => 'All';
+
+  @override
+  String get publishTitle => 'Publish';
+
+  @override
+  String get publishDonate => 'Donate an item';
+
+  @override
+  String get publishExchange => 'Exchange an item';
+
+  @override
+  String get publishAsk => 'Ask for something';
+
+  @override
+  String get publishBlood => 'Request blood (urgent)';
+
+  @override
+  String get giveDonate => 'Donation';
+
+  @override
+  String get giveExchange => 'Exchange';
+
+  @override
+  String get listingKindLabel => 'Type';
+
+  @override
+  String get myListings => 'My posts';
+
+  @override
+  String get myListingsSubtitle => 'My listings and reservations';
+
+  @override
+  String get myRequests => 'My requests';
+
+  @override
+  String get myRequestsSubtitle => 'Board posts I published';
+
+  @override
   String get searchHint => 'Search listings...';
 
   @override

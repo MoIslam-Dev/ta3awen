@@ -1,15 +1,18 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../../l10n/ext.dart';
+import '../../widgets/publish_sheet.dart';
 import '../auth_gate.dart';
-import 'feed_screen.dart';
-import '../listing/listing_form_screen.dart';
-import '../my_listings/my_listings_screen.dart';
 import '../onboarding/onboarding_screen.dart';
 import '../profile/profile_screen.dart';
-import '../requests/request_form_screen.dart';
-import '../requests/requests_screen.dart';
+import 'ask_screen.dart';
+import 'blood_screen.dart';
+import 'give_screen.dart';
 
+/// Top-level navigation built on the app's core model: what the community
+/// *gives* (donations + barters), what it *asks for*, blood as its own
+/// urgent door, and the personal hub. A single FAB opens the publish
+/// sheet, so there is exactly one place to create anything.
 class HomeShell extends StatefulWidget {
   const HomeShell({super.key});
 
@@ -20,20 +23,19 @@ class HomeShell extends StatefulWidget {
 class _HomeShellState extends State<HomeShell> {
   int _index = 0;
 
-  // Tabs are created lazily so that logging in only starts the feed query
-  // instead of firing feed + requests + myListings + profile/admin requests
-  // at once.
+  // Tabs are created lazily so logging in only starts the feed query
+  // instead of firing every listener at once.
   final List<Widget?> _pages = List<Widget?>.filled(4, null);
 
   void _ensurePage(int i) {
     if (_pages[i] != null) return;
     switch (i) {
       case 0:
-        _pages[0] = const FeedScreen();
+        _pages[0] = const GiveScreen();
       case 1:
-        _pages[1] = const RequestsScreen();
+        _pages[1] = const AskScreen();
       case 2:
-        _pages[2] = const MyListingsScreen();
+        _pages[2] = const BloodScreen();
       default:
         _pages[3] = ProfileScreen(onLogoutRequested: _confirmLogout);
     }
@@ -64,11 +66,11 @@ class _HomeShellState extends State<HomeShell> {
   String _title() {
     switch (_index) {
       case 0:
-        return context.l10n.appName;
+        return context.l10n.navGive;
       case 1:
-        return context.l10n.tabRequests;
+        return context.l10n.navAsk;
       case 2:
-        return context.l10n.tabMyListings;
+        return context.l10n.navBlood;
       default:
         return context.l10n.tabProfile;
     }
@@ -77,6 +79,7 @@ class _HomeShellState extends State<HomeShell> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
+    final onProfile = _index == 3;
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -101,49 +104,31 @@ class _HomeShellState extends State<HomeShell> {
           for (final page in _pages) page ?? const SizedBox.shrink(),
         ],
       ),
-      floatingActionButton: switch (_index) {
-        0 => FloatingActionButton.extended(
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => const ListingFormScreen.create(),
-                ),
-              );
-            },
-            icon: const Icon(Icons.add),
-            label: Text(l.addListing),
-          ),
-        1 => FloatingActionButton.extended(
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => const RequestFormScreen.create(),
-                ),
-              );
-            },
-            icon: const Icon(Icons.add),
-            label: Text(l.addRequest),
-          ),
-        _ => null,
-      },
+      floatingActionButton: onProfile
+          ? null
+          : FloatingActionButton.extended(
+              onPressed: () => showPublishSheet(context),
+              icon: const Icon(Icons.add),
+              label: Text(l.publishTitle),
+            ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: _select,
         destinations: [
           NavigationDestination(
-            icon: const Icon(Icons.home_outlined),
-            selectedIcon: const Icon(Icons.home),
-            label: l.tabHome,
+            icon: const Icon(Icons.redeem_outlined),
+            selectedIcon: const Icon(Icons.redeem),
+            label: l.navGive,
           ),
           NavigationDestination(
-            icon: const Icon(Icons.forum_outlined),
-            selectedIcon: const Icon(Icons.forum),
-            label: l.tabRequests,
+            icon: const Icon(Icons.volunteer_activism_outlined),
+            selectedIcon: const Icon(Icons.volunteer_activism),
+            label: l.navAsk,
           ),
           NavigationDestination(
-            icon: const Icon(Icons.inventory_2_outlined),
-            selectedIcon: const Icon(Icons.inventory_2),
-            label: l.tabMyListings,
+            icon: const Icon(Icons.bloodtype_outlined),
+            selectedIcon: const Icon(Icons.bloodtype),
+            label: l.navBlood,
           ),
           NavigationDestination(
             icon: const Icon(Icons.person_outline),
@@ -177,8 +162,6 @@ class _HomeShellState extends State<HomeShell> {
     if (yes == true) {
       await FirebaseAuth.instance.signOut();
       if (mounted) {
-        // Return to a fresh AuthGate (never a bare LoginScreen) so that the
-        // auth state stays observed and the next login can navigate.
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (_) => const AuthGate()),
           (route) => false,

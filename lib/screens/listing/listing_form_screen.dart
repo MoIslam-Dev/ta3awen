@@ -14,9 +14,17 @@ import '../../widgets/wilaya_commune_fields.dart';
 class ListingFormScreen extends StatefulWidget {
   final Listing? existing;
 
-  const ListingFormScreen.create({super.key}) : existing = null;
+  /// Donation (default) or exchange — pre-selected when publishing from
+  /// the "give" tab or the unified publish sheet.
+  final String initialKind;
 
-  const ListingFormScreen.edit(this.existing, {super.key});
+  const ListingFormScreen.create({
+    super.key,
+    this.initialKind = listingKindDonation,
+  }) : existing = null;
+
+  const ListingFormScreen.edit(this.existing, {super.key})
+      : initialKind = listingKindDonation;
 
   @override
   State<ListingFormScreen> createState() => _ListingFormScreenState();
@@ -31,6 +39,7 @@ class _ListingFormScreenState extends State<ListingFormScreen> {
   final _imageService = ImageService();
   final _userService = UserService();
 
+  String _kind = listingKindDonation;
   String? _category;
   String? _condition;
   String? _wilaya;
@@ -47,6 +56,7 @@ class _ListingFormScreenState extends State<ListingFormScreen> {
   void initState() {
     super.initState();
     final e = widget.existing;
+    _kind = e?.kind ?? widget.initialKind;
     if (e != null) {
       _titleCtrl.text = e.title;
       _descCtrl.text = e.description;
@@ -137,6 +147,7 @@ class _ListingFormScreenState extends State<ListingFormScreen> {
           commune: _commune!,
           condition: _condition!,
           status: e.status,
+          kind: _kind,
           contactPhone: phone,
           image0: e.image0,
           imageCount: e.imageCount,
@@ -164,6 +175,7 @@ class _ListingFormScreenState extends State<ListingFormScreen> {
           commune: _commune!,
           condition: _condition!,
           status: statusAvailable,
+          kind: _kind,
           contactPhone: phone,
           image0: _newThumb,
           imageCount: _newImages?.length ?? 0,
@@ -209,6 +221,26 @@ class _ListingFormScreenState extends State<ListingFormScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              Text(l.listingKindLabel, style: theme.textTheme.titleSmall),
+              const SizedBox(height: 8),
+              SegmentedButton<String>(
+                showSelectedIcon: false,
+                segments: [
+                  ButtonSegment(
+                    value: listingKindDonation,
+                    label: Text(l.giveDonate),
+                    icon: const Icon(Icons.redeem_outlined, size: 18),
+                  ),
+                  ButtonSegment(
+                    value: listingKindExchange,
+                    label: Text(l.giveExchange),
+                    icon: const Icon(Icons.swap_horiz, size: 18),
+                  ),
+                ],
+                selected: {_kind},
+                onSelectionChanged: (s) => setState(() => _kind = s.first),
+              ),
+              const SizedBox(height: 20),
               TextFormField(
                 controller: _titleCtrl,
                 textInputAction: TextInputAction.next,

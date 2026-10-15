@@ -183,6 +183,54 @@ class AppLocalizationsFr extends AppLocalizations {
   String get logout => 'Quitter';
 
   @override
+  String get navGive => 'Donner';
+
+  @override
+  String get navAsk => 'Demander';
+
+  @override
+  String get navBlood => 'Sang';
+
+  @override
+  String get filterAll => 'Tout';
+
+  @override
+  String get publishTitle => 'Publier';
+
+  @override
+  String get publishDonate => 'Donner un objet';
+
+  @override
+  String get publishExchange => 'Échanger un objet';
+
+  @override
+  String get publishAsk => 'Demander quelque chose';
+
+  @override
+  String get publishBlood => 'Demander du sang (urgent)';
+
+  @override
+  String get giveDonate => 'Don';
+
+  @override
+  String get giveExchange => 'Échange';
+
+  @override
+  String get listingKindLabel => 'Type';
+
+  @override
+  String get myListings => 'Mes publications';
+
+  @override
+  String get myListingsSubtitle => 'Mes annonces et réservations';
+
+  @override
+  String get myRequests => 'Mes demandes';
+
+  @override
+  String get myRequestsSubtitle => 'Publications du forum que j\'ai créées';
+
+  @override
   String get searchHint => 'Rechercher une annonce...';
 
   @override

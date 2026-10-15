@@ -8,7 +8,9 @@ import '../../state/app_settings.dart';
 import '../../utils/errors.dart';
 import '../../widgets/state_views.dart';
 import '../admin/admin_screen.dart';
+import '../my_listings/my_listings_screen.dart';
 import '../onboarding/onboarding_screen.dart';
+import '../requests/my_requests_screen.dart';
 import 'edit_profile_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -290,6 +292,46 @@ class _ProfileScreenState extends State<ProfileScreen>
                   ],
                 ],
               ),
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // My content — publications and board posts
+          Card(
+            child: Column(
+              children: [
+                ListTile(
+                  leading: Icon(
+                    Icons.inventory_2_outlined,
+                    color: theme.colorScheme.primary,
+                  ),
+                  title: Text(l.myListings),
+                  subtitle: Text(l.myListingsSubtitle),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                          builder: (_) => const MyListingsScreen()),
+                    );
+                  },
+                ),
+                const Divider(indent: 16, endIndent: 16),
+                ListTile(
+                  leading: Icon(
+                    Icons.forum_outlined,
+                    color: theme.colorScheme.primary,
+                  ),
+                  title: Text(l.myRequests),
+                  subtitle: Text(l.myRequestsSubtitle),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                          builder: (_) => const MyRequestsScreen()),
+                    );
+                  },
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 16),

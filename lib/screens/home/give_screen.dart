@@ -13,29 +13,30 @@ import '../../widgets/listing_card.dart';
 import '../../widgets/state_views.dart';
 import '../listing/listing_details_screen.dart';
 
-class FeedScreen extends StatefulWidget {
-  const FeedScreen({super.key});
+/// "أعطي" — everything the community gives away: free donations and
+/// barters. The intent (donation / exchange) is the screen's primary
+/// segmented control; categories and location are secondary filters.
+class GiveScreen extends StatefulWidget {
+  const GiveScreen({super.key});
 
   @override
-  State<FeedScreen> createState() => _FeedScreenState();
+  State<GiveScreen> createState() => _GiveScreenState();
 }
 
-class _FeedScreenState extends State<FeedScreen>
+class _GiveScreenState extends State<GiveScreen>
     with AutomaticKeepAliveClientMixin {
   static const int _pageSize = 20;
+  static const String _all = '__all__';
 
   final _service = ListingService();
   final _searchCtrl = TextEditingController();
 
-  /// Live head region: the newest matches, kept up to date by the head
-  /// stream (items pushed out of the server window stay until refresh).
   List<Listing> _head = [];
-
-  /// Older pages loaded via the المزيد button (one-shot, no live updates).
   List<Listing> _tail = [];
 
   bool _loading = true;
   String? _error;
+  String _kind = _all;
   String? _category;
   String? _wilaya;
   String? _commune;
@@ -70,10 +71,9 @@ class _FeedScreenState extends State<FeedScreen>
         category: _category,
         wilaya: _wilaya,
         commune: _commune,
+        kind: _kind == _all ? null : _kind,
       );
 
-  /// Cancels everything and restarts from page 1 with the current query —
-  /// used on init, filter/search changes, pull-to-refresh and retry.
   void _subscribe() {
     _debounce?.cancel();
     _sub?.cancel();
@@ -92,9 +92,6 @@ class _FeedScreenState extends State<FeedScreen>
         setState(() {
           _head = [
             ...page.items,
-            // Keep previously seen items older than the new window edge;
-            // drop ones the server no longer returns (deleted / status
-            // changed) that sat inside the window.
             ..._head.where((l) =>
                 !page.rawIds.contains(l.id) &&
                 boundary != null &&
@@ -119,7 +116,6 @@ class _FeedScreenState extends State<FeedScreen>
     );
   }
 
-  /// Re-subscribes; used by pull-to-refresh and the error retry button.
   Future<void> _load() async {
     _subscribe();
     await Future<void>.delayed(const Duration(milliseconds: 400));
@@ -190,12 +186,37 @@ class _FeedScreenState extends State<FeedScreen>
     _subscribe();
   }
 
+  void _selectKind(String kind) {
+    if (_kind == kind) return;
+    setState(() => _kind = kind);
+    _subscribe();
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
     final l = context.l10n;
     return Column(
       children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+          child: SegmentedButton<String>(
+            showSelectedIcon: false,
+            segments: [
+              ButtonSegment(value: _all, label: Text(l.filterAll)),
+              ButtonSegment(
+                value: listingKindDonation,
+                label: Text(l.giveDonate),
+              ),
+              ButtonSegment(
+                value: listingKindExchange,
+                label: Text(l.giveExchange),
+              ),
+            ],
+            selected: {_kind},
+            onSelectionChanged: (s) => _selectKind(s.first),
+          ),
+        ),
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
           child: TextField(
@@ -288,14 +309,20 @@ class _FeedScreenState extends State<FeedScreen>
     }
     final items = [..._head, ..._tail];
     if (items.isEmpty && !_hasMore) {
+      final filtered = _hasFilters || _kind != _all;
       return RefreshIndicator(
         onRefresh: _load,
         child: EmptyView(
-          icon: Icons.inventory_2_outlined,
-          message: _hasFilters ? l.noResults : l.emptyFeed,
-          action: _hasFilters
+          icon: _kind == listingKindExchange
+              ? Icons.swap_horiz
+              : Icons.inventory_2_outlined,
+          message: filtered ? l.noResults : l.emptyFeed,
+          action: filtered
               ? OutlinedButton(
-                  onPressed: _clearFilters,
+                  onPressed: () {
+                    setState(() => _kind = _all);
+                    _clearFilters();
+                  },
                   child: Text(l.clearFilters),
                 )
               : null,

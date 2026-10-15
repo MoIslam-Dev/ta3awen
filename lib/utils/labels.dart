@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../l10n/ext.dart';
+import '../models/listing.dart';
 import '../models/request_post.dart';
 
 /// Maps stored (Arabic) data values to localized display labels.
@@ -78,6 +79,16 @@ String reportReasonLabel(BuildContext context, String storage) {
       return context.l10n.reasonOther;
     default:
       return storage;
+  }
+}
+
+/// Listing nature badge: free donation vs barter/exchange.
+String listingKindLabel(BuildContext context, String kind) {
+  switch (kind) {
+    case listingKindExchange:
+      return context.l10n.giveExchange;
+    default:
+      return context.l10n.giveDonate;
   }
 }
 
