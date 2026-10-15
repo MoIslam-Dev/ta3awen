@@ -1,27 +1,16 @@
 import 'package:flutter/material.dart';
 import '../../l10n/ext.dart';
-import '../../models/app_user.dart';
 import '../../models/listing.dart';
 import '../../models/report.dart';
 import '../../models/request_post.dart';
 import '../../services/admin_service.dart';
 import '../../utils/errors.dart';
+import '../../widgets/state_views.dart';
 
+/// Dashboard built from cheap count aggregations — no documents are loaded
+/// to render the statistics.
 class AdminDashboardTab extends StatefulWidget {
-  final List<Listing> listings;
-  final List<Report> reports;
-  final List<AppUser> users;
-  final List<RequestPost> requests;
-  final VoidCallback onOpenReports;
-
-  const AdminDashboardTab({
-    super.key,
-    required this.listings,
-    required this.reports,
-    required this.users,
-    required this.requests,
-    required this.onOpenReports,
-  });
+  const AdminDashboardTab({super.key});
 
   @override
   State<AdminDashboardTab> createState() => _AdminDashboardTabState();
@@ -29,23 +18,82 @@ class AdminDashboardTab extends StatefulWidget {
 
 class _AdminDashboardTabState extends State<AdminDashboardTab> {
   final _admin = AdminService();
+  bool _loading = true;
   bool _cleaning = false;
+  String? _error;
 
-  List<String> get _seedIds => widget.listings
-      .where((l) => l.id.startsWith('seed-'))
-      .map((l) => l.id)
-      .toList();
+  int _users = 0, _disabled = 0;
+  int _listings = 0, _available = 0, _reserved = 0, _given = 0;
+  int _requests = 0, _openReq = 0, _matchedReq = 0, _bloodReq = 0;
+  int _reports = 0, _reportsResolved = 0, _reportsDismissed = 0;
+  int _seeds = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      final results = await Future.wait<int>([
+        _admin.countUsers(),
+        _admin.countUsers(disabled: true),
+        _admin.countListings(),
+        _admin.countListings(status: statusAvailable),
+        _admin.countListings(status: statusReserved),
+        _admin.countListings(status: statusGiven),
+        _admin.countRequests(),
+        _admin.countRequests(status: requestStatusOpen),
+        _admin.countRequests(status: requestStatusMatched),
+        _admin.countRequests(kind: requestKindBlood),
+        _admin.countReports(),
+        _admin.countReports(status: reportStatusResolved),
+        _admin.countReports(status: reportStatusDismissed),
+        _admin.countSeedListings(),
+      ]);
+      if (!mounted) return;
+      setState(() {
+        _users = results[0];
+        _disabled = results[1];
+        _listings = results[2];
+        _available = results[3];
+        _reserved = results[4];
+        _given = results[5];
+        _requests = results[6];
+        _openReq = results[7];
+        _matchedReq = results[8];
+        _bloodReq = results[9];
+        _reports = results[10];
+        _reportsResolved = results[11];
+        _reportsDismissed = results[12];
+        _seeds = results[13];
+        _loading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _error = dataErrorMessage(context, e);
+        _loading = false;
+      });
+    }
+  }
+
+  int get _openReports => _reports - _reportsResolved - _reportsDismissed;
 
   Future<void> _confirmSeedCleanup() async {
     final loc = context.l10n;
     final theme = Theme.of(context);
-    final count = _seedIds.length;
-    if (count == 0) return;
+    if (_seeds == 0) return;
     final yes = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(loc.seedCleanupTitle),
-        content: Text(loc.seedCleanupBody(count)),
+        content: Text(loc.seedCleanupBody(_seeds)),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx, false),
@@ -69,6 +117,7 @@ class _AdminDashboardTabState extends State<AdminDashboardTab> {
       if (mounted) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text(loc.seedCleanupDone(deleted))));
+        await _load();
       }
     } catch (e) {
       if (mounted) {
@@ -83,40 +132,30 @@ class _AdminDashboardTabState extends State<AdminDashboardTab> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
+    if (_loading) return LoadingView(message: l.loading);
+    if (_error != null) {
+      return ErrorView(message: _error!, onRetry: _load);
+    }
     final theme = Theme.of(context);
-    final listings = widget.listings;
-    final reports = widget.reports;
-    final users = widget.users;
-    final requests = widget.requests;
-
-    final openReports = reports.where((r) => r.isOpen).length;
-    final available =
-        listings.where((s) => s.status == statusAvailable).length;
-    final reserved =
-        listings.where((s) => s.status == statusReserved).length;
-    final given = listings.where((s) => s.status == statusGiven).length;
-    final openReq = requests.where((r) => r.isOpen).length;
-    final matchedReq = requests.where((r) => r.isMatched).length;
-    final bloodReq = requests.where((r) => r.isBlood).length;
-    final disabledUsers = users.where((u) => u.disabled).length;
 
     final stats = <_Stat>[
-      _Stat(l.tabUsers, users.length, Icons.people_outline),
-      _Stat(l.statDisabledUsers, disabledUsers, Icons.block_outlined),
-      _Stat(l.tabListings, listings.length, Icons.inventory_2_outlined),
-      _Stat(l.statListingsAvailable, available, Icons.check_circle_outline),
-      _Stat(l.statListingsReserved, reserved, Icons.bookmark_outline),
-      _Stat(l.statListingsGiven, given, Icons.card_giftcard_outlined),
-      _Stat(l.statReportsOpen, openReports, Icons.flag_outlined,
-          highlight: openReports > 0, onTap: widget.onOpenReports),
-      _Stat(l.tabRequests, requests.length, Icons.handshake_outlined),
-      _Stat(l.statRequestsOpen, openReq, Icons.radio_button_unchecked),
-      _Stat(l.statRequestsMatched, matchedReq, Icons.link_outlined),
-      _Stat(l.statBloodRequests, bloodReq, Icons.bloodtype_outlined),
+      _Stat(l.tabUsers, _users, Icons.people_outline),
+      _Stat(l.statDisabledUsers, _disabled, Icons.block_outlined),
+      _Stat(l.tabListings, _listings, Icons.inventory_2_outlined),
+      _Stat(l.statListingsAvailable, _available, Icons.check_circle_outline),
+      _Stat(l.statListingsReserved, _reserved, Icons.bookmark_outline),
+      _Stat(l.statListingsGiven, _given, Icons.card_giftcard_outlined),
+      _Stat(l.statReportsOpen, _openReports < 0 ? 0 : _openReports,
+          Icons.flag_outlined,
+          highlight: _openReports > 0),
+      _Stat(l.tabRequests, _requests, Icons.handshake_outlined),
+      _Stat(l.statRequestsOpen, _openReq, Icons.radio_button_unchecked),
+      _Stat(l.statRequestsMatched, _matchedReq, Icons.link_outlined),
+      _Stat(l.statBloodRequests, _bloodReq, Icons.bloodtype_outlined),
     ];
 
     return RefreshIndicator(
-      onRefresh: () async => setState(() {}),
+      onRefresh: _load,
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -153,9 +192,7 @@ class _AdminDashboardTabState extends State<AdminDashboardTab> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    _seedIds.isEmpty
-                        ? l.seedCleanupNone
-                        : l.seedCleanupBody(_seedIds.length),
+                    _seeds == 0 ? l.seedCleanupNone : l.seedCleanupBody(_seeds),
                     style: theme.textTheme.bodyMedium
                         ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                   ),
@@ -164,13 +201,12 @@ class _AdminDashboardTabState extends State<AdminDashboardTab> {
                     alignment: AlignmentDirectional.centerStart,
                     child: FilledButton.tonalIcon(
                       onPressed:
-                          _seedIds.isEmpty || _cleaning ? null : _confirmSeedCleanup,
+                          _seeds == 0 || _cleaning ? null : _confirmSeedCleanup,
                       icon: _cleaning
                           ? const SizedBox(
                               width: 16,
                               height: 16,
-                              child:
-                                  CircularProgressIndicator(strokeWidth: 2),
+                              child: CircularProgressIndicator(strokeWidth: 2),
                             )
                           : const Icon(Icons.delete_sweep_outlined),
                       label: Text(l.seedCleanupAction),
@@ -186,43 +222,40 @@ class _AdminDashboardTabState extends State<AdminDashboardTab> {
   }
 
   Widget _statCard(_Stat s, ThemeData theme) {
-    final color = s.highlight ? theme.colorScheme.error : theme.colorScheme.primary;
+    final color =
+        s.highlight ? theme.colorScheme.error : theme.colorScheme.primary;
     return Card(
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: s.onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(s.icon, size: 18, color: color),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Text(
-                      s.label,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.labelMedium?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(s.icon, size: 18, color: color),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    s.label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
                     ),
                   ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              Text(
-                '${s.value}',
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: s.highlight ? theme.colorScheme.error : null,
                 ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text(
+              '${s.value}',
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w700,
+                color: s.highlight ? theme.colorScheme.error : null,
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -234,7 +267,6 @@ class _Stat {
   final int value;
   final IconData icon;
   final bool highlight;
-  final VoidCallback? onTap;
 
-  _Stat(this.label, this.value, this.icon, {this.highlight = false, this.onTap});
+  _Stat(this.label, this.value, this.icon, {this.highlight = false});
 }

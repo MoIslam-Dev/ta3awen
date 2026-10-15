@@ -901,6 +901,35 @@ class AppLocalizationsEn extends AppLocalizations {
   String get userDisabledToast => 'Account disabled';
 
   @override
+  String get adminBadge => 'Admin';
+
+  @override
+  String get adminGrant => 'Make admin';
+
+  @override
+  String get adminRevoke => 'Remove admin';
+
+  @override
+  String get adminGranted => 'Admin rights granted';
+
+  @override
+  String get adminRevoked => 'Admin rights removed';
+
+  @override
+  String get deleteUserData => 'Delete all user data';
+
+  @override
+  String get deleteUserDataTitle => 'Delete all user data?';
+
+  @override
+  String deleteUserDataBody(String name) {
+    return 'Permanently deletes $name\'s listings, posts, reports and profile. The sign-in account must be removed separately from the Firebase console.';
+  }
+
+  @override
+  String get userDataDeleted => 'User data deleted';
+
+  @override
   String get noRequests => 'No requests';
 
   @override

@@ -1,11 +1,10 @@
-import 'dart:async';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../../l10n/ext.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../../models/listing.dart';
 import '../../services/listing_service.dart';
+import '../../state/paged_list.dart';
 import '../../utils/errors.dart';
 import '../../widgets/listing_card.dart';
 import '../../widgets/state_views.dart';
@@ -19,84 +18,68 @@ class MyListingsScreen extends StatefulWidget {
   State<MyListingsScreen> createState() => _MyListingsScreenState();
 }
 
-class _MyListingsScreenState extends State<MyListingsScreen>
-    with AutomaticKeepAliveClientMixin {
+class _MyListingsScreenState extends State<MyListingsScreen> {
   final _service = ListingService();
-  List<Listing> _items = [];
-  List<Listing> _reservations = [];
+  final String? _uid = FirebaseAuth.instance.currentUser?.uid;
+  late final PagedList<Listing>? _mine;
+  late final PagedList<Listing>? _res;
   int _tab = 0;
-  bool _loading = true;
-  String? _error;
-  StreamSubscription<List<Listing>>? _sub;
-  StreamSubscription<List<Listing>>? _resSub;
-
-  @override
-  bool get wantKeepAlive => true;
+  bool _loginError = false;
 
   @override
   void initState() {
     super.initState();
-    _subscribe();
+    final uid = _uid;
+    if (uid == null) {
+      _loginError = true;
+      _mine = null;
+      _res = null;
+      return;
+    }
+    _mine = PagedList<Listing>(
+      headBuilder: (limit) => _service.myHead(uid, limit: limit),
+      moreBuilder: (cursor, limit) => _service.myMore(uid, cursor, limit: limit),
+      idOf: (l) => l.id,
+    )..start();
+    _res = PagedList<Listing>(
+      headBuilder: (limit) => _service.reservationsHead(uid, limit: limit),
+      moreBuilder: (cursor, limit) =>
+          _service.reservationsMore(uid, cursor, limit: limit),
+      idOf: (l) => l.id,
+    );
   }
 
   @override
   void dispose() {
-    _sub?.cancel();
-    _resSub?.cancel();
+    _mine?.dispose();
+    _res?.dispose();
     super.dispose();
   }
 
-  void _subscribe() {
-    _sub?.cancel();
-    _resSub?.cancel();
-    final uid = FirebaseAuth.instance.currentUser?.uid;
-    if (uid == null) {
-      setState(() {
-        _loading = false;
-        _error = context.l10n.loginRequired;
-      });
-      return;
+  void _ensureTab() {
+    final res = _res;
+    if (_tab == 1 && res != null && res.loading && res.isEmpty) {
+      res.start();
     }
-    _sub = _service.myStream(uid).listen(
-      (items) {
-        if (!mounted) return;
-        setState(() {
-          _items = items;
-          _loading = false;
-          _error = null;
-        });
-      },
-      onError: (Object e) {
-        if (!mounted) return;
-        setState(() {
-          _error = dataErrorMessage(context, e);
-          _loading = false;
-        });
-      },
-    );
-    _resSub = _service.reservationsStream(uid).listen(
-      (items) {
-        if (!mounted) return;
-        setState(() {
-          _reservations = items;
-          _loading = false;
-        });
-      },
-      onError: (Object e) {
-        if (!mounted) return;
-        setState(() {
-          _error = dataErrorMessage(context, e);
-          _loading = false;
-        });
-      },
-    );
   }
 
-  /// Re-subscribes; used by pull-to-refresh and the error retry button.
   Future<void> _load() async {
-    _subscribe();
+    _active?.start();
     await Future<void>.delayed(const Duration(milliseconds: 400));
   }
+
+  Future<void> _loadMore() async {
+    try {
+      await _active?.loadMore();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(dataErrorMessage(context, e))),
+      );
+    }
+  }
+
+  PagedList<Listing>? get _active => _tab == 0 ? _mine : _res;
 
   void _snack(String Function(BuildContext) message) {
     if (!mounted) return;
@@ -105,8 +88,7 @@ class _MyListingsScreenState extends State<MyListingsScreen>
   }
 
   Future<void> _toggleStatus(Listing listing) async {
-    final newStatus =
-        listing.isAvailable ? 'تم التبرع به' : 'متاح';
+    final newStatus = listing.isAvailable ? statusGiven : statusAvailable;
     try {
       await _service.setStatus(listing.id, newStatus);
     } catch (e) {
@@ -123,8 +105,6 @@ class _MyListingsScreenState extends State<MyListingsScreen>
     }
   }
 
-  /// Owner releases a claimant's reservation (or the claimant cancels
-  /// their own — same security path, same message).
   Future<void> _release(Listing listing) async {
     try {
       await _service.cancelClaim(listing.id);
@@ -160,9 +140,10 @@ class _MyListingsScreenState extends State<MyListingsScreen>
     if (yes != true) return;
     try {
       await _service.delete(listing.id);
+      _active?.remove(listing);
       _snack((c) => c.l10n.listingDeleted);
     } catch (e) {
-      _snack((c) => dataErrorMessage(c, e));
+      _snack((c) => dataErrorMessage(context, e));
     }
   }
 
@@ -192,14 +173,16 @@ class _MyListingsScreenState extends State<MyListingsScreen>
           ),
         ],
         selected: {_tab},
-        onSelectionChanged: (s) => setState(() => _tab = s.first),
+        onSelectionChanged: (s) => setState(() {
+          _tab = s.first;
+          _ensureTab();
+        }),
       ),
     );
   }
 
   Widget? _trailing(Listing listing, AppLocalizations l) {
     if (_tab == 1) {
-      // Reservations: only actionable while still reserved by me.
       if (!listing.isReserved) return null;
       return PopupMenuButton<String>(
         icon: const Icon(Icons.more_vert),
@@ -218,7 +201,6 @@ class _MyListingsScreenState extends State<MyListingsScreen>
         ],
       );
     }
-    // My listings: status-aware actions.
     return PopupMenuButton<String>(
       icon: const Icon(Icons.more_vert),
       onSelected: (v) async {
@@ -274,9 +256,7 @@ class _MyListingsScreenState extends State<MyListingsScreen>
                   ? Icons.volunteer_activism_outlined
                   : Icons.undo_outlined),
               contentPadding: EdgeInsets.zero,
-              title: Text(listing.isAvailable
-                  ? l.markGiven
-                  : l.markAvailable),
+              title: Text(listing.isAvailable ? l.markGiven : l.markAvailable),
             ),
           ),
         PopupMenuItem(
@@ -289,9 +269,7 @@ class _MyListingsScreenState extends State<MyListingsScreen>
             contentPadding: EdgeInsets.zero,
             title: Text(
               l.delete,
-              style: TextStyle(
-                color: Theme.of(ctx).colorScheme.error,
-              ),
+              style: TextStyle(color: Theme.of(ctx).colorScheme.error),
             ),
           ),
         ),
@@ -301,22 +279,46 @@ class _MyListingsScreenState extends State<MyListingsScreen>
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
     final l = context.l10n;
-    if (_loading) return LoadingView(message: l.loading);
-    if (_error != null) {
-      return ErrorView(message: _error!, onRetry: _load);
+    if (_loginError) {
+      return Scaffold(
+        appBar: AppBar(title: Text(l.tabMyListings)),
+        body: EmptyView(icon: Icons.lock_outline, message: l.loginRequired),
+      );
     }
-    final items = _tab == 0 ? _items : _reservations;
-    final empty = items.isEmpty
-        ? RefreshIndicator(
+    return Scaffold(
+      appBar: AppBar(title: Text(l.tabMyListings)),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _segmentButton(l),
+          Expanded(child: _buildList(l)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildList(AppLocalizations l) {
+    final paged = _active!;
+    return ListenableBuilder(
+      listenable: paged,
+      builder: (context, _) {
+        if (paged.loading) return LoadingView(message: l.loading);
+        final error = paged.error;
+        if (error != null) {
+          return ErrorView(
+            message: dataErrorMessage(context, error),
+            onRetry: _load,
+          );
+        }
+        if (paged.isEmpty) {
+          return RefreshIndicator(
             onRefresh: _load,
             child: EmptyView(
               icon: _tab == 0
                   ? Icons.playlist_add_outlined
                   : Icons.bookmark_outline,
-              message:
-                  _tab == 0 ? l.myListingsEmpty : l.reservationsEmpty,
+              message: _tab == 0 ? l.myListingsEmpty : l.reservationsEmpty,
               action: _tab == 0
                   ? FilledButton.tonalIcon(
                       onPressed: () {
@@ -331,36 +333,39 @@ class _MyListingsScreenState extends State<MyListingsScreen>
                     )
                   : null,
             ),
-          )
-        : RefreshIndicator(
-            onRefresh: _load,
-            child: ListView.builder(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.only(top: 8, bottom: 80),
-              itemCount: items.length,
-              itemBuilder: (context, i) {
-                final listing = items[i];
-                return ListingCard(
-                  listing: listing,
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) =>
-                            ListingDetailsScreen(listingId: listing.id),
-                      ),
-                    );
-                  },
-                  trailing: _trailing(listing, l),
-                );
-              },
-            ),
           );
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _segmentButton(l),
-        Expanded(child: empty),
-      ],
+        }
+        final items = paged.items;
+        return RefreshIndicator(
+          onRefresh: _load,
+          child: ListView.builder(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.only(top: 8, bottom: 32),
+            itemCount: items.length + (paged.hasMore ? 1 : 0),
+            itemBuilder: (context, i) {
+              if (i >= items.length) {
+                return LoadMoreFooter(
+                  loading: paged.loadingMore,
+                  onLoadMore: _loadMore,
+                );
+              }
+              final listing = items[i];
+              return ListingCard(
+                listing: listing,
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          ListingDetailsScreen(listingId: listing.id),
+                    ),
+                  );
+                },
+                trailing: _trailing(listing, l),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 }

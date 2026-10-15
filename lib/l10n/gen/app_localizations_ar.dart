@@ -901,6 +901,35 @@ class AppLocalizationsAr extends AppLocalizations {
   String get userDisabledToast => 'تم تعطيل الحساب';
 
   @override
+  String get adminBadge => 'مشرف';
+
+  @override
+  String get adminGrant => 'تعيين كمشرف';
+
+  @override
+  String get adminRevoke => 'إلغاء صلاحية الإشراف';
+
+  @override
+  String get adminGranted => 'تم منح صلاحية الإشراف';
+
+  @override
+  String get adminRevoked => 'تم سحب صلاحية الإشراف';
+
+  @override
+  String get deleteUserData => 'حذف كل بيانات المستخدم';
+
+  @override
+  String get deleteUserDataTitle => 'حذف كل بيانات المستخدم؟';
+
+  @override
+  String deleteUserDataBody(String name) {
+    return 'سيتم حذف إعلانات $name ومنشوراته وبلاغاته وملفه الشخصي نهائيًا. يجب حذف حساب الدخول بشكل منفصل من لوحة Firebase.';
+  }
+
+  @override
+  String get userDataDeleted => 'تم حذف بيانات المستخدم';
+
+  @override
   String get noRequests => 'لا طلبات';
 
   @override

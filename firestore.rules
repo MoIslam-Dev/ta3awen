@@ -133,10 +133,11 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
-    // Admin membership: writable only from the Firebase console / Admin SDK.
+    // Admin membership. Initial admins are seeded from the Firebase console /
+    // Admin SDK; existing admins can grant or revoke via the in-app panel.
     match /admins/{uid} {
       allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
-      allow write: if false;
+      allow write: if isAdmin();
     }
 
     // Lifetime post counter (anti-spam). Clients bump postCount by exactly

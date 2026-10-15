@@ -406,6 +406,22 @@
   "enableAction": "Activer",
   "userEnabledToast": "Compte activé",
   "userDisabledToast": "Compte désactivé",
+  "adminBadge": "Admin",
+  "adminGrant": "Nommer admin",
+  "adminRevoke": "Retirer admin",
+  "adminGranted": "Droits d'administration accordés",
+  "adminRevoked": "Droits d'administration retirés",
+  "deleteUserData": "Supprimer toutes les données utilisateur",
+  "deleteUserDataTitle": "Supprimer toutes les données utilisateur ?",
+  "deleteUserDataBody": "Supprime définitivement les annonces, publications, signalements et le profil de {name}. Le compte de connexion doit être supprimé séparément depuis la console Firebase.",
+  "@deleteUserDataBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "userDataDeleted": "Données utilisateur supprimées",
   "noRequests": "Aucune demande",
   "reqKindGeneralLabel": "Général",
   "reqKindOptionGeneral": "Demande générale",

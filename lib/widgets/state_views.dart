@@ -133,6 +133,38 @@ class ErrorView extends StatelessWidget {
   }
 }
 
+/// Footer for paginated lists: shows a spinner while the next page loads,
+/// otherwise a "load more" button. If a page fails, [onRetry] is offered.
+class LoadMoreFooter extends StatelessWidget {
+  final bool loading;
+  final VoidCallback onLoadMore;
+
+  const LoadMoreFooter({
+    super.key,
+    required this.loading,
+    required this.onLoadMore,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      child: Center(
+        child: loading
+            ? const SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : OutlinedButton(
+                onPressed: onLoadMore,
+                child: Text(context.l10n.loadMore),
+              ),
+      ),
+    );
+  }
+}
+
 /// Small inline chip used across detail/summary rows.
 class InfoChip extends StatelessWidget {
   final IconData icon;

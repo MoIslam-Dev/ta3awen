@@ -1825,6 +1825,60 @@ abstract class AppLocalizations {
   /// **'تم تعطيل الحساب'**
   String get userDisabledToast;
 
+  /// No description provided for @adminBadge.
+  ///
+  /// In ar, this message translates to:
+  /// **'مشرف'**
+  String get adminBadge;
+
+  /// No description provided for @adminGrant.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعيين كمشرف'**
+  String get adminGrant;
+
+  /// No description provided for @adminRevoke.
+  ///
+  /// In ar, this message translates to:
+  /// **'إلغاء صلاحية الإشراف'**
+  String get adminRevoke;
+
+  /// No description provided for @adminGranted.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم منح صلاحية الإشراف'**
+  String get adminGranted;
+
+  /// No description provided for @adminRevoked.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم سحب صلاحية الإشراف'**
+  String get adminRevoked;
+
+  /// No description provided for @deleteUserData.
+  ///
+  /// In ar, this message translates to:
+  /// **'حذف كل بيانات المستخدم'**
+  String get deleteUserData;
+
+  /// No description provided for @deleteUserDataTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'حذف كل بيانات المستخدم؟'**
+  String get deleteUserDataTitle;
+
+  /// No description provided for @deleteUserDataBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'سيتم حذف إعلانات {name} ومنشوراته وبلاغاته وملفه الشخصي نهائيًا. يجب حذف حساب الدخول بشكل منفصل من لوحة Firebase.'**
+  String deleteUserDataBody(String name);
+
+  /// No description provided for @userDataDeleted.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم حذف بيانات المستخدم'**
+  String get userDataDeleted;
+
   /// No description provided for @noRequests.
   ///
   /// In ar, this message translates to:

@@ -2,42 +2,77 @@ import 'package:flutter/material.dart';
 import '../../l10n/ext.dart';
 import '../../models/listing.dart';
 import '../../services/admin_service.dart';
+import '../../state/paged_list.dart';
 import '../../utils/errors.dart';
 import '../../utils/formatters.dart';
 import '../../widgets/state_views.dart';
 import '../listing/listing_details_screen.dart';
 
 class AdminListingsTab extends StatefulWidget {
-  final List<Listing> listings;
-
-  const AdminListingsTab({super.key, required this.listings});
+  const AdminListingsTab({super.key});
 
   @override
   State<AdminListingsTab> createState() => _AdminListingsTabState();
 }
 
-class _AdminListingsTabState extends State<AdminListingsTab> {
+class _AdminListingsTabState extends State<AdminListingsTab>
+    with AutomaticKeepAliveClientMixin {
   final _admin = AdminService();
   final _search = TextEditingController();
+
+  late final PagedList<Listing> _paged = PagedList<Listing>(
+    headBuilder: (limit) => _admin.listingsHead(status: _status, limit: limit),
+    moreBuilder: (cursor, limit) =>
+        _admin.listingsMore(_status, cursor, limit: limit),
+    idOf: (l) => l.id,
+  );
+
+  String? _status;
   String _query = '';
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
     super.initState();
     _search.addListener(() => setState(() => _query = _search.text.trim()));
+    _paged.start();
   }
 
   @override
   void dispose() {
+    _paged.dispose();
     _search.dispose();
     super.dispose();
   }
 
+  Future<void> _load() async {
+    _paged.start();
+    await Future<void>.delayed(const Duration(milliseconds: 400));
+  }
+
+  Future<void> _loadMore() async {
+    try {
+      await _paged.loadMore();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(dataErrorMessage(context, e))),
+      );
+    }
+  }
+
+  void _setStatus(String? status) {
+    if (_status == status) return;
+    setState(() => _status = status);
+    _paged.start();
+  }
+
   List<Listing> get _visible {
     final q = _query.toLowerCase();
-    final all = widget.listings;
-    if (q.isEmpty) return all;
-    return all
+    if (q.isEmpty) return _paged.items;
+    return _paged.items
         .where((l) =>
             l.title.toLowerCase().contains(q) ||
             l.ownerName.toLowerCase().contains(q) ||
@@ -72,6 +107,7 @@ class _AdminListingsTabState extends State<AdminListingsTab> {
     if (yes != true) return;
     try {
       await _admin.deleteListing(l.id);
+      _paged.remove(l);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context)
@@ -82,9 +118,9 @@ class _AdminListingsTabState extends State<AdminListingsTab> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final l = context.l10n;
     final theme = Theme.of(context);
-    final visible = _visible;
 
     return Column(
       children: [
@@ -105,16 +141,51 @@ class _AdminListingsTabState extends State<AdminListingsTab> {
             ),
           ),
         ),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          child: Row(
+            children: [
+              _chip(l.reportFilterAll, null),
+              _chip(l.statusAvailable, statusAvailable),
+              _chip(l.statusReserved, statusReserved),
+              _chip(l.statusGiven, statusGiven),
+            ],
+          ),
+        ),
         Expanded(
-          child: visible.isEmpty
-              ? EmptyView(
-                  icon: _query.isEmpty ? Icons.inventory_2_outlined : Icons.search_off,
+          child: ListenableBuilder(
+            listenable: _paged,
+            builder: (context, _) {
+              if (_paged.loading) return LoadingView(message: l.loading);
+              final error = _paged.error;
+              if (error != null) {
+                return ErrorView(
+                  message: dataErrorMessage(context, error),
+                  onRetry: _load,
+                );
+              }
+              final visible = _visible;
+              if (visible.isEmpty) {
+                return EmptyView(
+                  icon: _query.isEmpty
+                      ? Icons.inventory_2_outlined
+                      : Icons.search_off,
                   message: _query.isEmpty ? l.noListings : l.emptySearchResults,
-                )
-              : ListView.builder(
+                );
+              }
+              return RefreshIndicator(
+                onRefresh: _load,
+                child: ListView.builder(
                   padding: const EdgeInsets.symmetric(vertical: 8),
-                  itemCount: visible.length,
+                  itemCount: visible.length + (_paged.hasMore ? 1 : 0),
                   itemBuilder: (context, i) {
+                    if (i >= visible.length) {
+                      return LoadMoreFooter(
+                        loading: _paged.loadingMore,
+                        onLoadMore: _loadMore,
+                      );
+                    }
                     final item = visible[i];
                     final seed = item.id.startsWith('seed-');
                     return Card(
@@ -151,8 +222,22 @@ class _AdminListingsTabState extends State<AdminListingsTab> {
                     );
                   },
                 ),
+              );
+            },
+          ),
         ),
       ],
+    );
+  }
+
+  Widget _chip(String label, String? value) {
+    return Padding(
+      padding: const EdgeInsetsDirectional.only(end: 8),
+      child: ChoiceChip(
+        label: Text(label),
+        selected: _status == value,
+        onSelected: (_) => _setStatus(value),
+      ),
     );
   }
 }

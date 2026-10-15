@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/listing.dart';
+import '../utils/constants.dart';
 import '../utils/search_keywords.dart';
+import 'paging.dart';
 
 /// Server-side feed query: status is always filtered to available listings;
 /// the optional facets and the search text become Firestore equality /
@@ -123,31 +125,53 @@ class ListingService {
     );
   }
 
-  /// Live version of [myListings] (single-field filter, no extra index).
-  Stream<List<Listing>> myStream(String uid) {
-    return _col.where('ownerId', isEqualTo: uid).snapshots().map((snap) {
-      final items = snap.docs.map(Listing.fromDoc).toList();
-      items.sort((a, b) => (b.createdAt ?? DateTime(2000))
-          .compareTo(a.createdAt ?? DateTime(2000)));
-      return items;
-    });
+  QueryPage<Listing> _page(
+      List<QueryDocumentSnapshot<Map<String, dynamic>>> docs, int limit) {
+    return QueryPage(
+      items: docs.map(Listing.fromDoc).toList(),
+      cursor: docs.length >= limit ? docs.last : null,
+      hasMore: docs.length >= limit,
+    );
   }
 
-  Future<List<Listing>> myListings(String uid) async {
-    final snap = await _col.where('ownerId', isEqualTo: uid).get();
-    final items = snap.docs.map(Listing.fromDoc).toList();
-    items.sort((a, b) => (b.createdAt ?? DateTime(2000))
-        .compareTo(a.createdAt ?? DateTime(2000)));
-    return items;
+  Query<Map<String, dynamic>> _ownerQuery(String uid) =>
+      _col.where('ownerId', isEqualTo: uid).orderBy('createdAt', descending: true);
+
+  /// Live first page of the user's own listings ("حجوزاتي" owner side).
+  Stream<QueryPage<Listing>> myHead(String uid, {int limit = kPageSize}) =>
+      _ownerQuery(uid).limit(limit).snapshots().map((snap) => _page(snap.docs, limit));
+
+  /// One-shot older page of the user's own listings.
+  Future<QueryPage<Listing>> myMore(
+    String uid,
+    Object? cursor, {
+    int limit = kPageSize,
+  }) async {
+    final snap = await _ownerQuery(uid)
+        .startAfterDocument(cursor as DocumentSnapshot<Map<String, dynamic>>)
+        .limit(limit)
+        .get();
+    return _page(snap.docs, limit);
   }
 
-  Future<List<Listing>> byIds(List<String> ids) async {
-    final items = <Listing>[];
-    for (final id in ids) {
-      final doc = await _col.doc(id).get();
-      if (doc.exists) items.add(Listing.fromDoc(doc));
-    }
-    return items;
+  Query<Map<String, dynamic>> _claimsQuery(String uid) =>
+      _col.where('claimedBy', isEqualTo: uid).orderBy('createdAt', descending: true);
+
+  /// Live first page of the listings the user has reserved.
+  Stream<QueryPage<Listing>> reservationsHead(String uid, {int limit = kPageSize}) =>
+      _claimsQuery(uid).limit(limit).snapshots().map((snap) => _page(snap.docs, limit));
+
+  /// One-shot older page of the user's reservations.
+  Future<QueryPage<Listing>> reservationsMore(
+    String uid,
+    Object? cursor, {
+    int limit = kPageSize,
+  }) async {
+    final snap = await _claimsQuery(uid)
+        .startAfterDocument(cursor as DocumentSnapshot<Map<String, dynamic>>)
+        .limit(limit)
+        .get();
+    return _page(snap.docs, limit);
   }
 
   Future<Listing?> byId(String id) async {
@@ -278,19 +302,6 @@ class ListingService {
     return _col.doc(id).update({
       'status': statusGiven,
       'updatedAt': FieldValue.serverTimestamp(),
-    });
-  }
-
-  /// Live reservations made by [uid] (the "حجوزاتي" tab), newest claim first.
-  Stream<List<Listing>> reservationsStream(String uid) {
-    return _col.where('claimedBy', isEqualTo: uid).snapshots().map((snap) {
-      final items = snap.docs.map(Listing.fromDoc).toList();
-      items.sort((a, b) {
-        final ta = a.claimedAt ?? a.createdAt ?? DateTime(2000);
-        final tb = b.claimedAt ?? b.createdAt ?? DateTime(2000);
-        return tb.compareTo(ta);
-      });
-      return items;
     });
   }
 

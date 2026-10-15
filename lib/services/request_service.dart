@@ -1,41 +1,82 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/request_post.dart';
+import '../utils/constants.dart';
 import '../utils/search_keywords.dart';
+import 'paging.dart';
 
-/// Board (requests) data access. Mirrors [ListingService] shape:
-/// equality-filtered queries + client-side sort/filter — no composite
-/// indexes needed.
+/// Board (requests) data access. Every read is paginated: a live head
+/// (newest page) plus one-shot older pages, so the app never streams a whole
+/// collection from Firestore.
 class RequestService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
   CollectionReference<Map<String, dynamic>> get _col =>
       _db.collection('requests');
 
-  List<RequestPost> _sorted(Iterable<QueryDocumentSnapshot<Map<String, dynamic>>> docs) {
-    final items = docs.map(RequestPost.fromDoc).toList();
-    items.sort((a, b) => (b.createdAt ?? DateTime(2000))
-        .compareTo(a.createdAt ?? DateTime(2000)));
-    return items;
-  }
-
-  /// Live board of open posts, newest first. Optionally narrowed by
-  /// [kind] (general/blood) and/or [type] (need/offer). Equality-only
-  /// filters keep this on single-field indexes — no composite index.
-  /// Matching / closed posts drop out automatically.
-  Stream<List<RequestPost>> boardStream({String? type, String? kind}) {
+  /// Open posts, newest first — optionally narrowed by [kind]
+  /// (general/blood) and/or [type] (need/offer). Ordered by `createdAt`,
+  /// which needs the composite indexes declared in firestore.indexes.json.
+  Query<Map<String, dynamic>> _boardQuery({String? type, String? kind}) {
     Query<Map<String, dynamic>> q =
         _col.where('status', isEqualTo: requestStatusOpen);
     if (kind != null) q = q.where('kind', isEqualTo: kind);
     if (type != null) q = q.where('type', isEqualTo: type);
-    return q.snapshots().map((snap) => _sorted(snap.docs));
+    return q.orderBy('createdAt', descending: true);
   }
 
-  /// Live stream of the current user's own posts (any status).
-  Stream<List<RequestPost>> myStream(String uid) {
-    return _col
-        .where('uid', isEqualTo: uid)
+  QueryPage<RequestPost> _page(
+      List<QueryDocumentSnapshot<Map<String, dynamic>>> docs, int limit) {
+    return QueryPage(
+      items: docs.map(RequestPost.fromDoc).toList(),
+      cursor: docs.length >= limit ? docs.last : null,
+      hasMore: docs.length >= limit,
+    );
+  }
+
+  /// Live first page of the open board.
+  Stream<QueryPage<RequestPost>> boardHead({
+    String? type,
+    String? kind,
+    int limit = kPageSize,
+  }) {
+    return _boardQuery(type: type, kind: kind)
+        .limit(limit)
         .snapshots()
-        .map((snap) => _sorted(snap.docs));
+        .map((snap) => _page(snap.docs, limit));
+  }
+
+  /// One-shot older page of the open board.
+  Future<QueryPage<RequestPost>> boardMore({
+    String? type,
+    String? kind,
+    required Object? cursor,
+    int limit = kPageSize,
+  }) async {
+    final snap = await _boardQuery(type: type, kind: kind)
+        .startAfterDocument(cursor as DocumentSnapshot<Map<String, dynamic>>)
+        .limit(limit)
+        .get();
+    return _page(snap.docs, limit);
+  }
+
+  Query<Map<String, dynamic>> _myQuery(String uid) =>
+      _col.where('uid', isEqualTo: uid).orderBy('createdAt', descending: true);
+
+  /// Live first page of the current user's own posts (any status).
+  Stream<QueryPage<RequestPost>> myHead(String uid, {int limit = kPageSize}) =>
+      _myQuery(uid).limit(limit).snapshots().map((snap) => _page(snap.docs, limit));
+
+  /// One-shot older page of the current user's own posts.
+  Future<QueryPage<RequestPost>> myMore(
+    String uid,
+    Object? cursor, {
+    int limit = kPageSize,
+  }) async {
+    final snap = await _myQuery(uid)
+        .startAfterDocument(cursor as DocumentSnapshot<Map<String, dynamic>>)
+        .limit(limit)
+        .get();
+    return _page(snap.docs, limit);
   }
 
   Future<RequestPost?> byId(String id) async {

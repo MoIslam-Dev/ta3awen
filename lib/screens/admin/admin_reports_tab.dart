@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../l10n/ext.dart';
 import '../../l10n/gen/app_localizations.dart';
-import '../../models/listing.dart';
 import '../../models/report.dart';
 import '../../services/admin_service.dart';
+import '../../state/paged_list.dart';
 import '../../utils/errors.dart';
 import '../../utils/formatters.dart';
 import '../../utils/labels.dart';
@@ -11,26 +11,58 @@ import '../../widgets/state_views.dart';
 import '../listing/listing_details_screen.dart';
 
 class AdminReportsTab extends StatefulWidget {
-  final List<Report> reports;
-  final List<Listing> listings;
-
-  const AdminReportsTab({
-    super.key,
-    required this.reports,
-    required this.listings,
-  });
+  const AdminReportsTab({super.key});
 
   @override
   State<AdminReportsTab> createState() => _AdminReportsTabState();
 }
 
-class _AdminReportsTabState extends State<AdminReportsTab> {
+class _AdminReportsTabState extends State<AdminReportsTab>
+    with AutomaticKeepAliveClientMixin {
   final _admin = AdminService();
+
+  late final PagedList<Report> _paged = PagedList<Report>(
+    headBuilder: (limit) => _admin.reportsHead(limit: limit),
+    moreBuilder: (cursor, limit) => _admin.reportsMore(cursor, limit: limit),
+    idOf: (r) => r.id,
+  );
+
   String _filter = reportStatusOpen;
 
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  void initState() {
+    super.initState();
+    _paged.start();
+  }
+
+  @override
+  void dispose() {
+    _paged.dispose();
+    super.dispose();
+  }
+
+  Future<void> _load() async {
+    _paged.start();
+    await Future<void>.delayed(const Duration(milliseconds: 400));
+  }
+
+  Future<void> _loadMore() async {
+    try {
+      await _paged.loadMore();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(dataErrorMessage(context, e))),
+      );
+    }
+  }
+
   List<Report> get _visible => _filter == 'all'
-      ? widget.reports
-      : widget.reports.where((r) => r.status == _filter).toList();
+      ? _paged.items
+      : _paged.items.where((r) => r.status == _filter).toList();
 
   Future<bool> _run(Future<void> Function() action) async {
     try {
@@ -52,15 +84,12 @@ class _AdminReportsTabState extends State<AdminReportsTab> {
     }
   }
 
-  Future<void> _openContent(Report r) async {
+  void _openContent(Report r) {
     if (r.listingId.isEmpty) return;
-    final exists = widget.listings.any((l) => l.id == r.listingId);
-    if (!exists) {
-      _toast(context.l10n.reportListingMissing);
-      return;
-    }
-    await Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => ListingDetailsScreen(listingId: r.listingId)),
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => ListingDetailsScreen(listingId: r.listingId),
+      ),
     );
   }
 
@@ -116,14 +145,14 @@ class _AdminReportsTabState extends State<AdminReportsTab> {
       ),
     );
     if (yes != true) return;
-    await _run(() => _admin.deleteReport(r.id));
+    if (await _run(() => _admin.deleteReport(r.id))) _paged.remove(r);
   }
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final l = context.l10n;
     final theme = Theme.of(context);
-    final visible = _visible;
 
     return Column(
       children: [
@@ -142,13 +171,40 @@ class _AdminReportsTabState extends State<AdminReportsTab> {
           ),
         ),
         Expanded(
-          child: visible.isEmpty
-              ? EmptyView(icon: Icons.flag_outlined, message: l.noReports)
-              : ListView.builder(
+          child: ListenableBuilder(
+            listenable: _paged,
+            builder: (context, _) {
+              if (_paged.loading) return LoadingView(message: l.loading);
+              final error = _paged.error;
+              if (error != null) {
+                return ErrorView(
+                  message: dataErrorMessage(context, error),
+                  onRetry: _load,
+                );
+              }
+              final visible = _visible;
+              if (visible.isEmpty) {
+                return EmptyView(
+                    icon: Icons.flag_outlined, message: l.noReports);
+              }
+              return RefreshIndicator(
+                onRefresh: _load,
+                child: ListView.builder(
                   padding: const EdgeInsets.symmetric(vertical: 8),
-                  itemCount: visible.length,
-                  itemBuilder: (context, i) => _reportCard(visible[i], l, theme),
+                  itemCount: visible.length + (_paged.hasMore ? 1 : 0),
+                  itemBuilder: (context, i) {
+                    if (i >= visible.length) {
+                      return LoadMoreFooter(
+                        loading: _paged.loadingMore,
+                        onLoadMore: _loadMore,
+                      );
+                    }
+                    return _reportCard(visible[i], l, theme);
+                  },
                 ),
+              );
+            },
+          ),
         ),
       ],
     );
@@ -250,16 +306,16 @@ class _AdminReportsTabState extends State<AdminReportsTab> {
                   ),
                 if (r.isOpen) ...[
                   FilledButton.tonalIcon(
-                    onPressed: () =>
-                        _run(() => _admin.setReportStatus(r.id, reportStatusResolved))
-                            .then((_) => _toast(l.reportResolvedToast)),
+                    onPressed: () => _run(
+                            () => _admin.setReportStatus(r.id, reportStatusResolved))
+                        .then((_) => _toast(l.reportResolvedToast)),
                     icon: const Icon(Icons.check, size: 16),
                     label: Text(l.reportResolve),
                   ),
                   FilledButton.tonalIcon(
-                    onPressed: () =>
-                        _run(() => _admin.setReportStatus(r.id, reportStatusDismissed))
-                            .then((_) => _toast(l.reportDismissedToast)),
+                    onPressed: () => _run(() =>
+                            _admin.setReportStatus(r.id, reportStatusDismissed))
+                        .then((_) => _toast(l.reportDismissedToast)),
                     icon: const Icon(Icons.close, size: 16),
                     label: Text(l.reportDismiss),
                   ),

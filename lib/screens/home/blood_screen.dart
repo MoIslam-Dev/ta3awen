@@ -1,11 +1,10 @@
-import 'dart:async';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../../l10n/ext.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../../models/request_post.dart';
 import '../../services/request_service.dart';
+import '../../state/paged_list.dart';
 import '../../utils/constants.dart';
 import '../../utils/errors.dart';
 import '../../utils/request_filters.dart';
@@ -28,15 +27,21 @@ class _BloodScreenState extends State<BloodScreen>
   final _service = RequestService();
   final _searchCtrl = TextEditingController();
 
+  late final PagedList<RequestPost> _paged = PagedList<RequestPost>(
+    headBuilder: (limit) =>
+        _service.boardHead(kind: requestKindBlood, limit: limit),
+    moreBuilder: (cursor, limit) => _service.boardMore(
+      kind: requestKindBlood,
+      cursor: cursor,
+      limit: limit,
+    ),
+    idOf: (r) => r.id,
+  );
+
   String? _bloodType;
   String _query = '';
   String _rawQuery = '';
-
-  List<RequestPost> _board = [];
-  bool _loading = true;
-  String? _error;
-  StreamSubscription<List<RequestPost>>? _sub;
-  Timer? _debounce;
+  bool _loginError = false;
 
   @override
   bool get wantKeepAlive => true;
@@ -44,63 +49,44 @@ class _BloodScreenState extends State<BloodScreen>
   @override
   void initState() {
     super.initState();
-    _subscribe();
+    if (FirebaseAuth.instance.currentUser == null) {
+      _loginError = true;
+    } else {
+      _paged.start();
+    }
   }
 
   @override
   void dispose() {
-    _debounce?.cancel();
-    _sub?.cancel();
+    _paged.dispose();
     _searchCtrl.dispose();
     super.dispose();
   }
 
-  void _subscribe() {
-    _debounce?.cancel();
-    _sub?.cancel();
-    if (FirebaseAuth.instance.currentUser == null) {
-      setState(() {
-        _loading = false;
-        _error = context.l10n.loginRequired;
-      });
-      return;
-    }
-    _sub = _service.boardStream(kind: requestKindBlood).listen(
-      (items) {
-        if (!mounted) return;
-        setState(() {
-          _board = items;
-          _loading = false;
-          _error = null;
-        });
-      },
-      onError: (Object e) {
-        if (!mounted) return;
-        setState(() {
-          _error = dataErrorMessage(context, e);
-          _loading = false;
-        });
-      },
-    );
+  Future<void> _load() async {
+    _paged.start();
+    await Future<void>.delayed(const Duration(milliseconds: 400));
   }
 
-  Future<void> _load() async {
-    _subscribe();
-    await Future<void>.delayed(const Duration(milliseconds: 400));
+  Future<void> _loadMore() async {
+    try {
+      await _paged.loadMore();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(dataErrorMessage(context, e))),
+      );
+    }
   }
 
   void _onSearchChanged(String v) {
     setState(() => _rawQuery = v);
     final trimmed = v.trim();
-    _debounce?.cancel();
-    _debounce = Timer(const Duration(milliseconds: 350), () {
-      if (trimmed == _query) return;
-      setState(() => _query = trimmed);
-    });
+    if (trimmed == _query) return;
+    setState(() => _query = trimmed);
   }
 
   void _clearSearch() {
-    _debounce?.cancel();
     _searchCtrl.clear();
     setState(() {
       _rawQuery = '';
@@ -119,7 +105,7 @@ class _BloodScreenState extends State<BloodScreen>
   }
 
   List<RequestPost> get _items => filterRequests(
-        _board,
+        _paged.items,
         bloodSeparation: false,
         bloodBoard: true,
         bloodTypeFilter: _bloodType,
@@ -130,9 +116,9 @@ class _BloodScreenState extends State<BloodScreen>
   Widget build(BuildContext context) {
     super.build(context);
     final l = context.l10n;
-    if (_loading) return LoadingView(message: l.loading);
-    if (_error != null) return ErrorView(message: _error!, onRetry: _load);
-    final items = _items;
+    if (_loginError) {
+      return EmptyView(icon: Icons.lock_outline, message: l.loginRequired);
+    }
     final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -175,8 +161,7 @@ class _BloodScreenState extends State<BloodScreen>
                   label: Text(l.reqAddBlood),
                   style: FilledButton.styleFrom(
                     minimumSize: const Size(0, 40),
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 14),
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
                     foregroundColor: theme.colorScheme.error,
                   ),
                 ),
@@ -197,56 +182,77 @@ class _BloodScreenState extends State<BloodScreen>
             ],
           ),
         ),
-        Expanded(child: _buildBody(items, l)),
+        Expanded(child: _buildBody(l)),
       ],
     );
   }
 
-  Widget _buildBody(List<RequestPost> items, AppLocalizations l) {
-    final filtered = _query.isNotEmpty || _bloodType != null;
-    if (items.isEmpty) {
-      return RefreshIndicator(
-        onRefresh: _load,
-        child: EmptyView(
-          icon: filtered ? Icons.search_off : Icons.bloodtype_outlined,
-          message: filtered ? l.noResults : l.reqBloodEmpty,
-          action: filtered
-              ? OutlinedButton.icon(
-                  onPressed: () {
-                    _clearSearch();
-                    setState(() => _bloodType = null);
-                  },
-                  icon: const Icon(Icons.filter_alt_off_outlined),
-                  label: Text(l.clearFilters),
-                )
-              : FilledButton.tonalIcon(
-                  onPressed: _openCreateBlood,
-                  icon: const Icon(Icons.bloodtype_outlined),
-                  label: Text(l.reqAddBlood),
-                ),
-        ),
-      );
-    }
-    return RefreshIndicator(
-      onRefresh: _load,
-      child: ListView.builder(
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.only(top: 4, bottom: 80),
-        itemCount: items.length,
-        itemBuilder: (context, i) {
-          final request = items[i];
-          return RequestCard(
-            request: request,
-            onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => RequestDetailsScreen(requestId: request.id),
-                ),
+  Widget _buildBody(AppLocalizations l) {
+    return ListenableBuilder(
+      listenable: _paged,
+      builder: (context, _) {
+        if (_paged.loading) return LoadingView(message: l.loading);
+        final error = _paged.error;
+        if (error != null) {
+          return ErrorView(
+            message: dataErrorMessage(context, error),
+            onRetry: _load,
+          );
+        }
+        final items = _items;
+        final filtered = _query.isNotEmpty || _bloodType != null;
+        if (items.isEmpty) {
+          return RefreshIndicator(
+            onRefresh: _load,
+            child: EmptyView(
+              icon: filtered ? Icons.search_off : Icons.bloodtype_outlined,
+              message: filtered ? l.noResults : l.reqBloodEmpty,
+              action: filtered
+                  ? OutlinedButton.icon(
+                      onPressed: () {
+                        _clearSearch();
+                        setState(() => _bloodType = null);
+                      },
+                      icon: const Icon(Icons.filter_alt_off_outlined),
+                      label: Text(l.clearFilters),
+                    )
+                  : FilledButton.tonalIcon(
+                      onPressed: _openCreateBlood,
+                      icon: const Icon(Icons.bloodtype_outlined),
+                      label: Text(l.reqAddBlood),
+                    ),
+            ),
+          );
+        }
+        return RefreshIndicator(
+          onRefresh: _load,
+          child: ListView.builder(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.only(top: 4, bottom: 80),
+            itemCount: items.length + (_paged.hasMore ? 1 : 0),
+            itemBuilder: (context, i) {
+              if (i >= items.length) {
+                return LoadMoreFooter(
+                  loading: _paged.loadingMore,
+                  onLoadMore: _loadMore,
+                );
+              }
+              final request = items[i];
+              return RequestCard(
+                request: request,
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          RequestDetailsScreen(requestId: request.id),
+                    ),
+                  );
+                },
               );
             },
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }

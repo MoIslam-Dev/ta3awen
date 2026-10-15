@@ -901,6 +901,35 @@ class AppLocalizationsFr extends AppLocalizations {
   String get userDisabledToast => 'Compte désactivé';
 
   @override
+  String get adminBadge => 'Admin';
+
+  @override
+  String get adminGrant => 'Nommer admin';
+
+  @override
+  String get adminRevoke => 'Retirer admin';
+
+  @override
+  String get adminGranted => 'Droits d\'administration accordés';
+
+  @override
+  String get adminRevoked => 'Droits d\'administration retirés';
+
+  @override
+  String get deleteUserData => 'Supprimer toutes les données utilisateur';
+
+  @override
+  String get deleteUserDataTitle => 'Supprimer toutes les données utilisateur ?';
+
+  @override
+  String deleteUserDataBody(String name) {
+    return 'Supprime définitivement les annonces, publications, signalements et le profil de $name. Le compte de connexion doit être supprimé séparément depuis la console Firebase.';
+  }
+
+  @override
+  String get userDataDeleted => 'Données utilisateur supprimées';
+
+  @override
   String get noRequests => 'Aucune demande';
 
   @override

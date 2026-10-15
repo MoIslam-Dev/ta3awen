@@ -406,6 +406,22 @@
   "enableAction": "Enable",
   "userEnabledToast": "Account enabled",
   "userDisabledToast": "Account disabled",
+  "adminBadge": "Admin",
+  "adminGrant": "Make admin",
+  "adminRevoke": "Remove admin",
+  "adminGranted": "Admin rights granted",
+  "adminRevoked": "Admin rights removed",
+  "deleteUserData": "Delete all user data",
+  "deleteUserDataTitle": "Delete all user data?",
+  "deleteUserDataBody": "Permanently deletes {name}'s listings, posts, reports and profile. The sign-in account must be removed separately from the Firebase console.",
+  "@deleteUserDataBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "userDataDeleted": "User data deleted",
   "noRequests": "No requests",
   "reqKindGeneralLabel": "General",
   "reqKindOptionGeneral": "General request",
