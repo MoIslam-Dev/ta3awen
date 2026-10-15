@@ -15,26 +15,46 @@ class Base64Image extends StatelessWidget {
     this.borderRadius,
   });
 
+  /// Soft branded placeholder shown when a listing has no photo (or the
+  /// photo fails to decode) — far friendlier than a bare grey block.
+  Widget _placeholder(BuildContext context, IconData icon) {
+    final scheme = Theme.of(context).colorScheme;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            scheme.primaryContainer.withValues(alpha: 0.55),
+            scheme.surfaceContainerHighest,
+          ],
+        ),
+      ),
+      child: Center(
+        child: Icon(
+          icon,
+          size: 34,
+          color: scheme.primary.withValues(alpha: 0.7),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     Widget child;
     if (data == null || data!.isEmpty) {
-      child = Container(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        child: const Center(
-          child: Icon(Icons.image_not_supported_outlined, size: 40),
-        ),
-      );
+      child = _placeholder(context, Icons.image_outlined);
     } else {
       child = Image.memory(
         B64Cache.get(data!),
         width: width,
         height: height,
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => Container(
-          color: Theme.of(context).colorScheme.surfaceContainerHighest,
-          child: const Center(child: Icon(Icons.broken_image_outlined)),
-        ),
+        gaplessPlayback: true,
+        filterQuality: FilterQuality.medium,
+        errorBuilder: (_, __, ___) =>
+            _placeholder(context, Icons.broken_image_outlined),
       );
     }
     if (borderRadius != null) {

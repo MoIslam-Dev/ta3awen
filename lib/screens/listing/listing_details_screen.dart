@@ -335,11 +335,52 @@ class _ListingDetailsScreenState extends State<ListingDetailsScreen> {
             if (_images.isNotEmpty) ...[
               SizedBox(
                 height: 280,
-                child: PageView.builder(
-                  itemCount: _images.length,
-                  onPageChanged: (i) => setState(() => _imageIndex = i),
-                  itemBuilder: (context, i) =>
-                      Base64Image(data: _images[i]),
+                child: Stack(
+                  children: [
+                    PageView.builder(
+                      itemCount: _images.length,
+                      onPageChanged: (i) => setState(() => _imageIndex = i),
+                      itemBuilder: (context, i) =>
+                          Base64Image(data: _images[i]),
+                    ),
+                    // Soft scrim so the pager feels grounded against the sheet.
+                    Positioned.fill(
+                      child: IgnorePointer(
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.center,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.transparent,
+                                Colors.black.withValues(alpha: 0.18),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    if (_images.length > 1)
+                      PositionedDirectional(
+                        top: 12,
+                        end: 12,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: 0.55),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            '${_imageIndex + 1} / ${_images.length}',
+                            style: theme.textTheme.labelMedium?.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ),
               if (_images.length > 1)
@@ -365,14 +406,10 @@ class _ListingDetailsScreenState extends State<ListingDetailsScreen> {
                   ),
                 ),
             ] else
-              Container(
+              const SizedBox(
                 height: 220,
-                color: theme.colorScheme.surfaceContainerHighest,
-                child: Icon(
-                  Icons.image_outlined,
-                  size: 64,
-                  color: theme.colorScheme.outline,
-                ),
+                width: double.infinity,
+                child: Base64Image(data: null),
               ),
             Padding(
               padding: const EdgeInsets.all(16),

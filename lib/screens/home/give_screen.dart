@@ -10,6 +10,7 @@ import '../../utils/constants.dart';
 import '../../utils/errors.dart';
 import '../../utils/labels.dart';
 import '../../widgets/listing_card.dart';
+import '../../widgets/skeletons.dart';
 import '../../widgets/state_views.dart';
 import '../listing/listing_details_screen.dart';
 
@@ -303,7 +304,7 @@ class _GiveScreenState extends State<GiveScreen>
 
   Widget _buildBody() {
     final l = context.l10n;
-    if (_loading) return LoadingView(message: l.loadingFeed);
+    if (_loading) return const SkeletonList(kind: SkeletonKind.listing);
     if (_error != null) {
       return ErrorView(message: _error!, onRetry: _load);
     }
@@ -337,20 +338,9 @@ class _GiveScreenState extends State<GiveScreen>
         itemCount: items.length + (_hasMore ? 1 : 0),
         itemBuilder: (context, i) {
           if (i >= items.length) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              child: Center(
-                child: _loadingMore
-                    ? const SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : OutlinedButton(
-                        onPressed: _loadMore,
-                        child: Text(l.loadMore),
-                      ),
-              ),
+            return LoadMoreFooter(
+              loading: _loadingMore,
+              onLoadMore: _loadMore,
             );
           }
           final listing = items[i];

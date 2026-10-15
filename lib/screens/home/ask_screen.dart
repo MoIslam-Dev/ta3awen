@@ -9,6 +9,7 @@ import '../../utils/errors.dart';
 import '../../utils/request_filters.dart';
 import '../../widgets/location_filter_chips.dart';
 import '../../widgets/request_card.dart';
+import '../../widgets/skeletons.dart';
 import '../../widgets/state_views.dart';
 import '../requests/request_details_screen.dart';
 
@@ -211,7 +212,9 @@ class _AskScreenState extends State<AskScreen>
     return ListenableBuilder(
       listenable: _paged,
       builder: (context, _) {
-        if (_paged.loading) return LoadingView(message: l.loading);
+        if (_paged.loading) {
+          return const SkeletonList(kind: SkeletonKind.request);
+        }
         final error = _paged.error;
         if (error != null) {
           return ErrorView(

@@ -9,6 +9,7 @@ import '../../utils/constants.dart';
 import '../../utils/errors.dart';
 import '../../utils/request_filters.dart';
 import '../../widgets/request_card.dart';
+import '../../widgets/skeletons.dart';
 import '../../widgets/state_views.dart';
 import '../requests/request_details_screen.dart';
 import '../requests/request_form_screen.dart';
@@ -191,7 +192,9 @@ class _BloodScreenState extends State<BloodScreen>
     return ListenableBuilder(
       listenable: _paged,
       builder: (context, _) {
-        if (_paged.loading) return LoadingView(message: l.loading);
+        if (_paged.loading) {
+          return const SkeletonList(kind: SkeletonKind.request);
+        }
         final error = _paged.error;
         if (error != null) {
           return ErrorView(

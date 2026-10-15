@@ -69,9 +69,42 @@ class ListingCard extends StatelessWidget {
                 SizedBox(
                   width: 116,
                   height: 116,
-                  child: Base64Image(
-                    data: listing.image0,
-                    borderRadius: BorderRadius.circular(0),
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      Base64Image(data: listing.image0),
+                      if (listing.imageCount > 1)
+                        PositionedDirectional(
+                          end: 6,
+                          bottom: 6,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withValues(alpha: 0.55),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  Icons.photo_library_outlined,
+                                  size: 11,
+                                  color: Colors.white,
+                                ),
+                                const SizedBox(width: 3),
+                                Text(
+                                  '${listing.imageCount}',
+                                  style: theme.textTheme.labelSmall?.copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
                 Expanded(

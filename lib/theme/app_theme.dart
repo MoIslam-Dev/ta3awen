@@ -54,6 +54,15 @@ class AppTheme {
       scaffoldBackgroundColor: scheme.surface,
       textTheme: textTheme,
       splashFactory: InkSparkle.splashFactory,
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: FadeForwardsPageTransitionsBuilder(),
+          TargetPlatform.linux: FadeForwardsPageTransitionsBuilder(),
+          TargetPlatform.windows: FadeForwardsPageTransitionsBuilder(),
+          TargetPlatform.macOS: FadeForwardsPageTransitionsBuilder(),
+          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+        },
+      ),
       appBarTheme: AppBarTheme(
         elevation: 0,
         scrolledUnderElevation: 0,
@@ -140,6 +149,14 @@ class AppTheme {
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.md),
           borderSide: BorderSide(color: scheme.error, width: 1.6),
+        ),
+      ),
+      segmentedButtonTheme: SegmentedButtonThemeData(
+        style: ButtonStyle(
+          visualDensity: VisualDensity.compact,
+          textStyle: const WidgetStatePropertyAll(
+            TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600),
+          ),
         ),
       ),
       chipTheme: ChipThemeData(

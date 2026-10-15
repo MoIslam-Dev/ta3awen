@@ -7,6 +7,7 @@ import '../../services/listing_service.dart';
 import '../../state/paged_list.dart';
 import '../../utils/errors.dart';
 import '../../widgets/listing_card.dart';
+import '../../widgets/skeletons.dart';
 import '../../widgets/state_views.dart';
 import '../listing/listing_details_screen.dart';
 import '../listing/listing_form_screen.dart';
@@ -303,7 +304,9 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
     return ListenableBuilder(
       listenable: paged,
       builder: (context, _) {
-        if (paged.loading) return LoadingView(message: l.loading);
+        if (paged.loading) {
+          return const SkeletonList(kind: SkeletonKind.listing);
+        }
         final error = paged.error;
         if (error != null) {
           return ErrorView(

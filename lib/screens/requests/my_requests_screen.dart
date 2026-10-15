@@ -6,6 +6,7 @@ import '../../services/request_service.dart';
 import '../../state/paged_list.dart';
 import '../../utils/errors.dart';
 import '../../widgets/request_card.dart';
+import '../../widgets/skeletons.dart';
 import '../../widgets/state_views.dart';
 import 'request_details_screen.dart';
 import 'request_form_screen.dart';
@@ -76,7 +77,9 @@ class _MyRequestsScreenState extends State<MyRequestsScreen> {
         listenable: _paged!,
         builder: (context, _) {
           final paged = _paged!;
-          if (paged.loading) return LoadingView(message: l.loading);
+          if (paged.loading) {
+            return const SkeletonList(kind: SkeletonKind.request);
+          }
           final error = paged.error;
           if (error != null) {
             return ErrorView(
