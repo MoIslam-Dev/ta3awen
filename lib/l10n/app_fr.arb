@@ -413,7 +413,7 @@
   "adminRevoked": "Droits d'administration retirés",
   "deleteUserData": "Supprimer toutes les données utilisateur",
   "deleteUserDataTitle": "Supprimer toutes les données utilisateur ?",
-  "deleteUserDataBody": "Supprime définitivement les annonces, publications, signalements et le profil de {name}. Le compte de connexion doit être supprimé séparément depuis la console Firebase.",
+  "deleteUserDataBody": "Supprime définitivement les annonces, publications, signalements et le profil de {name}. Le compte de connexion doit être supprimé séparément depuis la console Supabase.",
   "@deleteUserDataBody": {
     "placeholders": {
       "name": {

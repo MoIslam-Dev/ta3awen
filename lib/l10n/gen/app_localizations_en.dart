@@ -923,7 +923,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deleteUserDataBody(String name) {
-    return 'Permanently deletes $name\'s listings, posts, reports and profile. The sign-in account must be removed separately from the Firebase console.';
+    return 'Permanently deletes $name\'s listings, posts, reports and profile. The sign-in account must be removed separately from the Supabase dashboard.';
   }
 
   @override

@@ -5,7 +5,7 @@ import '../models/request_post.dart';
 
 /// Maps stored (Arabic) data values to localized display labels.
 ///
-/// The stored values in Firestore never change with the UI language —
+/// The stored values in the database never change with the UI language —
 /// only their presentation is localized.
 
 String categoryLabel(BuildContext context, String storage) {

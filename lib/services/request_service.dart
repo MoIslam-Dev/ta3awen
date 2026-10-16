@@ -12,11 +12,12 @@ class RequestService {
   SupabaseClient get _db => supabase;
 
   /// Open posts, newest first — optionally narrowed by [kind]
-  /// (general/blood) and/or [type] (need/offer).
-  dynamic _boardQuery({String? type, String? kind}) {
+  /// (general/blood), [type] (need/offer) and/or [category].
+  dynamic _boardQuery({String? type, String? kind, String? category}) {
     dynamic q = _db.from('requests').select().eq('status', requestStatusOpen);
     if (kind != null) q = q.eq('kind', kind);
     if (type != null) q = q.eq('type', type);
+    if (category != null) q = q.eq('category', category);
     return q.order('created_at', ascending: false);
   }
 
@@ -35,10 +36,12 @@ class RequestService {
   Stream<QueryPage<RequestPost>> boardHead({
     String? type,
     String? kind,
+    String? category,
     int limit = kPageSize,
   }) {
     return realtimeRefetch('requests', () async {
-      final data = await _boardQuery(type: type, kind: kind).range(0, limit - 1);
+      final data = await _boardQuery(type: type, kind: kind, category: category)
+          .range(0, limit - 1);
       return _page(_rows(data), 0, limit);
     });
   }
@@ -47,11 +50,12 @@ class RequestService {
   Future<QueryPage<RequestPost>> boardMore({
     String? type,
     String? kind,
+    String? category,
     required Object? cursor,
     int limit = kPageSize,
   }) async {
     final offset = (cursor as int?) ?? 0;
-    final data = await _boardQuery(type: type, kind: kind)
+    final data = await _boardQuery(type: type, kind: kind, category: category)
         .range(offset, offset + limit - 1);
     return _page(_rows(data), offset, limit);
   }

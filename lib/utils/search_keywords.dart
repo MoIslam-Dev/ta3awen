@@ -1,14 +1,13 @@
 /// Full-text search helpers.
 ///
-/// Firestore cannot do substring/LIKE searches, so every listing stores a
-/// `keywords` array holding each word of its text plus every prefix of each
-/// word (min length 1, capped at [kMaxSearchTokenLength]). The feed queries
-/// with `arrayContainsAny` on the raw query words and then AND-filters on the
-/// client with [keywordsMatch].
+/// Search runs in Postgres against a normalized `search_text` column (trigram
+/// `ILIKE`, see `supabase/migrations/0006`). The client only needs
+/// [normalizeSearchText]/[searchTokens] to normalize the query exactly like the
+/// database's `normalize_ar()` does, so 'أَلْبِاب' and 'الباب' both search as
+/// 'الباب'.
 ///
-/// Normalization is applied identically to indexed text and queries:
-/// lowercase, tashkeel stripped, alef/hamza/teh-marbuta unified — so
-/// 'أَلْبِاب' and 'الباب' both become 'الباب'.
+/// [buildKeywords]/[keywordsMatch] are the legacy prefix-index helpers, kept
+/// for their unit tests.
 const int kMaxSearchTokenLength = 16;
 const int kMaxQueryTokens = 30;
 

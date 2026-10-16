@@ -10,7 +10,7 @@ typedef HeadBuilder<T> = Stream<QueryPage<T>> Function(int limit);
 /// Fetches the next page after an opaque [cursor] (see [QueryPage.cursor]).
 typedef MoreBuilder<T> = Future<QueryPage<T>> Function(Object? cursor, int limit);
 
-/// Drives a paginated Firestore list with a live first page.
+/// Drives a paginated Supabase list with a live first page.
 ///
 /// * The **head** (newest [pageSize] items) stays subscribed so new/updated
 ///   documents appear without a manual refresh.
@@ -19,7 +19,7 @@ typedef MoreBuilder<T> = Future<QueryPage<T>> Function(Object? cursor, int limit
 ///   permanent listener over the whole collection.
 ///
 /// This keeps read usage proportional to what the user actually looks at —
-/// important on the Firestore free tier.
+/// important to keep the read budget healthy.
 class PagedList<T> extends ChangeNotifier {
   PagedList({
     required this.headBuilder,

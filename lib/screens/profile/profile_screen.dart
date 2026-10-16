@@ -336,10 +336,20 @@ class _ProfileScreenState extends State<ProfileScreen>
           ),
           const SizedBox(height: 16),
 
-          // Settings: language + theme
+          // Settings: account edit, language + theme
           Card(
             child: Column(
               children: [
+                ListTile(
+                  leading: Icon(
+                    Icons.manage_accounts_outlined,
+                    color: theme.colorScheme.primary,
+                  ),
+                  title: Text(l.editProfileTitle),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => user != null ? _editProfile(user) : _load(),
+                ),
+                const Divider(indent: 16, endIndent: 16),
                 ListTile(
                   leading: Icon(
                     Icons.translate_outlined,

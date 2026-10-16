@@ -923,7 +923,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String deleteUserDataBody(String name) {
-    return 'Supprime définitivement les annonces, publications, signalements et le profil de $name. Le compte de connexion doit être supprimé séparément depuis la console Firebase.';
+    return 'Supprime définitivement les annonces, publications, signalements et le profil de $name. Le compte de connexion doit être supprimé séparément depuis la console Supabase.';
   }
 
   @override

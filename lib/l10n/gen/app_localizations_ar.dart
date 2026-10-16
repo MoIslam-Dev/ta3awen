@@ -923,7 +923,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String deleteUserDataBody(String name) {
-    return 'سيتم حذف إعلانات $name ومنشوراته وبلاغاته وملفه الشخصي نهائيًا. يجب حذف حساب الدخول بشكل منفصل من لوحة Firebase.';
+    return 'سيتم حذف إعلانات $name ومنشوراته وبلاغاته وملفه الشخصي نهائيًا. يجب حذف حساب الدخول بشكل منفصل من لوحة Supabase.';
   }
 
   @override

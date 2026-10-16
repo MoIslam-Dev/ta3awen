@@ -1870,7 +1870,7 @@ abstract class AppLocalizations {
   /// No description provided for @deleteUserDataBody.
   ///
   /// In ar, this message translates to:
-  /// **'سيتم حذف إعلانات {name} ومنشوراته وبلاغاته وملفه الشخصي نهائيًا. يجب حذف حساب الدخول بشكل منفصل من لوحة Firebase.'**
+  /// **'سيتم حذف إعلانات {name} ومنشوراته وبلاغاته وملفه الشخصي نهائيًا. يجب حذف حساب الدخول بشكل منفصل من لوحة Supabase.'**
   String deleteUserDataBody(String name);
 
   /// No description provided for @userDataDeleted.

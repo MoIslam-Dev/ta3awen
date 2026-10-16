@@ -11,8 +11,8 @@ class AuthService {
   User? get currentUser => _auth.currentUser;
   Stream<AuthState> get authChanges => _auth.onAuthStateChange;
 
-  /// Current user id, or null when signed out. Handy for screens that used to
-  /// read `FirebaseAuth.instance.currentUser?.uid`.
+  /// Current user id, or null when signed out. Handy for screens that only
+  /// need the id.
   static String? get uid => supabase.auth.currentUser?.id;
 
   Future<void> _ensureGoogleReady() async {

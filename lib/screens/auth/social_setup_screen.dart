@@ -62,7 +62,7 @@ class _SocialSetupScreenState extends State<SocialSetupScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(authErrorMessage(context, e))),
+          SnackBar(content: Text(dataErrorMessage(context, e))),
         );
       }
     } finally {

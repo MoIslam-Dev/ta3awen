@@ -5,7 +5,7 @@ import '../models/request_post.dart';
 /// The rules that decide which posts are shown are centralized here so they
 /// can be unit-tested and shared by the UI. Filtering runs in memory over an
 /// already-open snapshot (`status == open` for the board), so no extra
-/// Firestore indexes are required.
+/// database indexes are required.
 ///
 /// General/need/offer views never mix blood posts and the blood board never
 /// mixes general posts ([bloodSeparation]). When browsing one's own requests

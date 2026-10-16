@@ -5,7 +5,9 @@ import '../../models/request_post.dart';
 import '../../services/auth_service.dart';
 import '../../services/request_service.dart';
 import '../../state/paged_list.dart';
+import '../../utils/constants.dart';
 import '../../utils/errors.dart';
+import '../../utils/labels.dart';
 import '../../utils/request_filters.dart';
 import '../../widgets/location_filter_chips.dart';
 import '../../widgets/request_card.dart';
@@ -33,11 +35,13 @@ class _AskScreenState extends State<AskScreen>
     headBuilder: (limit) => _service.boardHead(
       kind: requestKindGeneral,
       type: _type == _all ? null : _type,
+      category: _category,
       limit: limit,
     ),
     moreBuilder: (cursor, limit) => _service.boardMore(
       kind: requestKindGeneral,
       type: _type == _all ? null : _type,
+      category: _category,
       cursor: cursor,
       limit: limit,
     ),
@@ -45,6 +49,7 @@ class _AskScreenState extends State<AskScreen>
   );
 
   String _type = _all;
+  String? _category;
   String? _wilaya;
   String? _commune;
   String _query = '';
@@ -88,10 +93,14 @@ class _AskScreenState extends State<AskScreen>
   }
 
   bool get _hasFilters =>
-      _query.isNotEmpty || _wilaya != null || _commune != null;
+      _query.isNotEmpty ||
+      _category != null ||
+      _wilaya != null ||
+      _commune != null;
 
   void _clearFilters() {
     setState(() {
+      _category = null;
       _wilaya = null;
       _commune = null;
       _query = '';
@@ -118,6 +127,51 @@ class _AskScreenState extends State<AskScreen>
   void _selectType(String type) {
     if (_type == type) return;
     setState(() => _type = type);
+    _paged.start();
+  }
+
+  Widget _sheetOption(
+    BuildContext ctx, {
+    required String title,
+    required bool selected,
+    required VoidCallback onTap,
+  }) {
+    return ListTile(
+      leading: const Icon(Icons.category_outlined),
+      title: Text(title),
+      selected: selected,
+      trailing: selected
+          ? Icon(Icons.check_circle, color: Theme.of(ctx).colorScheme.primary)
+          : null,
+      onTap: onTap,
+    );
+  }
+
+  Future<void> _pickCategory() async {
+    final l = context.l10n;
+    final selected = await showModalBottomSheet<String?>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: ListView(
+          shrinkWrap: true,
+          padding: const EdgeInsets.only(bottom: 12),
+          children: [
+            _sheetOption(ctx,
+                title: l.allCategories,
+                selected: false,
+                onTap: () => Navigator.pop(ctx, '__all__')),
+            ...kCategories.map(
+              (c) => _sheetOption(ctx,
+                  title: categoryLabel(ctx, c),
+                  selected: _category == c,
+                  onTap: () => Navigator.pop(ctx, c)),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (selected == null) return;
+    setState(() => _category = selected == '__all__' ? null : selected);
     _paged.start();
   }
 
@@ -182,24 +236,38 @@ class _AskScreenState extends State<AskScreen>
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             children: [
-              Padding(
-                padding: const EdgeInsetsDirectional.only(end: 8),
-                child: LocationFilterChips(
-                  wilaya: _wilaya,
-                  commune: _commune,
-                  onWilayaChanged: (w) => setState(() {
-                    _wilaya = w;
-                    _commune = null;
-                  }),
-                  onCommuneChanged: (c) => setState(() => _commune = c),
+              FilterChip(
+                label: Text(_category != null
+                    ? categoryLabel(context, _category!)
+                    : l.filterCategory),
+                selected: _category != null,
+                avatar: Icon(
+                  Icons.category_outlined,
+                  size: 18,
+                  color: _category != null
+                      ? Theme.of(context).colorScheme.primary
+                      : Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
+                onSelected: (_) => _pickCategory(),
               ),
-              if (_hasFilters)
+              const SizedBox(width: 8),
+              LocationFilterChips(
+                wilaya: _wilaya,
+                commune: _commune,
+                onWilayaChanged: (w) => setState(() {
+                  _wilaya = w;
+                  _commune = null;
+                }),
+                onCommuneChanged: (c) => setState(() => _commune = c),
+              ),
+              if (_hasFilters) ...[
+                const SizedBox(width: 8),
                 ActionChip(
                   avatar: const Icon(Icons.filter_alt_off_outlined, size: 18),
                   label: Text(l.clearFilters),
                   onPressed: _clearFilters,
                 ),
+              ],
             ],
           ),
         ),

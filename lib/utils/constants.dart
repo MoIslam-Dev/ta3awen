@@ -1,5 +1,5 @@
-/// Default page size for every paginated Firestore read. Small enough to
-/// keep the free-plan read budget healthy, large enough to fill a screen.
+/// Default page size for every paginated database read. Small enough to
+/// keep the read budget healthy, large enough to fill a screen.
 const int kPageSize = 20;
 
 const List<String> kCategories = [

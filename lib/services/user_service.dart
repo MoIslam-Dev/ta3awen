@@ -16,7 +16,19 @@ class UserService {
       wilaya: wilaya,
       commune: commune,
     );
-    await supabase.from('profiles').upsert(user.toMap());
+    // 1) INSERT ... ON CONFLICT DO NOTHING: never needs the (deliberately
+    //    restricted) UPDATE privilege, and covers the case where the DB trigger
+    //    has not seeded the row yet.
+    await supabase
+        .from('profiles')
+        .upsert(user.toMap(), ignoreDuplicates: true);
+    // 2) Apply the user-entered fields. Only the four editable columns are
+    //    writable by an authenticated user (`email`/`id` are server-owned).
+    await supabase.from('profiles').update({
+      'full_name': fullName,
+      'wilaya': wilaya,
+      'commune': commune,
+    }).eq('id', uid);
   }
 
   Future<AppUser?> getById(String uid) async {

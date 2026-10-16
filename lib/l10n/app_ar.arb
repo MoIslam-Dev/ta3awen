@@ -413,7 +413,7 @@
   "adminRevoked": "تم سحب صلاحية الإشراف",
   "deleteUserData": "حذف كل بيانات المستخدم",
   "deleteUserDataTitle": "حذف كل بيانات المستخدم؟",
-  "deleteUserDataBody": "سيتم حذف إعلانات {name} ومنشوراته وبلاغاته وملفه الشخصي نهائيًا. يجب حذف حساب الدخول بشكل منفصل من لوحة Firebase.",
+  "deleteUserDataBody": "سيتم حذف إعلانات {name} ومنشوراته وبلاغاته وملفه الشخصي نهائيًا. يجب حذف حساب الدخول بشكل منفصل من لوحة Supabase.",
   "@deleteUserDataBody": {
     "placeholders": {
       "name": {
