@@ -1,8 +1,8 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../../l10n/ext.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../../models/request_post.dart';
+import '../../services/auth_service.dart';
 import '../../services/request_service.dart';
 import '../../state/paged_list.dart';
 import '../../utils/constants.dart';
@@ -50,7 +50,7 @@ class _BloodScreenState extends State<BloodScreen>
   @override
   void initState() {
     super.initState();
-    if (FirebaseAuth.instance.currentUser == null) {
+    if (AuthService.uid == null) {
       _loginError = true;
     } else {
       _paged.start();

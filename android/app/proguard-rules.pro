@@ -6,8 +6,7 @@
 -keep class io.flutter.** { *; }
 -keep class io.flutter.plugins.** { *; }
 
-# Firebase
--keep class com.google.firebase.** { *; }
+# Google Play services (used by google_sign_in)
 -keep class com.google.android.gms.** { *; }
 
 # image_picker

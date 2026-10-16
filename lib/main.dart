@@ -1,8 +1,7 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
-import 'firebase_options.dart';
+import 'core/supabase.dart';
 import 'l10n/gen/app_localizations.dart';
 import 'screens/auth_gate.dart';
 import 'state/app_settings.dart';
@@ -10,7 +9,7 @@ import 'theme/app_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await initSupabase();
   // All date locales (ar/fr/en) so formatDate can follow the UI language.
   try {
     await initializeDateFormatting();

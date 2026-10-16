@@ -1,37 +1,35 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../core/supabase.dart';
 import '../models/request_post.dart';
 import '../utils/constants.dart';
-import '../utils/search_keywords.dart';
 import 'paging.dart';
 
 /// Board (requests) data access. Every read is paginated: a live head
 /// (newest page) plus one-shot older pages, so the app never streams a whole
-/// collection from Firestore.
+/// table.
 class RequestService {
-  final FirebaseFirestore _db = FirebaseFirestore.instance;
-
-  CollectionReference<Map<String, dynamic>> get _col =>
-      _db.collection('requests');
+  SupabaseClient get _db => supabase;
 
   /// Open posts, newest first — optionally narrowed by [kind]
-  /// (general/blood) and/or [type] (need/offer). Ordered by `createdAt`,
-  /// which needs the composite indexes declared in firestore.indexes.json.
-  Query<Map<String, dynamic>> _boardQuery({String? type, String? kind}) {
-    Query<Map<String, dynamic>> q =
-        _col.where('status', isEqualTo: requestStatusOpen);
-    if (kind != null) q = q.where('kind', isEqualTo: kind);
-    if (type != null) q = q.where('type', isEqualTo: type);
-    return q.orderBy('createdAt', descending: true);
+  /// (general/blood) and/or [type] (need/offer).
+  dynamic _boardQuery({String? type, String? kind}) {
+    dynamic q = _db.from('requests').select().eq('status', requestStatusOpen);
+    if (kind != null) q = q.eq('kind', kind);
+    if (type != null) q = q.eq('type', type);
+    return q.order('created_at', ascending: false);
   }
 
-  QueryPage<RequestPost> _page(
-      List<QueryDocumentSnapshot<Map<String, dynamic>>> docs, int limit) {
-    return QueryPage(
-      items: docs.map(RequestPost.fromDoc).toList(),
-      cursor: docs.length >= limit ? docs.last : null,
-      hasMore: docs.length >= limit,
-    );
-  }
+  List<RequestPost> _rows(Object? data) => (data as List)
+      .map((e) => RequestPost.fromRow(Map<String, dynamic>.from(e as Map)))
+      .toList();
+
+  QueryPage<RequestPost> _page(List<RequestPost> raw, int offset, int limit) =>
+      QueryPage(
+        items: raw,
+        cursor: offset + raw.length,
+        hasMore: raw.length >= limit,
+      );
 
   /// Live first page of the open board.
   Stream<QueryPage<RequestPost>> boardHead({
@@ -39,10 +37,10 @@ class RequestService {
     String? kind,
     int limit = kPageSize,
   }) {
-    return _boardQuery(type: type, kind: kind)
-        .limit(limit)
-        .snapshots()
-        .map((snap) => _page(snap.docs, limit));
+    return realtimeRefetch('requests', () async {
+      final data = await _boardQuery(type: type, kind: kind).range(0, limit - 1);
+      return _page(_rows(data), 0, limit);
+    });
   }
 
   /// One-shot older page of the open board.
@@ -52,19 +50,25 @@ class RequestService {
     required Object? cursor,
     int limit = kPageSize,
   }) async {
-    final snap = await _boardQuery(type: type, kind: kind)
-        .startAfterDocument(cursor as DocumentSnapshot<Map<String, dynamic>>)
-        .limit(limit)
-        .get();
-    return _page(snap.docs, limit);
+    final offset = (cursor as int?) ?? 0;
+    final data = await _boardQuery(type: type, kind: kind)
+        .range(offset, offset + limit - 1);
+    return _page(_rows(data), offset, limit);
   }
 
-  Query<Map<String, dynamic>> _myQuery(String uid) =>
-      _col.where('uid', isEqualTo: uid).orderBy('createdAt', descending: true);
+  dynamic _myQuery(String uid) => _db
+      .from('requests')
+      .select()
+      .eq('uid', uid)
+      .order('created_at', ascending: false);
 
   /// Live first page of the current user's own posts (any status).
-  Stream<QueryPage<RequestPost>> myHead(String uid, {int limit = kPageSize}) =>
-      _myQuery(uid).limit(limit).snapshots().map((snap) => _page(snap.docs, limit));
+  Stream<QueryPage<RequestPost>> myHead(String uid, {int limit = kPageSize}) {
+    return realtimeRefetch('requests', () async {
+      final data = await _myQuery(uid).range(0, limit - 1);
+      return _page(_rows(data), 0, limit);
+    });
+  }
 
   /// One-shot older page of the current user's own posts.
   Future<QueryPage<RequestPost>> myMore(
@@ -72,86 +76,65 @@ class RequestService {
     Object? cursor, {
     int limit = kPageSize,
   }) async {
-    final snap = await _myQuery(uid)
-        .startAfterDocument(cursor as DocumentSnapshot<Map<String, dynamic>>)
-        .limit(limit)
-        .get();
-    return _page(snap.docs, limit);
+    final offset = (cursor as int?) ?? 0;
+    final data = await _myQuery(uid).range(offset, offset + limit - 1);
+    return _page(_rows(data), offset, limit);
   }
 
   Future<RequestPost?> byId(String id) async {
-    final doc = await _col.doc(id).get();
-    if (!doc.exists) return null;
-    return RequestPost.fromDoc(doc);
+    final row =
+        await _db.from('requests').select().eq('id', id).maybeSingle();
+    if (row == null) return null;
+    return RequestPost.fromRow(row);
   }
 
   Future<String> create(RequestPost post) async {
-    final doc = _col.doc();
-    // Create the post and bump the lifetime post counter in one batch
-    // (rules enforce stats/{uid}.postCount < 100 on every create).
-    final batch = _db.batch();
-    batch.set(doc, post.toMap());
-    batch.set(
-      _db.collection('stats').doc(post.uid),
-      {'postCount': FieldValue.increment(1)},
-      SetOptions(merge: true),
-    );
-    await batch.commit();
-    return doc.id;
+    final row = await _db
+        .from('requests')
+        .insert(post.toMap())
+        .select('id')
+        .single();
+    return row['id'] as String;
   }
 
   Future<void> update(RequestPost draft) async {
-    await _col.doc(draft.id).update({
+    await _db.from('requests').update({
       'title': draft.title,
       'description': draft.description,
       'category': draft.category,
       'wilaya': draft.wilaya,
       'commune': draft.commune,
-      'contactPhone': draft.contactPhone,
+      'contact_phone': draft.contactPhone,
       'kind': draft.kind,
-      'bloodType': draft.bloodType,
-      'keywords': buildKeywords(
-        title: draft.title,
-        description: draft.description,
-        category: draft.category,
-        wilaya: draft.wilaya,
-        commune: draft.commune,
-      ),
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
+      'blood_type': draft.bloodType,
+    }).eq('id', draft.id);
   }
 
   Future<void> setStatus(String id, String status) async {
-    await _col.doc(id).update({
-      'status': status,
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
+    await _db.from('requests').update({'status': status}).eq('id', id);
   }
 
   /// Another user answers an open post ("I can help" / "I want this").
   Future<void> match(String id, {required String uid, required String name}) {
-    return _col.doc(id).update({
+    return _db.from('requests').update({
       'status': requestStatusMatched,
-      'matchedBy': uid,
-      'matchedName': name,
-      'matchedAt': FieldValue.serverTimestamp(),
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
+      'matched_by': uid,
+      'matched_name': name,
+    }).eq('id', id);
   }
 
-  /// Matcher withdraws (back to open) — same write the owner uses to
-  /// release a match; the rules allow both roles.
+  /// Matcher withdraws (back to open) — same write the owner uses to release
+  /// a match; the trigger allows both roles.
   Future<void> unmatch(String id) {
-    return _col.doc(id).update({
+    return _db.from('requests').update({
       'status': requestStatusOpen,
-      'matchedBy': null,
-      'matchedName': null,
-      'matchedAt': null,
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
+      'matched_by': null,
+      'matched_name': null,
+      'matched_at': null,
+    }).eq('id', id);
   }
 
   Future<void> delete(String id) async {
-    await _col.doc(id).delete();
+    await _db.from('requests').delete().eq('id', id);
   }
 }

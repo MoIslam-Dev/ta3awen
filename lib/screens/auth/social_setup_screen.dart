@@ -1,5 +1,5 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../l10n/ext.dart';
 import '../../services/user_service.dart';
 import '../../theme/app_theme.dart';
@@ -21,8 +21,12 @@ class SocialSetupScreen extends StatefulWidget {
 
 class _SocialSetupScreenState extends State<SocialSetupScreen> {
   final _formKey = GlobalKey<FormState>();
-  late final TextEditingController _nameCtrl =
-      TextEditingController(text: widget.user.displayName ?? '');
+  late final TextEditingController _nameCtrl = TextEditingController(
+    text: (widget.user.userMetadata?['full_name'] ??
+            widget.user.userMetadata?['name'] ??
+            '')
+        as String,
+  );
   final _users = UserService();
   String? _wilaya;
   String? _commune;
@@ -40,7 +44,7 @@ class _SocialSetupScreenState extends State<SocialSetupScreen> {
     final l = context.l10n;
     try {
       await _users.createAppUser(
-        uid: widget.user.uid,
+        uid: widget.user.id,
         fullName: _nameCtrl.text.trim(),
         email: widget.user.email ?? '',
         wilaya: _wilaya!,

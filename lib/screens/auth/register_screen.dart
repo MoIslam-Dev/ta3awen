@@ -48,7 +48,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         password: _passwordCtrl.text,
       );
       await _users.createAppUser(
-        uid: cred.user!.uid,
+        uid: cred.user!.id,
         fullName: _nameCtrl.text.trim(),
         email: _emailCtrl.text.trim(),
         wilaya: _wilaya!,

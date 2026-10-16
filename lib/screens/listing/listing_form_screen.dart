@@ -1,7 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../../l10n/ext.dart';
 import '../../models/listing.dart';
+import '../../services/auth_service.dart';
 import '../../services/image_service.dart';
 import '../../services/listing_service.dart';
 import '../../services/user_service.dart';
@@ -158,7 +158,7 @@ class _ListingFormScreenState extends State<ListingFormScreen> {
           thumbB64: _newThumb,
         );
       } else {
-        final uid = FirebaseAuth.instance.currentUser!.uid;
+        final uid = AuthService.uid!;
         String ownerName = 'مستخدم';
         final user = await _userService.getById(uid);
         if (user != null && user.fullName.isNotEmpty) {

@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class AppUser {
   final String uid;
   final String fullName;
@@ -23,28 +21,33 @@ class AppUser {
     this.createdAt,
   });
 
-  factory AppUser.fromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
-    final d = doc.data() ?? <String, dynamic>{};
+  factory AppUser.fromRow(Map<String, dynamic> r) {
     return AppUser(
-      uid: doc.id,
-      fullName: (d['fullName'] ?? '') as String,
-      email: (d['email'] ?? '') as String,
-      wilaya: (d['wilaya'] ?? '') as String,
-      commune: (d['commune'] ?? '') as String,
-      contactPhone: d['contactPhone'] as String?,
-      disabled: (d['disabled'] ?? false) as bool,
-      disabledReason: d['disabledReason'] as String?,
-      createdAt: (d['createdAt'] as Timestamp?)?.toDate(),
+      uid: r['id'] as String,
+      fullName: (r['full_name'] ?? '') as String,
+      email: (r['email'] ?? '') as String,
+      wilaya: (r['wilaya'] ?? '') as String,
+      commune: (r['commune'] ?? '') as String,
+      contactPhone: r['contact_phone'] as String?,
+      disabled: (r['disabled'] ?? false) as bool,
+      disabledReason: r['disabled_reason'] as String?,
+      createdAt: _dt(r['created_at']),
     );
   }
 
+  /// Profile insert payload (`public.profiles`). `disabled`/`post_count` are
+  /// server-owned and intentionally absent.
   Map<String, dynamic> toMap() => {
-        'fullName': fullName,
+        'id': uid,
+        'full_name': fullName,
         'email': email,
         'wilaya': wilaya,
         'commune': commune,
-        'contactPhone': contactPhone,
-        'disabled': disabled,
-        'createdAt': FieldValue.serverTimestamp(),
       };
+}
+
+DateTime? _dt(Object? v) {
+  if (v == null) return null;
+  if (v is DateTime) return v.toLocal();
+  return DateTime.tryParse(v.toString())?.toLocal();
 }

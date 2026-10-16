@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../data/algeria_data.dart';
 import '../../l10n/ext.dart';
 import '../../models/listing.dart';
@@ -44,7 +43,7 @@ class _GiveScreenState extends State<GiveScreen>
   String _query = '';
   String _rawQuery = '';
   FeedQuery _feedQuery = const FeedQuery();
-  DocumentSnapshot<Map<String, dynamic>>? _cursor;
+  Object? _cursor;
   bool _hasMore = false;
   bool _loadingMore = false;
   StreamSubscription<FeedPage>? _sub;

@@ -1,13 +1,18 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:convert';
+import 'dart:typed_data';
+
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../core/supabase.dart';
 import '../models/listing.dart';
 import '../utils/constants.dart';
 import '../utils/search_keywords.dart';
 import 'paging.dart';
 
 /// Server-side feed query: status is always filtered to available listings;
-/// the optional facets and the search text become Firestore equality /
-/// `arrayContainsAny` clauses so the database — not the client window —
-/// decides which listings match.
+/// the optional facets and the search text become SQL equality / full-text
+/// (trigram `ILIKE`) clauses so the database — not the client window — decides
+/// which listings match.
 class FeedQuery {
   const FeedQuery({
     this.search,
@@ -21,12 +26,9 @@ class FeedQuery {
   final String? category;
   final String? wilaya;
   final String? commune;
-
-  /// Donation vs exchange. Applied client-side (like [search]) to avoid a
-  /// dedicated composite index; the feed window is already paged.
   final String? kind;
 
-  /// Query words sent to `arrayContainsAny` (max 30 values per Firestore).
+  /// Normalized query tokens (same normalization as the stored `search_text`).
   List<String> get searchWords {
     final s = search ?? '';
     if (s.trim().isEmpty) return const [];
@@ -36,9 +38,9 @@ class FeedQuery {
 
 /// One page of feed results.
 ///
-/// [items] is AND-filtered for display; [rawIds] and [boundary] describe the
-/// raw server window (the oldest raw document's `createdAt`) so the screen
-/// can merge live head events without dropping or duplicating items.
+/// [items] is the page; [rawIds] and [boundary] describe the raw server window
+/// (the oldest item's `createdAt`) so the screen can merge live head events
+/// without dropping or duplicating items.
 class FeedPage {
   const FeedPage({
     required this.items,
@@ -51,95 +53,87 @@ class FeedPage {
   final List<Listing> items;
   final Set<String> rawIds;
   final DateTime? boundary;
-  final DocumentSnapshot<Map<String, dynamic>>? cursor;
+  final Object? cursor;
   final bool hasMore;
 }
 
 class ListingService {
-  final FirebaseFirestore _db = FirebaseFirestore.instance;
+  SupabaseClient get _db => supabase;
 
-  CollectionReference<Map<String, dynamic>> get _col =>
-      _db.collection('listings');
-
-  Query<Map<String, dynamic>> _feedQuery(FeedQuery f) {
-    Query<Map<String, dynamic>> q =
-        _col.where('status', isEqualTo: statusAvailable);
-    if (f.category != null) q = q.where('category', isEqualTo: f.category);
-    if (f.wilaya != null) q = q.where('wilaya', isEqualTo: f.wilaya);
-    if (f.commune != null) q = q.where('commune', isEqualTo: f.commune);
+  /// Builds the ordered, filtered feed query (untyped builder on purpose: the
+  /// chain mixes generic builder types).
+  dynamic _feedQuery(FeedQuery f) {
+    dynamic q = _db.from('listings').select().eq('status', statusAvailable);
+    if (f.category != null) q = q.eq('category', f.category!);
+    if (f.wilaya != null) q = q.eq('wilaya', f.wilaya!);
+    if (f.commune != null) q = q.eq('commune', f.commune!);
+    if (f.kind != null) q = q.eq('kind', f.kind!);
     final words = f.searchWords;
-    if (words.isNotEmpty) q = q.where('keywords', arrayContainsAny: words);
-    return q.orderBy('createdAt', descending: true);
+    if (words.isNotEmpty) {
+      q = q.ilikeAllOf('search_text', words.map((w) => '%$w%').toList());
+    }
+    return q.order('created_at', ascending: false);
   }
 
-  List<Listing> _andFilter(
-    List<Listing> items,
-    List<String> words,
-    String? kind,
-  ) {
-    if (words.isEmpty && kind == null) return items;
-    return items.where((l) {
-      if (kind != null && l.kind != kind) return false;
-      if (words.isNotEmpty && !words.every(l.keywords.contains)) return false;
-      return true;
-    }).toList();
-  }
+  List<Listing> _rows(Object? data) => (data as List)
+      .map((e) => Listing.fromRow(Map<String, dynamic>.from(e as Map)))
+      .toList();
 
-  DateTime? _createdAtOf(DocumentSnapshot<Map<String, dynamic>> doc) =>
-      ((doc.data() ?? const <String, dynamic>{})['createdAt'] as Timestamp?)
-          ?.toDate();
-
-  /// Live head page (first [limit] matches) — re-emits on every server
-  /// change so new posts appear without a manual refresh.
-  Stream<FeedPage> feedHead(FeedQuery f, {int limit = 20}) {
-    final words = f.searchWords;
-    return _feedQuery(f).limit(limit).snapshots().map((snap) {
-      final raw = snap.docs;
-      return FeedPage(
-        items: _andFilter(raw.map(Listing.fromDoc).toList(), words, f.kind),
-        rawIds: raw.map((d) => d.id).toSet(),
-        boundary: raw.isNotEmpty ? _createdAtOf(raw.last) : null,
-        cursor: raw.length >= limit ? raw.last : null,
+  FeedPage _headPage(List<Listing> raw, int limit) => FeedPage(
+        items: raw,
+        rawIds: raw.map((l) => l.id).toSet(),
+        boundary: raw.isNotEmpty ? raw.last.createdAt : null,
+        cursor: raw.length,
         hasMore: raw.length >= limit,
       );
+
+  /// Live head page (first [limit] matches) — emits immediately and refreshes
+  /// on every listing change so new posts appear without a manual refresh.
+  Stream<FeedPage> feedHead(FeedQuery f, {int limit = 20}) {
+    return realtimeRefetch('listings', () async {
+      final data = await _feedQuery(f).limit(limit);
+      return _headPage(_rows(data), limit);
     });
   }
 
-  /// One-shot next page after [cursor] (older posts) — no live updates on
-  /// older pages; pull-to-refresh resets back to [feedHead].
+  /// One-shot next page after [cursor] (older posts).
   Future<FeedPage> feedMore(
     FeedQuery f,
-    DocumentSnapshot<Map<String, dynamic>> cursor, {
+    Object? cursor, {
     int limit = 20,
   }) async {
-    final words = f.searchWords;
-    final snap =
-        await _feedQuery(f).startAfterDocument(cursor).limit(limit).get();
-    final raw = snap.docs;
+    final offset = (cursor as int?) ?? 0;
+    final data = await _feedQuery(f).range(offset, offset + limit - 1);
+    final raw = _rows(data);
     return FeedPage(
-      items: _andFilter(raw.map(Listing.fromDoc).toList(), words, f.kind),
-      rawIds: raw.map((d) => d.id).toSet(),
-      boundary: raw.isNotEmpty ? _createdAtOf(raw.last) : null,
-      cursor: raw.isNotEmpty ? raw.last : null,
+      items: raw,
+      rawIds: raw.map((l) => l.id).toSet(),
+      boundary: raw.isNotEmpty ? raw.last.createdAt : null,
+      cursor: offset + raw.length,
       hasMore: raw.length >= limit,
     );
   }
 
-  QueryPage<Listing> _page(
-      List<QueryDocumentSnapshot<Map<String, dynamic>>> docs, int limit) {
-    return QueryPage(
-      items: docs.map(Listing.fromDoc).toList(),
-      cursor: docs.length >= limit ? docs.last : null,
-      hasMore: docs.length >= limit,
-    );
-  }
+  QueryPage<Listing> _page(List<Listing> raw, int offset, int limit) =>
+      QueryPage(
+        items: raw,
+        cursor: offset + raw.length,
+        hasMore: raw.length >= limit,
+      );
 
-  Query<Map<String, dynamic>> _ownerQuery(String uid) =>
-      _col.where('ownerId', isEqualTo: uid).orderBy('createdAt', descending: true);
+  dynamic _ownerQuery(String uid) => _db
+      .from('listings')
+      .select()
+      .eq('owner_id', uid)
+      .order('created_at', ascending: false);
 
   /// Live first page of the user's own listings ("حجوزاتي" owner side).
-  Stream<QueryPage<Listing>> myHead(String uid, {int limit = kPageSize}) =>
-      _ownerQuery(uid).limit(limit).snapshots().map((snap) => _page(snap.docs, limit));
+  Stream<QueryPage<Listing>> myHead(String uid, {int limit = kPageSize}) {
+    return realtimeRefetch('listings', () async {
+      final data = await _ownerQuery(uid).range(0, limit - 1);
+      return _page(_rows(data), 0, limit);
+    });
+  }
 
   /// One-shot older page of the user's own listings.
   Future<QueryPage<Listing>> myMore(
@@ -147,19 +141,25 @@ class ListingService {
     Object? cursor, {
     int limit = kPageSize,
   }) async {
-    final snap = await _ownerQuery(uid)
-        .startAfterDocument(cursor as DocumentSnapshot<Map<String, dynamic>>)
-        .limit(limit)
-        .get();
-    return _page(snap.docs, limit);
+    final offset = (cursor as int?) ?? 0;
+    final data = await _ownerQuery(uid).range(offset, offset + limit - 1);
+    return _page(_rows(data), offset, limit);
   }
 
-  Query<Map<String, dynamic>> _claimsQuery(String uid) =>
-      _col.where('claimedBy', isEqualTo: uid).orderBy('createdAt', descending: true);
+  dynamic _claimsQuery(String uid) => _db
+      .from('listings')
+      .select()
+      .eq('claimed_by', uid)
+      .order('created_at', ascending: false);
 
   /// Live first page of the listings the user has reserved.
-  Stream<QueryPage<Listing>> reservationsHead(String uid, {int limit = kPageSize}) =>
-      _claimsQuery(uid).limit(limit).snapshots().map((snap) => _page(snap.docs, limit));
+  Stream<QueryPage<Listing>> reservationsHead(String uid,
+      {int limit = kPageSize}) {
+    return realtimeRefetch('listings', () async {
+      final data = await _claimsQuery(uid).range(0, limit - 1);
+      return _page(_rows(data), 0, limit);
+    });
+  }
 
   /// One-shot older page of the user's reservations.
   Future<QueryPage<Listing>> reservationsMore(
@@ -167,55 +167,38 @@ class ListingService {
     Object? cursor, {
     int limit = kPageSize,
   }) async {
-    final snap = await _claimsQuery(uid)
-        .startAfterDocument(cursor as DocumentSnapshot<Map<String, dynamic>>)
-        .limit(limit)
-        .get();
-    return _page(snap.docs, limit);
+    final offset = (cursor as int?) ?? 0;
+    final data = await _claimsQuery(uid).range(offset, offset + limit - 1);
+    return _page(_rows(data), offset, limit);
   }
 
   Future<Listing?> byId(String id) async {
-    final doc = await _col.doc(id).get();
-    if (!doc.exists) return null;
-    return Listing.fromDoc(doc);
+    final row =
+        await _db.from('listings').select().eq('id', id).maybeSingle();
+    if (row == null) return null;
+    return Listing.fromRow(row);
   }
 
   Future<String> create({
     required Listing draft,
     required List<String> imagesB64,
   }) async {
-    final doc = _col.doc();
-    final data = draft.toMap();
-    data['imageCount'] = imagesB64.length;
-    // Create the listing and bump the lifetime post counter in one batch
-    // (rules enforce stats/{uid}.postCount < 100 on every create).
-    final batch = _db.batch();
-    batch.set(doc, data);
-    batch.set(
-      _db.collection('stats').doc(draft.ownerId),
-      {'postCount': FieldValue.increment(1)},
-      SetOptions(merge: true),
-    );
-    await batch.commit();
-    if (imagesB64.isNotEmpty) {
-      final batch = _db.batch();
-      for (var i = 0; i < imagesB64.length; i++) {
-        batch.set(doc.collection('images').doc('$i'), {
-          'index': i,
-          'data': imagesB64[i],
-        });
-      }
+    final row = await _db
+        .from('listings')
+        .insert(draft.toMap())
+        .select('id')
+        .single();
+    final id = row['id'] as String;
+    try {
+      await _writeImages(id, imagesB64, draft.image0);
+    } catch (_) {
+      // Don't leave a listing without its images behind.
       try {
-        await batch.commit();
-      } catch (_) {
-        // Don't leave a listing without its images behind.
-        try {
-          await doc.delete();
-        } catch (_) {}
-        rethrow;
-      }
+        await _db.from('listings').delete().eq('id', id);
+      } catch (_) {}
+      rethrow;
     }
-    return doc.id;
+    return id;
   }
 
   Future<void> update({
@@ -223,10 +206,8 @@ class ListingService {
     List<String>? newImagesB64,
     String? thumbB64,
   }) async {
-    final doc = _col.doc(draft.id);
-    final batch = _db.batch();
     final data = <String, dynamic>{
-      'ownerName': draft.ownerName,
+      'owner_name': draft.ownerName,
       'title': draft.title,
       'description': draft.description,
       'category': draft.category,
@@ -235,92 +216,138 @@ class ListingService {
       'condition': draft.condition,
       'status': draft.status,
       'kind': draft.kind,
-      'contactPhone': draft.contactPhone,
-      'keywords': buildKeywords(
-        title: draft.title,
-        description: draft.description,
-        category: draft.category,
-        wilaya: draft.wilaya,
-        commune: draft.commune,
-        condition: draft.condition,
-      ),
-      'updatedAt': FieldValue.serverTimestamp(),
+      'contact_phone': draft.contactPhone,
     };
     if (newImagesB64 != null) {
-      data['image0'] = thumbB64;
-      data['imageCount'] = newImagesB64.length;
-      final existing = await doc.collection('images').get();
-      for (final d in existing.docs) {
-        batch.delete(d.reference);
-      }
-      for (var i = 0; i < newImagesB64.length; i++) {
-        batch.set(doc.collection('images').doc('$i'), {
-          'index': i,
-          'data': newImagesB64[i],
-        });
-      }
+      await _deleteImages(draft.id);
+      await _writeImages(draft.id, newImagesB64, thumbB64);
     }
-    batch.update(doc, data);
-    await batch.commit();
+    await _db.from('listings').update(data).eq('id', draft.id);
   }
 
   Future<void> setStatus(String id, String status) async {
-    await _col.doc(id).update({
-      'status': status,
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
+    await _db.from('listings').update({'status': status}).eq('id', id);
   }
 
-  /// Reserve an available listing (claim path in the security rules).
-  /// Throws `FirebaseException(permission-denied)` when another user won
-  /// the race — the caller probes [byId] to tell the difference between
-  /// "taken" and a generic failure.
+  /// Reserve an available listing (claim path in the DB trigger). Throws when
+  /// another user won the race — the caller probes [byId] to tell the
+  /// difference between "taken" and a generic failure.
   Future<void> claim(String id, {required String uid, required String name}) {
-    return _col.doc(id).update({
+    return _db.from('listings').update({
       'status': statusReserved,
-      'claimedBy': uid,
-      'claimedByName': name,
-      'claimedAt': FieldValue.serverTimestamp(),
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
+      'claimed_by': uid,
+      'claimed_by_name': name,
+    }).eq('id', id);
   }
 
   /// Owner or claimant releases the reservation back to the feed.
   Future<void> cancelClaim(String id) {
-    return _col.doc(id).update({
+    return _db.from('listings').update({
       'status': statusAvailable,
-      'claimedBy': null,
-      'claimedByName': null,
-      'claimedAt': null,
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
+      'claimed_by': null,
+      'claimed_by_name': null,
+      'claimed_at': null,
+    }).eq('id', id);
   }
 
   /// Owner-only: a reserved listing becomes donated. The claim fields are
   /// kept so the community can see who received it.
   Future<void> confirmDelivery(String id) {
-    return _col.doc(id).update({
-      'status': statusGiven,
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
+    return _db
+        .from('listings')
+        .update({'status': statusGiven}).eq('id', id);
   }
 
   Future<void> delete(String id) async {
-    final doc = _col.doc(id);
-    final imgs = await doc.collection('images').get();
-    final batch = _db.batch();
-    for (final d in imgs.docs) {
-      batch.delete(d.reference);
-    }
-    batch.delete(doc);
-    await batch.commit();
+    await _deleteImages(id);
+    await _db.from('listings').delete().eq('id', id);
   }
 
   Future<List<String>> imagesOf(String id) async {
-    final snap = await _col.doc(id).collection('images').orderBy('index').get();
-    return snap.docs
-        .map((d) => (d.data()['data'] ?? '') as String)
-        .where((s) => s.isNotEmpty)
+    final rows = await _db
+        .from('listing_images')
+        .select('storage_path')
+        .eq('listing_id', id)
+        .order('idx');
+    return (rows as List)
+        .map((e) => storagePublicUrl((e as Map)['storage_path'] as String))
         .toList();
   }
+
+  // ---- Storage helpers ---------------------------------------------------
+
+  /// Uploads the 480px cover plus every gallery image, then records their
+  /// metadata (`listings.cover_path` / `listing_images`).
+  Future<void> _writeImages(
+    String id,
+    List<String> imagesB64,
+    String? coverB64,
+  ) async {
+    if (imagesB64.isEmpty && (coverB64 == null || coverB64.isEmpty)) return;
+    final bucket = _db.storage.from(kListingsBucket);
+
+    String? coverPath;
+    if (coverB64 != null && coverB64.isNotEmpty) {
+      coverPath = '$id/cover.jpg';
+      await bucket.uploadBinary(
+        coverPath,
+        _decode(coverB64),
+        fileOptions: const FileOptions(
+          contentType: 'image/jpeg',
+          upsert: true,
+        ),
+      );
+    }
+
+    final rows = <Map<String, dynamic>>[];
+    for (var i = 0; i < imagesB64.length; i++) {
+      final path = '$id/$i.jpg';
+      await bucket.uploadBinary(
+        path,
+        _decode(imagesB64[i]),
+        fileOptions: const FileOptions(
+          contentType: 'image/jpeg',
+          upsert: true,
+        ),
+      );
+      rows.add({'listing_id': id, 'idx': i, 'storage_path': path});
+    }
+    if (rows.isNotEmpty) {
+      await _db.from('listing_images').upsert(rows);
+    }
+
+    await _db.from('listings').update({
+      'cover_path': coverPath,
+      'image_count': imagesB64.length,
+    }).eq('id', id);
+  }
+
+  /// Removes a listing's gallery rows, cover row and storage objects.
+  Future<void> _deleteImages(String id) async {
+    final bucket = _db.storage.from(kListingsBucket);
+    final imgs = await _db
+        .from('listing_images')
+        .select('storage_path')
+        .eq('listing_id', id);
+    final paths = (imgs as List)
+        .map((e) => (e as Map)['storage_path'] as String)
+        .toList();
+
+    final row = await _db
+        .from('listings')
+        .select('cover_path')
+        .eq('id', id)
+        .maybeSingle();
+    final cover = row?['cover_path'] as String?;
+    if (cover != null && cover.isNotEmpty) paths.add(cover);
+
+    if (paths.isNotEmpty) {
+      try {
+        await bucket.remove(paths);
+      } catch (_) {}
+    }
+    await _db.from('listing_images').delete().eq('listing_id', id);
+  }
+
+  Uint8List _decode(String b64) => base64Decode(b64);
 }

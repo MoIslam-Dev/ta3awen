@@ -1,7 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../../l10n/ext.dart';
 import '../../models/request_post.dart';
+import '../../services/auth_service.dart';
 import '../../services/request_service.dart';
 import '../../state/paged_list.dart';
 import '../../utils/errors.dart';
@@ -27,7 +27,7 @@ class _MyRequestsScreenState extends State<MyRequestsScreen> {
   @override
   void initState() {
     super.initState();
-    final uid = FirebaseAuth.instance.currentUser?.uid;
+    final uid = AuthService.uid;
     if (uid == null) {
       _loginError = true;
     } else {

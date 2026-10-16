@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+
 import '../utils/b64_cache.dart';
 
+/// Renders a listing photo from either a Supabase Storage URL or an inline
+/// base64 string (local preview before upload).
 class Base64Image extends StatelessWidget {
   final String? data;
   final double width;
   final double height;
   final BorderRadius? borderRadius;
+  final BoxFit fit;
 
   const Base64Image({
     super.key,
@@ -13,10 +17,11 @@ class Base64Image extends StatelessWidget {
     this.width = double.infinity,
     this.height = double.infinity,
     this.borderRadius,
+    this.fit = BoxFit.cover,
   });
 
   /// Soft branded placeholder shown when a listing has no photo (or the
-  /// photo fails to decode) — far friendlier than a bare grey block.
+  /// photo fails to load) — far friendlier than a bare grey block.
   Widget _placeholder(BuildContext context, IconData icon) {
     final scheme = Theme.of(context).colorScheme;
     return DecoratedBox(
@@ -42,15 +47,27 @@ class Base64Image extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final value = data;
     Widget child;
-    if (data == null || data!.isEmpty) {
+    if (value == null || value.isEmpty) {
       child = _placeholder(context, Icons.image_outlined);
-    } else {
-      child = Image.memory(
-        B64Cache.get(data!),
+    } else if (value.startsWith('http')) {
+      child = Image.network(
+        value,
         width: width,
         height: height,
-        fit: BoxFit.cover,
+        fit: fit,
+        gaplessPlayback: true,
+        filterQuality: FilterQuality.medium,
+        errorBuilder: (_, __, ___) =>
+            _placeholder(context, Icons.broken_image_outlined),
+      );
+    } else {
+      child = Image.memory(
+        B64Cache.get(value),
+        width: width,
+        height: height,
+        fit: fit,
         gaplessPlayback: true,
         filterQuality: FilterQuality.medium,
         errorBuilder: (_, __, ___) =>

@@ -1,7 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../../l10n/ext.dart';
 import '../../models/app_user.dart';
+import '../../services/auth_service.dart';
 import '../../services/user_service.dart';
 import '../../utils/errors.dart';
 import '../../widgets/wilaya_commune_fields.dart';
@@ -59,7 +59,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
     if (_wilaya == null || _commune == null) return;
-    final uid = FirebaseAuth.instance.currentUser?.uid;
+    final uid = AuthService.uid;
     if (uid == null) return;
     setState(() => _loading = true);
     try {

@@ -1,7 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../../l10n/ext.dart';
 import '../../services/admin_service.dart';
+import '../../services/auth_service.dart';
 import '../../widgets/state_views.dart';
 import 'admin_dashboard_tab.dart';
 import 'admin_listings_tab.dart';
@@ -32,7 +32,7 @@ class _AdminScreenState extends State<AdminScreen> {
   }
 
   Future<void> _checkAccess() async {
-    final uid = FirebaseAuth.instance.currentUser?.uid;
+    final uid = AuthService.uid;
     if (uid == null) {
       setState(() => _checking = false);
       return;

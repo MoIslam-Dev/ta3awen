@@ -1,6 +1,6 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../../l10n/ext.dart';
+import '../../services/auth_service.dart';
 import '../../widgets/publish_sheet.dart';
 import '../auth_gate.dart';
 import '../onboarding/onboarding_screen.dart';
@@ -160,7 +160,7 @@ class _HomeShellState extends State<HomeShell> {
       ),
     );
     if (yes == true) {
-      await FirebaseAuth.instance.signOut();
+      await AuthService().logout();
       if (mounted) {
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (_) => const AuthGate()),

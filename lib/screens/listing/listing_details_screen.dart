@@ -1,9 +1,9 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../l10n/ext.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../../models/listing.dart';
+import '../../services/auth_service.dart';
 import '../../services/listing_service.dart';
 import '../../services/user_service.dart';
 import '../../utils/constants.dart';
@@ -36,7 +36,7 @@ class _ListingDetailsScreenState extends State<ListingDetailsScreen> {
   bool _showContact = false;
   bool _acting = false;
 
-  String? get _uid => FirebaseAuth.instance.currentUser?.uid;
+  String? get _uid => AuthService.uid;
 
   bool get _isOwner => _uid == _listing?.ownerId;
 
@@ -274,7 +274,7 @@ class _ListingDetailsScreenState extends State<ListingDetailsScreen> {
     );
     if (confirmed != true) return;
     try {
-      final uid = FirebaseAuth.instance.currentUser!.uid;
+      final uid = AuthService.uid!;
       final user = await _userService.getById(uid);
       await _reportService.create(
         listingId: widget.listingId,

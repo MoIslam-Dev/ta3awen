@@ -60,7 +60,7 @@ void main() {
     expect(reserved.claimedBy, 'bob');
   });
 
-  test('toMap never plants claim fields (create rule rejects them)', () {
+  test('toMap never plants claim fields (DB trigger owns them)', () {
     const listing = Listing(
       id: 'L1',
       ownerId: 'alice',
@@ -75,9 +75,10 @@ void main() {
       claimedBy: 'bob',
     );
     final map = listing.toMap();
-    expect(map.containsKey('claimedBy'), false);
-    expect(map.containsKey('claimedByName'), false);
-    expect(map.containsKey('claimedAt'), false);
+    expect(map.containsKey('claimed_by'), false);
+    expect(map.containsKey('claimed_by_name'), false);
+    expect(map.containsKey('claimed_at'), false);
+    expect(map['owner_id'], 'alice');
     expect(map['status'], statusReserved);
   });
 
@@ -139,7 +140,7 @@ void main() {
     expect(closed.isOpen, false);
   });
 
-  test('request toMap never plants match fields (create rule rejects them)',
+  test('request toMap never plants match fields (DB trigger owns them)',
       () {
     const request = RequestPost(
       id: 'R1',
@@ -156,12 +157,12 @@ void main() {
       matchedName: 'User bob',
     );
     final map = request.toMap();
-    expect(map.containsKey('matchedBy'), false);
-    expect(map.containsKey('matchedName'), false);
-    expect(map.containsKey('matchedAt'), false);
+    expect(map.containsKey('matched_by'), false);
+    expect(map.containsKey('matched_name'), false);
+    expect(map.containsKey('matched_at'), false);
     expect(map['status'], requestStatusOpen,
         reason: 'create always starts open');
-    expect((map['keywords'] as List).isNotEmpty, true);
+    expect(map['uid'], 'alice');
   });
 
   test('request kind constants and blood flags', () {
@@ -214,7 +215,7 @@ void main() {
     );
     final gmap = general.toMap();
     expect(gmap['kind'], requestKindGeneral);
-    expect(gmap['bloodType'], isNull);
+    expect(gmap['blood_type'], isNull);
 
     const blood = RequestPost(
       id: 'R2',
@@ -231,7 +232,7 @@ void main() {
     );
     final bmap = blood.toMap();
     expect(bmap['kind'], requestKindBlood);
-    expect(bmap['bloodType'], 'O-');
+    expect(bmap['blood_type'], 'O-');
     expect(bmap['type'], requestTypeNeed);
     expect(bmap['status'], requestStatusOpen);
   });
@@ -258,15 +259,14 @@ void main() {
     expect(
         map.keys.toSet(),
         {
-          'listingId',
-          'listingTitle',
-          'reporterId',
-          'reporterName',
+          'listing_id',
+          'listing_title',
+          'reporter_id',
+          'reporter_name',
           'reason',
           'description',
-          'createdAt',
         },
-        reason: 'create stays inside firestore.rules hasOnly()');
+        reason: 'create stays inside the server allow-list');
   });
 
   test('Report status helpers map resolved/dismissed', () {

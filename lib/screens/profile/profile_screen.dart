@@ -1,8 +1,8 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../../l10n/ext.dart';
 import '../../models/app_user.dart';
 import '../../services/admin_service.dart';
+import '../../services/auth_service.dart';
 import '../../services/user_service.dart';
 import '../../state/app_settings.dart';
 import '../../utils/errors.dart';
@@ -46,7 +46,7 @@ class _ProfileScreenState extends State<ProfileScreen>
       _loading = true;
       _error = null;
     });
-    final uid = FirebaseAuth.instance.currentUser?.uid;
+    final uid = AuthService.uid;
     if (uid == null) {
       setState(() {
         _loading = false;
@@ -203,7 +203,7 @@ class _ProfileScreenState extends State<ProfileScreen>
       return ErrorView(message: _error!, onRetry: _load);
     }
     final user = _user;
-    final auth = FirebaseAuth.instance.currentUser;
+    final auth = AuthService().currentUser;
     final theme = Theme.of(context);
 
     return RefreshIndicator(

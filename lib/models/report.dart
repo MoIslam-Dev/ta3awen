@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class Report {
   final String id;
   final String listingId;
@@ -10,7 +8,7 @@ class Report {
   final String? description;
   final DateTime? createdAt;
 
-  /// Moderation workflow: 'open' (default for legacy docs), 'resolved', 'dismissed'.
+  /// Moderation workflow: 'open' (DB default), 'resolved', 'dismissed'.
   final String status;
   final DateTime? resolvedAt;
 
@@ -31,33 +29,36 @@ class Report {
   bool get isResolved => status == reportStatusResolved;
   bool get isDismissed => status == reportStatusDismissed;
 
-  factory Report.fromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
-    final d = doc.data() ?? <String, dynamic>{};
+  factory Report.fromRow(Map<String, dynamic> r) {
     return Report(
-      id: doc.id,
-      listingId: (d['listingId'] ?? '') as String,
-      listingTitle: (d['listingTitle'] ?? '') as String,
-      reporterId: (d['reporterId'] ?? '') as String,
-      reporterName: (d['reporterName'] ?? '') as String,
-      reason: (d['reason'] ?? '') as String,
-      description: d['description'] as String?,
-      createdAt: (d['createdAt'] as Timestamp?)?.toDate(),
-      status: (d['status'] ?? reportStatusOpen) as String,
-      resolvedAt: (d['resolvedAt'] as Timestamp?)?.toDate(),
+      id: r['id'] as String,
+      listingId: (r['listing_id'] ?? '') as String,
+      listingTitle: (r['listing_title'] ?? '') as String,
+      reporterId: (r['reporter_id'] ?? '') as String,
+      reporterName: (r['reporter_name'] ?? '') as String,
+      reason: (r['reason'] ?? '') as String,
+      description: r['description'] as String?,
+      createdAt: _dt(r['created_at']),
+      status: (r['status'] ?? reportStatusOpen) as String,
+      resolvedAt: _dt(r['resolved_at']),
     );
   }
 
+  /// Create payload: status/resolved_at are server-owned (default 'open').
   Map<String, dynamic> toMap() => {
-        'listingId': listingId,
-        'listingTitle': listingTitle,
-        'reporterId': reporterId,
-        'reporterName': reporterName,
+        'listing_id': listingId.isEmpty ? null : listingId,
+        'listing_title': listingTitle,
+        'reporter_id': reporterId,
+        'reporter_name': reporterName,
         'reason': reason,
         'description': description,
-        'createdAt': FieldValue.serverTimestamp(),
-        // status/resolvedAt are intentionally absent: creation stays within
-        // the rules hasOnly() allow-list; missing status reads as 'open'.
       };
+}
+
+DateTime? _dt(Object? v) {
+  if (v == null) return null;
+  if (v is DateTime) return v.toLocal();
+  return DateTime.tryParse(v.toString())?.toLocal();
 }
 
 const String reportStatusOpen = 'open';

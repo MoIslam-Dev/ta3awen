@@ -1,7 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../../l10n/ext.dart';
 import '../../models/request_post.dart';
+import '../../services/auth_service.dart';
 import '../../services/request_service.dart';
 import '../../services/user_service.dart';
 import '../../utils/constants.dart';
@@ -134,7 +134,7 @@ class _RequestFormScreenState extends State<RequestFormScreen> {
         );
         await _requestService.update(draft);
       } else {
-        final uid = FirebaseAuth.instance.currentUser!.uid;
+        final uid = AuthService.uid!;
         String userName = 'مستخدم';
         final user = await _userService.getById(uid);
         if (user != null && user.fullName.isNotEmpty) {

@@ -1,8 +1,8 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../../l10n/ext.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../../models/request_post.dart';
+import '../../services/auth_service.dart';
 import '../../services/request_service.dart';
 import '../../services/user_service.dart';
 import '../../utils/errors.dart';
@@ -30,7 +30,7 @@ class _RequestDetailsScreenState extends State<RequestDetailsScreen> {
   bool _showContact = false;
   bool _acting = false;
 
-  String? get _uid => FirebaseAuth.instance.currentUser?.uid;
+  String? get _uid => AuthService.uid;
 
   bool get _isAuthor => _uid != null && _uid == _request?.uid;
 

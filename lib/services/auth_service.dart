@@ -1,61 +1,69 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../core/supabase.dart';
 
 class AuthService {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-
   static bool _googleReady = false;
 
+  GoTrueClient get _auth => supabase.auth;
+
   User? get currentUser => _auth.currentUser;
-  Stream<User?> get authChanges => _auth.authStateChanges();
+  Stream<AuthState> get authChanges => _auth.onAuthStateChange;
+
+  /// Current user id, or null when signed out. Handy for screens that used to
+  /// read `FirebaseAuth.instance.currentUser?.uid`.
+  static String? get uid => supabase.auth.currentUser?.id;
 
   Future<void> _ensureGoogleReady() async {
     if (_googleReady) return;
-    await GoogleSignIn.instance.initialize();
+    await GoogleSignIn.instance.initialize(
+      serverClientId: kGoogleServerClientId,
+    );
     _googleReady = true;
   }
 
-  Future<UserCredential> login({
+  Future<AuthResponse> login({
     required String email,
     required String password,
   }) async {
     // Fail fast with a clear message instead of spinning indefinitely on a
     // flaky connection (a late success still lands the user on the home
-    // screen via authStateChanges).
-    return await _auth
-        .signInWithEmailAndPassword(
-          email: email.trim(),
-          password: password,
-        )
+    // screen via onAuthStateChange).
+    return _auth
+        .signInWithPassword(email: email.trim(), password: password)
         .timeout(const Duration(seconds: 20));
   }
 
-  Future<UserCredential> register({
+  Future<AuthResponse> register({
     required String email,
     required String password,
-  }) async {
-    return await _auth.createUserWithEmailAndPassword(
-      email: email.trim(),
-      password: password,
-    );
+  }) {
+    return _auth
+        .signUp(email: email.trim(), password: password)
+        .timeout(const Duration(seconds: 20));
   }
 
-  /// One-tap "Continue with Google": the Google account becomes a Firebase
-  /// identity (free tier; then the app profile is completed on first sign-in).
+  /// One-tap "Continue with Google": the Google account becomes a Supabase
+  /// identity (native id-token exchange); the app profile is completed on the
+  /// first sign-in.
   ///
-  /// Requires the Google provider enabled in the Firebase console and the
-  /// app's release/debug SHA-1 certificate fingerprint registered there.
-  Future<UserCredential> signInWithGoogle() async {
+  /// Requires the Google provider enabled in Supabase and the app's
+  /// release/debug SHA-1 fingerprint registered on the Android OAuth client.
+  Future<AuthResponse> signInWithGoogle() async {
     await _ensureGoogleReady();
     try {
       final account = await GoogleSignIn.instance.authenticate();
-      final auth = account.authentication;
-      final credential = GoogleAuthProvider.credential(
-        idToken: auth.idToken,
+      final idToken = account.authentication.idToken;
+      if (idToken == null) {
+        throw Exception('google-sign-in provider-config');
+      }
+      return await _auth.signInWithIdToken(
+        provider: OAuthProvider.google,
+        idToken: idToken,
       );
-      return await _auth.signInWithCredential(credential);
-    } on FirebaseAuthException {
-      rethrow; // authErrorMessage maps the Firebase codes.
+    } on AuthException {
+      rethrow; // authErrorMessage maps the Supabase messages.
     } on GoogleSignInException catch (e) {
       // The platform reports walled flows through typed exceptions: a user
       // closing the sheet is not an error, a misconfigured client is.
@@ -72,13 +80,15 @@ class AuthService {
     }
   }
 
-  Future<void> sendPasswordReset(String email) async {
-    await _auth.sendPasswordResetEmail(email: email.trim());
+  Future<void> sendPasswordReset(String email) {
+    return _auth.resetPasswordForEmail(email.trim());
   }
 
   Future<void> logout() async {
-    await _ensureGoogleReady();
-    await GoogleSignIn.instance.signOut();
+    try {
+      await _ensureGoogleReady();
+      await GoogleSignIn.instance.signOut();
+    } catch (_) {}
     await _auth.signOut();
   }
 }

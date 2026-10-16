@@ -1,10 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import '../core/supabase.dart';
 import '../models/report.dart';
 
 class ReportService {
-  final CollectionReference<Map<String, dynamic>> _col =
-      FirebaseFirestore.instance.collection('reports');
-
   Future<void> create({
     required String listingId,
     required String listingTitle,
@@ -22,16 +19,21 @@ class ReportService {
       reason: reason,
       description: description,
     );
-    await _col.add(report.toMap());
+    await supabase.from('reports').insert(report.toMap());
   }
 
   Future<List<Report>> recent({int limit = 100}) async {
-    final snap =
-        await _col.orderBy('createdAt', descending: true).limit(limit).get();
-    return snap.docs.map(Report.fromDoc).toList();
+    final rows = await supabase
+        .from('reports')
+        .select()
+        .order('created_at', ascending: false)
+        .limit(limit);
+    return (rows as List)
+        .map((e) => Report.fromRow(Map<String, dynamic>.from(e as Map)))
+        .toList();
   }
 
   Future<void> delete(String id) async {
-    await _col.doc(id).delete();
+    await supabase.from('reports').delete().eq('id', id);
   }
 }

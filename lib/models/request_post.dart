@@ -1,7 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
-import '../utils/search_keywords.dart';
-
 /// A post on the community board: either something the author needs
 /// (`need`) or something they can provide (`offer`). Matching connects
 /// the two sides; the board itself holds no images.
@@ -26,7 +22,6 @@ class RequestPost {
   final String? matchedBy;
   final String? matchedName;
   final DateTime? matchedAt;
-  final List<String> keywords;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -47,7 +42,6 @@ class RequestPost {
     this.matchedBy,
     this.matchedName,
     this.matchedAt,
-    this.keywords = const [],
     this.createdAt,
     this.updatedAt,
   });
@@ -60,56 +54,51 @@ class RequestPost {
 
   bool get isBlood => kind == requestKindBlood;
 
-  factory RequestPost.fromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
-    final d = doc.data() ?? <String, dynamic>{};
+  factory RequestPost.fromRow(Map<String, dynamic> r) {
     return RequestPost(
-      id: doc.id,
-      uid: (d['uid'] ?? '') as String,
-      userName: (d['userName'] ?? '') as String,
-      type: (d['type'] ?? requestTypeNeed) as String,
-      title: (d['title'] ?? '') as String,
-      description: (d['description'] ?? '') as String,
-      category: (d['category'] ?? '') as String,
-      wilaya: (d['wilaya'] ?? '') as String,
-      commune: (d['commune'] ?? '') as String,
-      contactPhone: d['contactPhone'] as String?,
-      status: (d['status'] ?? requestStatusOpen) as String,
-      kind: (d['kind'] ?? requestKindGeneral) as String,
-      bloodType: d['bloodType'] as String?,
-      matchedBy: d['matchedBy'] as String?,
-      matchedName: d['matchedName'] as String?,
-      matchedAt: (d['matchedAt'] as Timestamp?)?.toDate(),
-      keywords: List<String>.from(d['keywords'] as List? ?? const []),
-      createdAt: (d['createdAt'] as Timestamp?)?.toDate(),
-      updatedAt: (d['updatedAt'] as Timestamp?)?.toDate(),
+      id: r['id'] as String,
+      uid: (r['uid'] ?? '') as String,
+      userName: (r['user_name'] ?? '') as String,
+      type: (r['type'] ?? requestTypeNeed) as String,
+      title: (r['title'] ?? '') as String,
+      description: (r['description'] ?? '') as String,
+      category: (r['category'] ?? '') as String,
+      wilaya: (r['wilaya'] ?? '') as String,
+      commune: (r['commune'] ?? '') as String,
+      contactPhone: r['contact_phone'] as String?,
+      status: (r['status'] ?? requestStatusOpen) as String,
+      kind: (r['kind'] ?? requestKindGeneral) as String,
+      bloodType: r['blood_type'] as String?,
+      matchedBy: r['matched_by'] as String?,
+      matchedName: r['matched_name'] as String?,
+      matchedAt: _dt(r['matched_at']),
+      createdAt: _dt(r['created_at']),
+      updatedAt: _dt(r['updated_at']),
     );
   }
 
-  /// Client create shape: new posts always start [requestStatusOpen];
-  /// match keys are deliberately absent (the create rule rejects them).
+  /// Insert payload: new posts always start [requestStatusOpen]; match keys are
+  /// deliberately absent (the DB trigger owns them).
   Map<String, dynamic> toMap() => {
         'uid': uid,
-        'userName': userName,
+        'user_name': userName,
         'type': type,
         'title': title,
         'description': description,
         'category': category,
         'wilaya': wilaya,
         'commune': commune,
-        'contactPhone': contactPhone,
+        'contact_phone': contactPhone,
         'status': requestStatusOpen,
         'kind': kind,
-        'bloodType': bloodType,
-        'keywords': buildKeywords(
-          title: title,
-          description: description,
-          category: category,
-          wilaya: wilaya,
-          commune: commune,
-        ),
-        'createdAt': FieldValue.serverTimestamp(),
-        'updatedAt': FieldValue.serverTimestamp(),
+        'blood_type': bloodType,
       };
+}
+
+DateTime? _dt(Object? v) {
+  if (v == null) return null;
+  if (v is DateTime) return v.toLocal();
+  return DateTime.tryParse(v.toString())?.toLocal();
 }
 
 const String requestStatusOpen = 'open';

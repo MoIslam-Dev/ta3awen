@@ -1,10 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import '../core/supabase.dart';
 import '../models/app_user.dart';
 
 class UserService {
-  final CollectionReference<Map<String, dynamic>> _col =
-      FirebaseFirestore.instance.collection('users');
-
   Future<void> createAppUser({
     required String uid,
     required String fullName,
@@ -19,13 +16,17 @@ class UserService {
       wilaya: wilaya,
       commune: commune,
     );
-    await _col.doc(uid).set(user.toMap());
+    await supabase.from('profiles').upsert(user.toMap());
   }
 
   Future<AppUser?> getById(String uid) async {
-    final doc = await _col.doc(uid).get();
-    if (!doc.exists) return null;
-    return AppUser.fromDoc(doc);
+    final row = await supabase
+        .from('profiles')
+        .select()
+        .eq('id', uid)
+        .maybeSingle();
+    if (row == null) return null;
+    return AppUser.fromRow(row);
   }
 
   Future<void> updateProfile({
@@ -35,16 +36,18 @@ class UserService {
     required String commune,
     String? contactPhone,
   }) async {
-    await _col.doc(uid).update({
-      'fullName': fullName,
+    await supabase.from('profiles').update({
+      'full_name': fullName,
       'wilaya': wilaya,
       'commune': commune,
-      'contactPhone': contactPhone,
-    });
+      'contact_phone': contactPhone,
+    }).eq('id', uid);
   }
 
   Future<List<AppUser>> getAll() async {
-    final snap = await _col.get();
-    return snap.docs.map(AppUser.fromDoc).toList();
+    final rows = await supabase.from('profiles').select();
+    return (rows as List)
+        .map((e) => AppUser.fromRow(Map<String, dynamic>.from(e as Map)))
+        .toList();
   }
 }

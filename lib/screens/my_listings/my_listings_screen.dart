@@ -1,8 +1,8 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../../l10n/ext.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../../models/listing.dart';
+import '../../services/auth_service.dart';
 import '../../services/listing_service.dart';
 import '../../state/paged_list.dart';
 import '../../utils/errors.dart';
@@ -21,7 +21,7 @@ class MyListingsScreen extends StatefulWidget {
 
 class _MyListingsScreenState extends State<MyListingsScreen> {
   final _service = ListingService();
-  final String? _uid = FirebaseAuth.instance.currentUser?.uid;
+  final String? _uid = AuthService.uid;
   late final PagedList<Listing>? _mine;
   late final PagedList<Listing>? _res;
   int _tab = 0;

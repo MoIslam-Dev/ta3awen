@@ -10,8 +10,8 @@ class ProcessedImages {
 }
 
 /// Handles picking, compressing and encoding listing images.
-/// Images are stored as base64 in Firestore because Cloud Storage
-/// requires a billing account on new Firebase projects (see README).
+/// Images are picked/compressed here as base64; [ListingService] then decodes
+/// and uploads them to Supabase Storage (`listings` bucket).
 class ImageService {
   static const int maxImages = 5;
 

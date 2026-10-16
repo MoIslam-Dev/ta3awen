@@ -1,5 +1,6 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
 import '../screens/auth_gate.dart';
 import '../screens/auth/social_setup_screen.dart';
 import '../services/auth_service.dart';
@@ -16,10 +17,10 @@ import 'errors.dart';
 Future<bool> handleGoogleSignIn(BuildContext context) async {
   final messenger = ScaffoldMessenger.of(context);
   try {
-    final cred = await AuthService().signInWithGoogle();
-    final user = cred.user;
+    final res = await AuthService().signInWithGoogle();
+    final user = res.user;
     if (user == null) return false;
-    final existing = await UserService().getById(user.uid);
+    final existing = await UserService().getById(user.id);
     if (!context.mounted) return false;
     if (existing != null) {
       await _goHome(context);
@@ -31,7 +32,7 @@ Future<bool> handleGoogleSignIn(BuildContext context) async {
       ),
     );
     return true;
-  } on FirebaseAuthException catch (e) {
+  } on AuthException catch (e) {
     if (!context.mounted) return false;
     messenger.showSnackBar(
       SnackBar(content: Text(authErrorMessage(context, e))),
