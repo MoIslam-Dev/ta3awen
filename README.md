@@ -28,7 +28,7 @@ automated tests.
 ## 2. Feature status
 
 Every feature below is **implemented in the Flutter source and wired into the UI**.
-The committed tests (89 tests) cover pure logic, models, widgets and the
+The committed tests (98 tests) cover pure logic, models, widgets and the
 pagination controller, but not the live Supabase-backed flows.
 
 - **Accounts:** email/password registration, login, logout, password reset and a
@@ -46,6 +46,9 @@ pagination controller, but not the live Supabase-backed flows.
 - **Community board ("أطلب"):** `need`/`offer` posts with category + wilaya +
   commune filters, plus a dedicated **blood-donation** board.
 - **Reporting:** any signed-in user can report a listing (fixed reason list).
+- **Notifications:** a server-fed in-app inbox (bell + unread badge). Claim,
+  match, delivery and report events create rows server-side; they stream live
+  over Realtime and persist until read. See §8.
 - **Publishing:** one FAB opens a single **publish sheet** with four intents
   (تبرع / تبادل / أطلب / دم).
 - **Admin panel:** dashboard, report workflow, paginated listing/request/user/report
@@ -95,6 +98,8 @@ Flutter app ──supabase_flutter──► PostgREST   (tables, RLS, RPC)
 | `0007_auto_profile` | `handle_new_user` trigger seeding a profile row |
 | `0008_profile_seed_and_grants` | seed a profile for every new auth user (not just email) + restore `service_role` grants |
 | `0009_fix_admin_claim` | normalize the claim shape before the admin fast-path, fixing admin reservations |
+| `0010_notifications` | notification inbox: table, RLS, lifecycle triggers, Realtime |
+| `0011_fix_admin_match` | normalize the match shape before the admin fast-path, fixing admin request matches |
 
 ## 4. Listings and requests
 
@@ -135,22 +140,38 @@ and a phone; **no images**. The **blood board** (`kind=blood`) posts are always
 - Admin membership lives in `public.admins`; admins can manage it from the app via
   the `set_admin` RPC.
 
-## 8. Languages and theme
+## 8. Notifications
+
+An **in-app inbox**, entirely server-fed (no FCM/APNs — by design):
+
+- The DB creates notification rows through `SECURITY DEFINER` triggers on the
+  listing/request lifecycle and on new reports, so a client can never forge one.
+- Recipients may only read their own rows and flip `read_at`; inserts are
+  trigger-only. Rows cascade with their listing/post and with the account.
+- The app shows a **bell + unread badge** in the shell and a notifications
+  screen (`NotificationCenter` + `NotificationService`), updated live via
+  Realtime. Tapping a row marks it read and opens the referenced listing/post.
+- Text is not stored: the row carries a `type` + actor name, so the app renders
+  a localized message (ar/en/fr). See `20261016000010_notifications.sql`.
+- Because there is no push provider, a notification is seen live while the app
+  is open, or on next launch otherwise.
+
+## 9. Languages and theme
 
 - `flutter_localizations` + ARB files under `lib/l10n/` (`app_ar.arb` is the
   template): **Arabic, French, English** (regenerate with `flutter gen-l10n`).
 - Arabic is the default; the app is RTL-aware. Material 3, brand green `#2E7D32`,
   light/dark/system. Preferences stored with `shared_preferences`.
 
-## 9. Pagination and states
+## 10. Pagination and states
 
 Reads use a **live head page + one-shot older pages**, implemented once in
 `PagedList<T>` and reused for the feeds, the boards, "إعلاناتي/محجوزاتي/طلباتي"
 and the admin tabs. First-load uses shimmering skeletons, then `EmptyView` /
-`ErrorView` with pull-to-refresh and retry. Feeds refresh live via Supabase
-Realtime.
+`ErrorView` with pull-to-refresh and retry. Feeds and the notification inbox
+refresh live via Supabase Realtime.
 
-## 10. Tech stack
+## 11. Tech stack
 
 | Layer | Choice |
 |---|---|
@@ -160,6 +181,7 @@ Realtime.
 | Images | Supabase Storage (`listings` bucket) |
 | Security | Row Level Security + guard triggers (server-enforced) |
 | Realtime | Supabase Realtime (`postgres_changes`) |
+| Notifications | Server-fed in-app inbox (DB triggers + Realtime; no push provider) |
 | Geography | Local static dataset: 58 wilayas + 1527 communes |
 
 Dart dependencies include `supabase_flutter`, `google_sign_in`, `image_picker`,
@@ -169,19 +191,20 @@ Dart dependencies include `supabase_flutter`, `google_sign_in`, `image_picker`,
 lib/
   main.dart              # Supabase init, locale/theme, AuthGate
   core/supabase.dart     # client init + config
-  models/                # AppUser, Listing, RequestPost, Report
-  services/              # auth, user, listing, request, image, report, admin
+  models/                # AppUser, Listing, RequestPost, Report, AppNotification
+  services/              # auth, user, listing, request, image, report, admin,
+                         # notification
   screens/               # auth, home, listing, requests, my_listings, profile,
-                         # onboarding, admin
+                         # onboarding, notifications, admin
   widgets/               # cards, base64 image, skeletons, publish sheet, ...
-  state/                 # paged_list, app_settings
+  state/                 # paged_list, app_settings, notification_center
   data/algeria_data.dart # 58 wilayas -> communes (static)
   l10n/                  # app_ar.arb (template), app_en.arb, app_fr.arb + gen/
-test/                    # 89 tests
-supabase/migrations/     # 0001..0009 SQL
+test/                    # 98 tests
+supabase/migrations/     # 0001..0011 SQL
 ```
 
-## 11. Install, run, test, build
+## 12. Install, run, test, build
 
 **Requirements:** Flutter 3.29.0 (Dart 3.7.0), JDK 17, Android SDK 35
 (`minSdk 23`).
@@ -203,24 +226,25 @@ Output: `build/app/outputs/flutter-apk/`.
 `android/key.properties` (the password lives in `key.properties`). Both are
 gitignored and must never be committed — back them up safely.
 
-## 12. First admin
+## 13. First admin
 
 The first admin is seeded directly in the database (`public.admins`). After that,
 existing admins can grant/revoke membership from the in-app panel. The seeded
 account for this deployment uses the maintainer's email at wilaya `قسنطينة`,
 commune `الخروب`.
 
-## 13. Limitations
+## 14. Limitations
 
-- No closed-app push notifications (a scheduled local-notification poll is not yet
-  implemented).
+- **No OS/background push.** Notifications are an in-app inbox (live via
+  Realtime, persistent until read); there is deliberately no FCM/APNs provider,
+  so nothing is delivered while the app is closed.
 - Board/admin search is client-side over the loaded pages; listing search is
   server-side.
 - Phone numbers on listings/requests are readable by any signed-in user (the app
   relies on phone contact — no chat).
 - iOS is not configured; the project is Android-first.
 
-## 14. Distribution
+## 15. Distribution
 
 - Source: https://github.com/MoIslam-Dev/ta3awen (branch `main`).
 - Release APKs: https://github.com/MoIslam-Dev/ta3awen-apk.

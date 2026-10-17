@@ -973,4 +973,80 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get profileUpdated => 'Profil mis à jour';
+
+  @override
+  String get notificationsTitle => 'Notifications';
+
+  @override
+  String get notificationsEmpty => 'Aucune notification pour l\'instant';
+
+  @override
+  String get notificationsMarkAllRead => 'Tout marquer comme lu';
+
+  @override
+  String get notifSomeone => 'Un utilisateur';
+
+  @override
+  String get notifListingClaimedTitle => 'Votre annonce a été réservée';
+
+  @override
+  String notifListingClaimedBody(String name) {
+    return '$name a réservé votre annonce, en attente de confirmation';
+  }
+
+  @override
+  String get notifListingReleasedTitle => 'Réservation annulée';
+
+  @override
+  String notifListingReleasedBody(String name) {
+    return '$name a annulé la réservation — l\'annonce est de nouveau disponible';
+  }
+
+  @override
+  String get notifListingGivenTitle => 'Remise confirmée';
+
+  @override
+  String notifListingGivenBody(String name) {
+    return '$name a confirmé la remise de l\'objet';
+  }
+
+  @override
+  String get notifRequestMatchedTitle => 'Quelqu\'un a répondu à votre demande';
+
+  @override
+  String notifRequestMatchedBody(String name) {
+    return '$name peut vous aider pour votre demande';
+  }
+
+  @override
+  String get notifBloodMatchedTitle => 'Un donneur est disponible';
+
+  @override
+  String notifBloodMatchedBody(String name) {
+    return '$name peut donner son sang — contactez rapidement';
+  }
+
+  @override
+  String get notifRequestReleasedTitle => 'Correspondance retirée';
+
+  @override
+  String notifRequestReleasedBody(String name) {
+    return '$name a retiré sa réponse — la publication est de nouveau ouverte';
+  }
+
+  @override
+  String get notifRequestClosedTitle => 'Demande clôturée';
+
+  @override
+  String notifRequestClosedBody(String name) {
+    return '$name a clôturé la publication à laquelle vous avez répondu';
+  }
+
+  @override
+  String get notifReportNewTitle => 'Nouveau signalement';
+
+  @override
+  String notifReportNewBody(String name) {
+    return '$name a envoyé un signalement en attente de traitement';
+  }
 }

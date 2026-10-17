@@ -1968,6 +1968,126 @@ abstract class AppLocalizations {
   /// In ar, this message translates to:
   /// **'تم تحديث الملف الشخصي'**
   String get profileUpdated;
+
+  /// No description provided for @notificationsTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'الإشعارات'**
+  String get notificationsTitle;
+
+  /// No description provided for @notificationsEmpty.
+  ///
+  /// In ar, this message translates to:
+  /// **'لا توجد إشعارات بعد'**
+  String get notificationsEmpty;
+
+  /// No description provided for @notificationsMarkAllRead.
+  ///
+  /// In ar, this message translates to:
+  /// **'تعليم الكل كمقروء'**
+  String get notificationsMarkAllRead;
+
+  /// No description provided for @notifSomeone.
+  ///
+  /// In ar, this message translates to:
+  /// **'أحد المستخدمين'**
+  String get notifSomeone;
+
+  /// No description provided for @notifListingClaimedTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم حجز إعلانك'**
+  String get notifListingClaimedTitle;
+
+  /// No description provided for @notifListingClaimedBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'قام {name} بحجز إعلانك، بانتظار تأكيد التسليم'**
+  String notifListingClaimedBody(String name);
+
+  /// No description provided for @notifListingReleasedTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم إلغاء الحجز'**
+  String get notifListingReleasedTitle;
+
+  /// No description provided for @notifListingReleasedBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'ألغى {name} حجز إعلانك، وهو متاح من جديد'**
+  String notifListingReleasedBody(String name);
+
+  /// No description provided for @notifListingGivenTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم تأكيد التسليم'**
+  String get notifListingGivenTitle;
+
+  /// No description provided for @notifListingGivenBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'أكّد {name} تسليم الغرض لك'**
+  String notifListingGivenBody(String name);
+
+  /// No description provided for @notifRequestMatchedTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'وجد أحدهم ما تحتاجه'**
+  String get notifRequestMatchedTitle;
+
+  /// No description provided for @notifRequestMatchedBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'{name} يمكنه مساعدتك في طلبك'**
+  String notifRequestMatchedBody(String name);
+
+  /// No description provided for @notifBloodMatchedTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'متبرع متاح'**
+  String get notifBloodMatchedTitle;
+
+  /// No description provided for @notifBloodMatchedBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'{name} يستطيع التبرع بالدم — تواصل بسرعة'**
+  String notifBloodMatchedBody(String name);
+
+  /// No description provided for @notifRequestReleasedTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم سحب المطابقة'**
+  String get notifRequestReleasedTitle;
+
+  /// No description provided for @notifRequestReleasedBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'سحب {name} موافقته، والطلب مفتوح من جديد'**
+  String notifRequestReleasedBody(String name);
+
+  /// No description provided for @notifRequestClosedTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'تم إغلاق الطلب'**
+  String get notifRequestClosedTitle;
+
+  /// No description provided for @notifRequestClosedBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'أغلق {name} الطلب الذي كنت مطابقاً له'**
+  String notifRequestClosedBody(String name);
+
+  /// No description provided for @notifReportNewTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'بلاغ جديد'**
+  String get notifReportNewTitle;
+
+  /// No description provided for @notifReportNewBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'أرسل {name} بلاغاً بانتظار المراجعة'**
+  String notifReportNewBody(String name);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

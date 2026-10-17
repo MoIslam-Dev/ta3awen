@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../l10n/ext.dart';
 import '../../services/auth_service.dart';
+import '../../state/notification_center.dart';
 import '../../widgets/publish_sheet.dart';
 import '../auth_gate.dart';
+import '../notifications/notifications_screen.dart';
 import '../onboarding/onboarding_screen.dart';
 import '../profile/profile_screen.dart';
 import 'ask_screen.dart';
@@ -22,6 +24,10 @@ class HomeShell extends StatefulWidget {
 
 class _HomeShellState extends State<HomeShell> {
   int _index = 0;
+
+  // One live inbox for the whole shell: the bell badge and the notifications
+  // screen share it.
+  final NotificationCenter _notifications = NotificationCenter();
 
   // Tabs are created lazily so logging in only starts the feed query
   // instead of firing every listener at once.
@@ -52,7 +58,22 @@ class _HomeShellState extends State<HomeShell> {
   void initState() {
     super.initState();
     _ensurePage(0);
+    _notifications.start();
     WidgetsBinding.instance.addPostFrameCallback((_) => _maybeShowOnboarding());
+  }
+
+  @override
+  void dispose() {
+    _notifications.dispose();
+    super.dispose();
+  }
+
+  void _openNotifications() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => NotificationsScreen(center: _notifications),
+      ),
+    );
   }
 
   Future<void> _maybeShowOnboarding() async {
@@ -97,6 +118,24 @@ class _HomeShellState extends State<HomeShell> {
             Text(_title()),
           ],
         ),
+        actions: [
+          ListenableBuilder(
+            listenable: _notifications,
+            builder: (context, _) {
+              final count = _notifications.unreadCount;
+              return IconButton(
+                tooltip: context.l10n.notificationsTitle,
+                onPressed: _openNotifications,
+                icon: count == 0
+                    ? const Icon(Icons.notifications_none)
+                    : Badge.count(
+                        count: count,
+                        child: const Icon(Icons.notifications_none),
+                      ),
+              );
+            },
+          ),
+        ],
       ),
       body: IndexedStack(
         index: _index,

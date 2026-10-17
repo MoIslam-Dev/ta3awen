@@ -973,4 +973,80 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get profileUpdated => 'تم تحديث الملف الشخصي';
+
+  @override
+  String get notificationsTitle => 'الإشعارات';
+
+  @override
+  String get notificationsEmpty => 'لا توجد إشعارات بعد';
+
+  @override
+  String get notificationsMarkAllRead => 'تعليم الكل كمقروء';
+
+  @override
+  String get notifSomeone => 'أحد المستخدمين';
+
+  @override
+  String get notifListingClaimedTitle => 'تم حجز إعلانك';
+
+  @override
+  String notifListingClaimedBody(String name) {
+    return 'قام $name بحجز إعلانك، بانتظار تأكيد التسليم';
+  }
+
+  @override
+  String get notifListingReleasedTitle => 'تم إلغاء الحجز';
+
+  @override
+  String notifListingReleasedBody(String name) {
+    return 'ألغى $name حجز إعلانك، وهو متاح من جديد';
+  }
+
+  @override
+  String get notifListingGivenTitle => 'تم تأكيد التسليم';
+
+  @override
+  String notifListingGivenBody(String name) {
+    return 'أكّد $name تسليم الغرض لك';
+  }
+
+  @override
+  String get notifRequestMatchedTitle => 'وجد أحدهم ما تحتاجه';
+
+  @override
+  String notifRequestMatchedBody(String name) {
+    return '$name يمكنه مساعدتك في طلبك';
+  }
+
+  @override
+  String get notifBloodMatchedTitle => 'متبرع متاح';
+
+  @override
+  String notifBloodMatchedBody(String name) {
+    return '$name يستطيع التبرع بالدم — تواصل بسرعة';
+  }
+
+  @override
+  String get notifRequestReleasedTitle => 'تم سحب المطابقة';
+
+  @override
+  String notifRequestReleasedBody(String name) {
+    return 'سحب $name موافقته، والطلب مفتوح من جديد';
+  }
+
+  @override
+  String get notifRequestClosedTitle => 'تم إغلاق الطلب';
+
+  @override
+  String notifRequestClosedBody(String name) {
+    return 'أغلق $name الطلب الذي كنت مطابقاً له';
+  }
+
+  @override
+  String get notifReportNewTitle => 'بلاغ جديد';
+
+  @override
+  String notifReportNewBody(String name) {
+    return 'أرسل $name بلاغاً بانتظار المراجعة';
+  }
 }

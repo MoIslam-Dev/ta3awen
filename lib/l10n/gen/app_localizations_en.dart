@@ -973,4 +973,80 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get profileUpdated => 'Profile updated';
+
+  @override
+  String get notificationsTitle => 'Notifications';
+
+  @override
+  String get notificationsEmpty => 'No notifications yet';
+
+  @override
+  String get notificationsMarkAllRead => 'Mark all as read';
+
+  @override
+  String get notifSomeone => 'A user';
+
+  @override
+  String get notifListingClaimedTitle => 'Your listing was reserved';
+
+  @override
+  String notifListingClaimedBody(String name) {
+    return '$name reserved your listing, awaiting confirmation';
+  }
+
+  @override
+  String get notifListingReleasedTitle => 'Reservation released';
+
+  @override
+  String notifListingReleasedBody(String name) {
+    return '$name released the reservation — it\'s available again';
+  }
+
+  @override
+  String get notifListingGivenTitle => 'Delivery confirmed';
+
+  @override
+  String notifListingGivenBody(String name) {
+    return '$name confirmed handing the item over';
+  }
+
+  @override
+  String get notifRequestMatchedTitle => 'Someone responded to your request';
+
+  @override
+  String notifRequestMatchedBody(String name) {
+    return '$name can help with your request';
+  }
+
+  @override
+  String get notifBloodMatchedTitle => 'A donor is available';
+
+  @override
+  String notifBloodMatchedBody(String name) {
+    return '$name can donate blood — reach out quickly';
+  }
+
+  @override
+  String get notifRequestReleasedTitle => 'Match withdrawn';
+
+  @override
+  String notifRequestReleasedBody(String name) {
+    return '$name withdrew their response — the post is open again';
+  }
+
+  @override
+  String get notifRequestClosedTitle => 'Request closed';
+
+  @override
+  String notifRequestClosedBody(String name) {
+    return '$name closed the post you responded to';
+  }
+
+  @override
+  String get notifReportNewTitle => 'New report';
+
+  @override
+  String notifReportNewBody(String name) {
+    return '$name filed a report awaiting review';
+  }
 }
