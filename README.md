@@ -32,8 +32,9 @@ The committed tests (89 tests) cover pure logic, models, widgets and the
 pagination controller, but not the live Supabase-backed flows.
 
 - **Accounts:** email/password registration, login, logout, password reset and a
-  one-tap **Continue with Google** flow (first sign-in completes name + wilaya +
-  commune).
+  one-tap **Continue with Google** flow. After any sign-in the app gates on a
+  **complete profile**: a session whose profile is missing wilaya + commune is
+  routed to the completion screen, never straight into the app.
 - **Feed:** available listings with thumbnail, title, category, condition,
   wilaya+commune and date; live updates on the newest page; pull-to-refresh; and
   cursor pagination.
@@ -65,7 +66,9 @@ Flutter app ──supabase_flutter──► PostgREST   (tables, RLS, RPC)
 - **Auth:** email/password + Google (native id-token exchange). Email
   confirmation is disabled (`mailer_autoconfirm`) so registration signs the user
   in immediately. A DB trigger (`handle_new_user`) seeds a profile row for
-  email/password accounts as a safety net.
+  **every** new auth user (name from metadata/email, empty location); the app's
+  `AuthGate` → `_ProfileGate` then decides between the completion screen and the
+  home shell based on whether wilaya + commune are set.
 - **Database:** Postgres tables `profiles`, `admins`, `listings`, `listing_images`,
   `requests`, `reports`. Authorization is **Row Level Security + guard triggers**
   (the source of truth); the UI only reflects them.
@@ -76,6 +79,8 @@ Flutter app ──supabase_flutter──► PostgREST   (tables, RLS, RPC)
   (or admin).
 - **Counters / lifecycle:** `profiles.post_count` is a server-owned anti-spam
   counter; listing/request status transitions are enforced by triggers.
+- **Demo data:** admins may seed sample listings; the `is_demo` flag labels them
+  and lets admins purge them. Clients cannot forge it.
 
 ### Migrations (`supabase/migrations/`)
 
@@ -86,8 +91,10 @@ Flutter app ──supabase_flutter──► PostgREST   (tables, RLS, RPC)
 | `0003_rls` | Row Level Security policies + grants |
 | `0004_storage` | `listings` bucket + storage policies |
 | `0005_fix_profiles_writes` | column-level profile writes (anti-spam safe) |
-| `0006_search_and_realtime` | `normalize_ar`, normalized `search_text`, Realtime publication |
-| `0007_auto_profile` | auto-create profile for email/password sign-ups |
+| `0006_search_and_realtime` | `normalize_ar`, normalized `search_text`, `is_demo` flag, Realtime publication |
+| `0007_auto_profile` | `handle_new_user` trigger seeding a profile row |
+| `0008_profile_seed_and_grants` | seed a profile for every new auth user (not just email) + restore `service_role` grants |
+| `0009_fix_admin_claim` | normalize the claim shape before the admin fast-path, fixing admin reservations |
 
 ## 4. Listings and requests
 
@@ -171,7 +178,7 @@ lib/
   data/algeria_data.dart # 58 wilayas -> communes (static)
   l10n/                  # app_ar.arb (template), app_en.arb, app_fr.arb + gen/
 test/                    # 89 tests
-supabase/migrations/     # 0001..0007 SQL
+supabase/migrations/     # 0001..0009 SQL
 ```
 
 ## 11. Install, run, test, build
