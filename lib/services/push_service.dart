@@ -35,7 +35,10 @@ class PushService {
 
   final FlutterLocalNotificationsPlugin _local =
       FlutterLocalNotificationsPlugin();
-  final FirebaseMessaging _messaging = FirebaseMessaging.instance;
+
+  // Lazily resolved: `FirebaseMessaging.instance` throws until
+  // `Firebase.initializeApp()` has run, so this must NOT be a field initializer.
+  FirebaseMessaging get _messaging => FirebaseMessaging.instance;
 
   StreamSubscription<AuthState>? _authSub;
   bool _initialized = false;
