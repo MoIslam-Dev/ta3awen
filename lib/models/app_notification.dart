@@ -2,8 +2,10 @@
 /// (see `supabase/migrations/20261016000010_notifications.sql`) and delivered
 /// over Realtime; the app renders a localized message from [type] + [actorName].
 ///
-/// There is no OS push: a row is visible live while the app is open, or on the
-/// next launch otherwise.
+/// Each new row also fans out to the recipient's devices as an OS push (FCM),
+/// so a row can arrive as a system notification while the app is closed; the
+/// push payload's `data` carries the referenced listing/request id for
+/// deep-linking (see `PushService`).
 class AppNotification {
   final String id;
   final String type;

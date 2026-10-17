@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
+import 'core/navigator.dart';
 import 'core/supabase.dart';
 import 'l10n/gen/app_localizations.dart';
 import 'screens/auth_gate.dart';
+import 'services/push_service.dart';
 import 'state/app_settings.dart';
 import 'theme/app_theme.dart';
 
@@ -16,6 +18,11 @@ Future<void> main() async {
   } catch (_) {}
   await AppSettings.instance.load();
   runApp(const Ta3awenApp());
+  // After the first frame: Firebase/FCM setup (it needs the activity for the
+  // notification permission prompt) and device-token registration.
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    PushService.instance.init();
+  });
 }
 
 class Ta3awenApp extends StatelessWidget {
@@ -33,6 +40,7 @@ class Ta3awenApp extends StatelessWidget {
             return MaterialApp(
               title: 'Ta3awen',
               debugShowCheckedModeBanner: false,
+              navigatorKey: appNavigatorKey,
               locale: locale,
               supportedLocales: const [
                 Locale('ar'),
