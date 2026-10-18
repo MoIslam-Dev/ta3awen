@@ -1043,6 +1043,18 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get notifListingExpiredTitle => 'Réservation expirée';
+
+  @override
+  String get notifListingExpiredBody => 'Votre réservation a expiré — l\'annonce est de nouveau disponible';
+
+  @override
+  String get notifRequestExpiredTitle => 'Correspondance expirée';
+
+  @override
+  String get notifRequestExpiredBody => 'Votre correspondance a expiré — la publication est de nouveau ouverte';
+
+  @override
   String get notifReportNewTitle => 'Nouveau signalement';
 
   @override

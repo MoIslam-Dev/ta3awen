@@ -109,6 +109,13 @@ void main() {
       expect(v.body, contains('أحد المستخدمين'));
     });
 
+    testWidgets('listing_expired has its own wording (no actor needed)',
+        (tester) async {
+      final v = await _visual(tester, _n(notifyListingExpired));
+      expect(v.title, 'انتهت صلاحية الحجز');
+      expect(v.body, isNotEmpty);
+    });
+
     testWidgets('unknown type falls back to the generic title',
         (tester) async {
       final v = await _visual(tester, _n('something_else', actor: 'x'));
@@ -126,6 +133,8 @@ void main() {
         notifyRequestReleased,
         notifyRequestClosed,
         notifyReportNew,
+        notifyListingExpired,
+        notifyRequestExpired,
       ];
       for (final t in types) {
         final v = await _visual(tester, _n(t, actor: 'سامي'));

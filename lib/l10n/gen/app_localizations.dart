@@ -2077,6 +2077,30 @@ abstract class AppLocalizations {
   /// **'أغلق {name} الطلب الذي كنت مطابقاً له'**
   String notifRequestClosedBody(String name);
 
+  /// No description provided for @notifListingExpiredTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'انتهت صلاحية الحجز'**
+  String get notifListingExpiredTitle;
+
+  /// No description provided for @notifListingExpiredBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'انتهت مدة حجزك، والإعلان متاح من جديد'**
+  String get notifListingExpiredBody;
+
+  /// No description provided for @notifRequestExpiredTitle.
+  ///
+  /// In ar, this message translates to:
+  /// **'انتهت صلاحية المطابقة'**
+  String get notifRequestExpiredTitle;
+
+  /// No description provided for @notifRequestExpiredBody.
+  ///
+  /// In ar, this message translates to:
+  /// **'انتهت مدة مطابقتك، والطلب مفتوح من جديد'**
+  String get notifRequestExpiredBody;
+
   /// No description provided for @notifReportNewTitle.
   ///
   /// In ar, this message translates to:

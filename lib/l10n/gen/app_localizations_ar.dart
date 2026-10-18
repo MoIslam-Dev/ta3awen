@@ -1043,6 +1043,18 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get notifListingExpiredTitle => 'انتهت صلاحية الحجز';
+
+  @override
+  String get notifListingExpiredBody => 'انتهت مدة حجزك، والإعلان متاح من جديد';
+
+  @override
+  String get notifRequestExpiredTitle => 'انتهت صلاحية المطابقة';
+
+  @override
+  String get notifRequestExpiredBody => 'انتهت مدة مطابقتك، والطلب مفتوح من جديد';
+
+  @override
   String get notifReportNewTitle => 'بلاغ جديد';
 
   @override

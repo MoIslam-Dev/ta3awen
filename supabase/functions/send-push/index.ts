@@ -69,6 +69,16 @@ const STRINGS: Record<string, Record<Locale, { title: string; body: string }>> =
     en: { title: "New report", body: "{name} filed a report awaiting review" },
     fr: { title: "Nouveau signalement", body: "{name} a envoyé un signalement en attente de traitement" },
   },
+  listing_expired: {
+    ar: { title: "انتهت صلاحية الحجز", body: "انتهت مدة حجزك، والإعلان متاح من جديد" },
+    en: { title: "Reservation expired", body: "Your reservation lapsed — the listing is available again" },
+    fr: { title: "Réservation expirée", body: "Votre réservation a expiré — l'annonce est de nouveau disponible" },
+  },
+  request_expired: {
+    ar: { title: "انتهت صلاحية المطابقة", body: "انتهت مدة مطابقتك، والطلب مفتوح من جديد" },
+    en: { title: "Match expired", body: "Your match lapsed — the post is open again" },
+    fr: { title: "Correspondance expirée", body: "Votre correspondance a expiré — la publication est de nouveau ouverte" },
+  },
 };
 
 const SOMEONE: Record<Locale, string> = { ar: "أحد المستخدمين", en: "A user", fr: "Un utilisateur" };

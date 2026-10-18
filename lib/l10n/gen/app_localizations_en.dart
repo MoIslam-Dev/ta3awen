@@ -1043,6 +1043,18 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get notifListingExpiredTitle => 'Reservation expired';
+
+  @override
+  String get notifListingExpiredBody => 'Your reservation lapsed — the listing is available again';
+
+  @override
+  String get notifRequestExpiredTitle => 'Match expired';
+
+  @override
+  String get notifRequestExpiredBody => 'Your match lapsed — the post is open again';
+
+  @override
   String get notifReportNewTitle => 'New report';
 
   @override

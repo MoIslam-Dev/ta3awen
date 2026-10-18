@@ -43,7 +43,11 @@ pagination controller, but not the live Supabase-backed flows.
   category, wilaya and commune filters.
 - **Listings lifecycle:** create, edit, delete; `متاح` → `محجوز` → `تم التبرع به`.
 - **Reservations:** any signed-in non-owner can reserve ("claim"); owner confirms
-  delivery; owner or claimant can release.
+  delivery; owner or claimant can release. A user may hold at most a few active
+  reservations at once (anti-hoarding), and an unconfirmed reservation
+  **auto-releases** after 48 h so a silent claimant can never lock an item
+  forever. Board/blood matches expire the same way (blood is shortest, 12 h).
+  All timers are tunable server-side in `app_config`.
 - **Community board ("أطلب"):** `need`/`offer` posts with category + wilaya +
   commune filters, plus a dedicated **blood-donation** board.
 - **Reporting:** any signed-in user can report a listing (fixed reason list).
@@ -95,6 +99,12 @@ notifications row ──trigger──► pg_net (net.http_post) ──► send-p
   (or admin).
 - **Counters / lifecycle:** `profiles.post_count` is a server-owned anti-spam
   counter; listing/request status transitions are enforced by triggers.
+- **Lifecycle hygiene (reads stay in the DB):** a `pg_cron` job runs
+  `expire_stale_reservations()` every 15 min to auto-release stale reservations
+  and matches; the policy (TTLs, per-user cap) lives in the `app_config` table.
+  The client is unchanged — it still reads `status = 'متاح'` / `status = 'open'`
+  — so this adds **no client reads** (it actually removes the need for clients
+  to poll or re-check).
 - **Demo data:** admins may seed sample listings; the `is_demo` flag labels them
   and lets admins purge them. Clients cannot forge it.
 
@@ -114,6 +124,7 @@ notifications row ──trigger──► pg_net (net.http_post) ──► send-p
 | `0010_notifications` | notification inbox: table, RLS, lifecycle triggers, Realtime |
 | `0011_fix_admin_match` | normalize the match shape before the admin fast-path, fixing admin request matches |
 | `0012_device_tokens` | FCM push transport: `device_tokens` + RLS, `register`/`unregister_device_token` RPCs, `pg_net` + `notifications_send_push` trigger calling the `send-push` Edge Function |
+| `0013_lifecycle` | reservation/match hygiene: `app_config` policy table, `expire_stale_reservations()` run every 15 min by `pg_cron`, per-user reservation cap, partial indexes, `listing_expired`/`request_expired` notification types |
 
 ## 4. Listings and requests
 
@@ -185,6 +196,10 @@ unregistered. On the device, `PushService` (`lib/services/push_service.dart`):
 Push uses FCM as the transport only; the inbox and all data stay in Supabase.
 `device_tokens` is protected by RLS (each user sees/deletes only their own) and
 tokens are written exclusively through the RPCs.
+
+When a reservation or match lapses, the expiry job emits `listing_expired` /
+`request_expired` **only to the person whose hold lapsed** (the owner/author is
+not paged — the reopen itself is silent). See `20261018000013_lifecycle.sql`.
 
 ## 9. Languages and theme
 

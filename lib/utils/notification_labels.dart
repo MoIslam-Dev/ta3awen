@@ -75,6 +75,18 @@ NotificationVisual notificationVisual(
         title: l.notifReportNewTitle,
         body: l.notifReportNewBody(name),
       );
+    case notifyListingExpired:
+      return NotificationVisual(
+        icon: Icons.timer_off_outlined,
+        title: l.notifListingExpiredTitle,
+        body: l.notifListingExpiredBody,
+      );
+    case notifyRequestExpired:
+      return NotificationVisual(
+        icon: Icons.timer_off_outlined,
+        title: l.notifRequestExpiredTitle,
+        body: l.notifRequestExpiredBody,
+      );
     default:
       return NotificationVisual(
         icon: Icons.notifications_none,

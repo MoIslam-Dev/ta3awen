@@ -69,3 +69,5 @@ const String notifyBloodMatched = 'blood_matched';
 const String notifyRequestReleased = 'request_released';
 const String notifyRequestClosed = 'request_closed';
 const String notifyReportNew = 'report_new';
+const String notifyListingExpired = 'listing_expired';
+const String notifyRequestExpired = 'request_expired';

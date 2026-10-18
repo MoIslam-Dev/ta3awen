@@ -464,6 +464,10 @@
   "notifRequestClosedTitle": "Request closed",
   "notifRequestClosedBody": "{name} closed the post you responded to",
   "@notifRequestClosedBody": { "placeholders": { "name": { "type": "String" } } },
+  "notifListingExpiredTitle": "Reservation expired",
+  "notifListingExpiredBody": "Your reservation lapsed — the listing is available again",
+  "notifRequestExpiredTitle": "Match expired",
+  "notifRequestExpiredBody": "Your match lapsed — the post is open again",
   "notifReportNewTitle": "New report",
   "notifReportNewBody": "{name} filed a report awaiting review",
   "@notifReportNewBody": { "placeholders": { "name": { "type": "String" } } }

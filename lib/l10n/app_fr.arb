@@ -464,6 +464,10 @@
   "notifRequestClosedTitle": "Demande clôturée",
   "notifRequestClosedBody": "{name} a clôturé la publication à laquelle vous avez répondu",
   "@notifRequestClosedBody": { "placeholders": { "name": { "type": "String" } } },
+  "notifListingExpiredTitle": "Réservation expirée",
+  "notifListingExpiredBody": "Votre réservation a expiré — l'annonce est de nouveau disponible",
+  "notifRequestExpiredTitle": "Correspondance expirée",
+  "notifRequestExpiredBody": "Votre correspondance a expiré — la publication est de nouveau ouverte",
   "notifReportNewTitle": "Nouveau signalement",
   "notifReportNewBody": "{name} a envoyé un signalement en attente de traitement",
   "@notifReportNewBody": { "placeholders": { "name": { "type": "String" } } }

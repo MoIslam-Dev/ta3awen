@@ -464,6 +464,10 @@
   "notifRequestClosedTitle": "تم إغلاق الطلب",
   "notifRequestClosedBody": "أغلق {name} الطلب الذي كنت مطابقاً له",
   "@notifRequestClosedBody": { "placeholders": { "name": { "type": "String" } } },
+  "notifListingExpiredTitle": "انتهت صلاحية الحجز",
+  "notifListingExpiredBody": "انتهت مدة حجزك، والإعلان متاح من جديد",
+  "notifRequestExpiredTitle": "انتهت صلاحية المطابقة",
+  "notifRequestExpiredBody": "انتهت مدة مطابقتك، والطلب مفتوح من جديد",
   "notifReportNewTitle": "بلاغ جديد",
   "notifReportNewBody": "أرسل {name} بلاغاً بانتظار المراجعة",
   "@notifReportNewBody": { "placeholders": { "name": { "type": "String" } } }
